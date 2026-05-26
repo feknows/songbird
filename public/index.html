@@ -779,9 +779,10 @@ async function carregarProdutosAdmin() {
         html += `</tbody></table>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Módulos</strong> <button class="btn btn-sm btn-success" onclick="adicionarModulo(${p.id})" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;text-align:left;">Preços</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const m of (modulos || [])) {
           html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">${m.nome}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);"><button class="btn btn-sm btn-secondary" onclick="editarPrecosModulo(${m.id},${p.id})">✎</button></td>`;
           html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table></div>`;
@@ -892,6 +893,63 @@ function deletarModulo(id, nome) {
       alert(e.message);
     }
   });
+}
+
+let editandoPrecosModuloId = null;
+
+async function editarPrecosModulo(moduloId, produtoId) {
+  editandoPrecosModuloId = moduloId;
+  const [{ data: faixas }, { data: precos }] = await Promise.all([
+    supabase.from('faixas').select('*').eq('produto_id', produtoId).order('ordem').order('id'),
+    supabase.from('modulo_precos').select('*').eq('modulo_id', moduloId)
+  ]);
+  const precosMap = {};
+  for (const p of (precos || [])) precosMap[p.faixa_id] = p.valor;
+  const { data: mod } = await supabase.from('modulos').select('nome').eq('id', moduloId).single();
+  const nomeModulo = mod?.nome || 'Módulo';
+
+  let html = '<div style="margin-bottom:16px;"><strong>Editar preços — ' + nomeModulo + '</strong></div>';
+  html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-bottom:16px;"><thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:6px 8px;text-align:left;">Faixa</th><th style="padding:6px 8px;text-align:left;">Valor (R$)</th></tr></thead><tbody>';
+  for (const f of (faixas || [])) {
+    const valor = precosMap[f.id];
+    const valorStr = valor !== undefined ? valor.toFixed(2).replace('.', ',') : '';
+    html += '<tr><td style="padding:6px 8px;border-bottom:1px solid rgba(15,0,0,0.12);">' + f.descricao + '</td>';
+    html += '<td style="padding:6px 8px;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="preco-faixa-input" data-faixa-id="' + f.id + '" value="' + valorStr + '" placeholder="usar padrão" oninput="formatCurrency(this)" style="width:120px;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;outline:none;"></td></tr>';
+  }
+  html += '</tbody></table>';
+  html += '<div class="actions"><button class="btn btn-secondary" onclick="fecharModalPrecosModulo()">Cancelar</button>';
+  html += '<button class="btn btn-success" onclick="salvarPrecosModulo()">Salvar</button></div>';
+
+  const modal = document.getElementById('modal-precos-modulo');
+  modal.querySelector('.modal-precos-body').innerHTML = html;
+  modal.style.display = 'flex';
+}
+
+async function salvarPrecosModulo() {
+  const inputs = document.querySelectorAll('.preco-faixa-input');
+  const promises = [];
+  for (const input of inputs) {
+    const faixaId = parseInt(input.dataset.faixaId);
+    const valStr = input.value.trim();
+    if (valStr) {
+      const valor = parseFloat(valStr.replace(/\./g, '').replace(',', '.')) || 0;
+      promises.push(supabase.from('modulo_precos').upsert({ modulo_id: editandoPrecosModuloId, faixa_id: faixaId, valor }, { onConflict: 'modulo_id,faixa_id' }));
+    } else {
+      promises.push(supabase.from('modulo_precos').delete().eq('modulo_id', editandoPrecosModuloId).eq('faixa_id', faixaId));
+    }
+  }
+  try {
+    await Promise.all(promises);
+    fecharModalPrecosModulo();
+    carregarProdutosAdmin();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function fecharModalPrecosModulo() {
+  document.getElementById('modal-precos-modulo').style.display = 'none';
+  editandoPrecosModuloId = null;
 }
 
 // === MÁSCARAS ===
@@ -1057,6 +1115,9 @@ function pLimpar() {
 // === PRODUTOS (carregar do banco) ===
 let faixasAlarme = [];
 let modulosAlarme = [];
+let moduloPrecos = {};
+let faixaIdAtual = null;
+let faixaIdModulo = null;
 
 async function carregarProdutos() {
   try {
@@ -1066,43 +1127,49 @@ async function carregarProdutos() {
 
     const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', moniBase.id).order('ordem').order('id');
     const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', moniBase.id).order('id');
+    const { data: precos } = await supabase.from('modulo_precos').select('*');
     faixasAlarme = faixas || [];
     modulosAlarme = modulos || [];
+    moduloPrecos = {};
+    for (const p of (precos || [])) {
+      if (!moduloPrecos[p.modulo_id]) moduloPrecos[p.modulo_id] = {};
+      moduloPrecos[p.modulo_id][p.faixa_id] = p.valor;
+    }
 
     // Preencher select de faixas
     const select = document.getElementById('a-faixa');
     select.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
-      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor: f.valor_base, valor_modulo: f.valor_modulo}))}">${f.descricao} = R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor: f.valor_base, valor_modulo: f.valor_modulo, id: f.id}))}">${f.descricao} = R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
     // Preencher módulos no Moni Alarme
     const container = document.getElementById('a-modulos-container');
     container.innerHTML = modulosAlarme.map(m =>
-      `<div class="modulo-card" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
     ).join('');
 
     // Preencher faixas no Módulo Adicional
     const mSelect = document.getElementById('m-faixa');
     mSelect.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
-      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_modulo: f.valor_modulo}))}">${f.descricao}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_modulo: f.valor_modulo, id: f.id}))}">${f.descricao}</option>`
     ).join('');
 
     // Preencher módulos no Módulo Adicional
     const mContainer = document.getElementById('m-modulos');
     mContainer.innerHTML = modulosAlarme.map(m =>
-      `<div class="modulo-card" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
     ).join('');
 
     // Preencher faixas no Verificar Desconto
     const dSelect = document.getElementById('d-faixa');
     dSelect.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
-      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo, id: f.id}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
     // Preencher faixas no upgrade
     const dNovaSelect = document.getElementById('d-nova-faixa');
     dNovaSelect.innerHTML = '<option value="">Selecione a nova faixa</option>' + faixasAlarme.map(f =>
-      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo, id: f.id}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
     // Tabela do Verificar Desconto: apenas linha da faixa
@@ -1118,16 +1185,30 @@ let valorModuloModulo = 0;
 
 function aFaixaChange() {
   const select = document.getElementById('a-faixa');
-  if (!select.value) return;
+  if (!select.value) { faixaIdAtual = null; return; }
   const faixa = JSON.parse(decodeURIComponent(select.value));
+  faixaIdAtual = faixa.id;
   valorModuloAtual = faixa.valor_modulo || 0;
+  document.querySelectorAll('#form-alarme .modulo-card').forEach(c => {
+    const mid = parseInt(c.dataset.moduloId);
+    const valor = moduloPrecos[mid]?.[faixaIdAtual];
+    const el = c.querySelector('.a-m-valor');
+    if (el) el.value = valor !== undefined ? (Math.floor(valor).toLocaleString('pt-BR') + ',' + String(Math.round((valor - Math.floor(valor)) * 100)).padStart(2, '0')) : '';
+  });
 }
 
 function mFaixaChange() {
   const select = document.getElementById('m-faixa');
-  if (!select.value) { valorModuloModulo = 0; return; }
+  if (!select.value) { valorModuloModulo = 0; faixaIdModulo = null; return; }
   const faixa = JSON.parse(decodeURIComponent(select.value));
+  faixaIdModulo = faixa.id;
   valorModuloModulo = faixa.valor_modulo || 0;
+  document.querySelectorAll('#m-modulos .modulo-card').forEach(c => {
+    const mid = parseInt(c.dataset.moduloId);
+    const valor = moduloPrecos[mid]?.[faixaIdModulo];
+    const el = c.querySelector('.m-valor');
+    if (el) el.value = valor !== undefined ? (Math.floor(valor).toLocaleString('pt-BR') + ',' + String(Math.round((valor - Math.floor(valor)) * 100)).padStart(2, '0')) : '';
+  });
 }
 
 // === ALARME ===
@@ -1135,11 +1216,15 @@ function aMToggle(el) {
   const checkbox = el.querySelector('input[type="checkbox"]');
   checkbox.checked = !checkbox.checked;
   el.classList.toggle('selected', checkbox.checked);
-  if (checkbox.checked && valorModuloAtual > 0) {
-    const valorInput = el.querySelector('.a-m-valor');
-    const reais = Math.floor(valorModuloAtual);
-    const centavos = Math.round((valorModuloAtual - reais) * 100);
-    valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+  if (checkbox.checked) {
+    const moduloId = parseInt(el.dataset.moduloId);
+    const valor = moduloPrecos[moduloId]?.[faixaIdAtual] ?? valorModuloAtual;
+    if (valor > 0) {
+      const valorInput = el.querySelector('.a-m-valor');
+      const reais = Math.floor(valor);
+      const centavos = Math.round((valor - reais) * 100);
+      valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+    }
   }
 }
 
@@ -1195,11 +1280,15 @@ function mToggle(el) {
   const checkbox = el.querySelector('input[type="checkbox"]');
   checkbox.checked = !checkbox.checked;
   el.classList.toggle('selected', checkbox.checked);
-  if (checkbox.checked && valorModuloModulo > 0) {
-    const valorInput = el.querySelector('.m-valor');
-    const reais = Math.floor(valorModuloModulo);
-    const centavos = Math.round((valorModuloModulo - reais) * 100);
-    valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+  if (checkbox.checked) {
+    const moduloId = parseInt(el.dataset.moduloId);
+    const valor = moduloPrecos[moduloId]?.[faixaIdModulo] ?? valorModuloModulo;
+    if (valor > 0) {
+      const valorInput = el.querySelector('.m-valor');
+      const reais = Math.floor(valor);
+      const centavos = Math.round((valor - reais) * 100);
+      valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+    }
   }
 }
 
@@ -1269,7 +1358,7 @@ function dAddModRow() {
   const tr = document.createElement('tr');
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
-  const modOptions = modulosAlarme.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  const modOptions = modulosAlarme.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
   tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid rgba(15,0,0,0.12);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:#ff3b30;font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
   tbody.appendChild(tr);
   tr.querySelector('.d-mod-select').focus();
@@ -1278,8 +1367,10 @@ function dAddModRow() {
 function dModSelectChange(sel) {
   const row = sel.closest('tr');
   if (sel.value && dFaixaData) {
-    const reais = Math.floor(dFaixaData.valor_modulo);
-    const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
+    const modId = parseInt(sel.value);
+    const valor = moduloPrecos[modId]?.[dFaixaData.id] ?? dFaixaData.valor_modulo;
+    const reais = Math.floor(valor);
+    const centavos = Math.round((valor - reais) * 100);
     row.querySelector('.d-mod-esperado').value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
   }
   dAutoCalc();
@@ -1404,14 +1495,17 @@ function dNovaFaixaChange() {
     const chk = row.querySelector('input[type="checkbox"]');
     if (!chk || !chk.checked) return;
     qtdMod++;
+    const select = row.querySelector('.d-mod-select');
+    const modId = select ? parseInt(select.value) : 0;
     const pagoInput = row.querySelector('.d-pago');
     const pagoVal = pagoInput ? parseCurrency(pagoInput.value) : 0;
-    const modValAtual = pagoVal > 0 ? pagoVal : dFaixaData.valor_modulo;
+    const modValAtual = pagoVal > 0 ? pagoVal : (modId ? (moduloPrecos[modId]?.[dFaixaData.id] ?? dFaixaData.valor_modulo) : dFaixaData.valor_modulo);
     totalModAtual += modValAtual;
-    totalModNovo += novaFaixa.valor_modulo;
+    const modValNovo = modId ? (moduloPrecos[modId]?.[novaFaixa.id] ?? novaFaixa.valor_modulo) : novaFaixa.valor_modulo;
+    totalModNovo += modValNovo;
   });
 
-  const difMod = qtdMod > 0 ? novaFaixa.valor_modulo - (totalModAtual / qtdMod) : 0;
+  const difMod = qtdMod > 0 ? (totalModNovo / qtdMod) - (totalModAtual / qtdMod) : 0;
 
   const totalAtual = valorBaseAtual + totalModAtual;
   const totalNovo = novaFaixa.valor_base + totalModNovo;
@@ -1643,17 +1737,25 @@ async function orcamentoProdutoChange(el) {
   }
 
   try {
-    const [{ data: faixas }, { data: modulos }] = await Promise.all([
+    const [{ data: faixas }, { data: modulos }, { data: precos }] = await Promise.all([
       supabase.from('faixas').select('*').eq('produto_id', produtoId).order('ordem').order('id'),
-      supabase.from('modulos').select('*').eq('produto_id', produtoId).order('id')
+      supabase.from('modulos').select('*').eq('produto_id', produtoId).order('id'),
+      supabase.from('modulo_precos').select('*')
     ]);
 
     faixaSelect.innerHTML = '<option value="">Selecione a faixa</option>' + (faixas || []).map(f =>
-      `<option value="${encodeURIComponent(JSON.stringify({desc:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo}))}">${f.descricao}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,id:f.id}))}">${f.descricao}</option>`
     ).join('');
 
+    const precosMap = {};
+    for (const p of (precos || [])) {
+      if (!precosMap[p.modulo_id]) precosMap[p.modulo_id] = {};
+      precosMap[p.modulo_id][p.faixa_id] = p.valor;
+    }
+    item.dataset.precos = JSON.stringify(precosMap);
+
     modContainer.innerHTML = (modulos || []).map(m =>
-      `<div class="modulo-card" onclick="orcamentoModToggle(this)">
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="orcamentoModToggle(this)">
         <div class="modulo-nome">
           <input type="checkbox" onclick="event.stopPropagation()" onchange="orcamentoModToggle(this.parentElement.parentElement)">
           ${m.nome}
@@ -1685,14 +1787,17 @@ function orcamentoFaixaChange(el) {
   }
 
   const faixa = JSON.parse(decodeURIComponent(el.value));
-  const intPart = Math.floor(faixa.valor_modulo);
-  const centPart = Math.round((faixa.valor_modulo - intPart) * 100);
-  const modValorStr = intPart.toLocaleString('pt-BR') + ',' + String(centPart).padStart(2, '0');
+  const precosMap = {};
+  try { Object.assign(precosMap, JSON.parse(item.dataset.precos || '{}')); } catch (_) {}
 
   valorDiv.value = faixa.valor_base.toFixed(2).replace('.', ',');
 
   modCards.forEach(card => {
-    card.querySelector('.o-mod-valor').textContent = modValorStr;
+    const mid = parseInt(card.dataset.moduloId);
+    const valor = precosMap[mid]?.[faixa.id] ?? faixa.valor_modulo;
+    const intPart = Math.floor(valor);
+    const centPart = Math.round((valor - intPart) * 100);
+    card.querySelector('.o-mod-valor').textContent = intPart.toLocaleString('pt-BR') + ',' + String(centPart).padStart(2, '0');
   });
 
   orcamentoAtualizarResumo();
@@ -1927,6 +2032,17 @@ function executarConfirm() {
         <button class="btn btn-success" onclick="salvarModulo()">Criar</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- MODAL PREÇOS MÓDULO -->
+<div id="modal-precos-modulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalPrecosModulo()">
+  <div style="background:#fdfcfc;color:#201d1d;max-width:500px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
+      <span style="font-weight:700;">Preços do Módulo</span>
+      <span onclick="fecharModalPrecosModulo()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+    </div>
+    <div style="padding:20px;" class="modal-precos-body"></div>
   </div>
 </div>
 
