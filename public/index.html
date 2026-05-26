@@ -804,7 +804,7 @@ function adicionarFaixa(produtoId, tipo) {
   document.getElementById('modal-faixa-vm').value = '';
   document.getElementById('modal-faixa-id').value = '';
   document.getElementById('modal-faixa-tipo').value = tipo || '';
-  document.getElementById('modal-faixa-vm-wrapper').style.display = tipo === 'alarme' ? 'block' : 'none';
+  document.getElementById('modal-faixa-vm-wrapper').style.display = 'block';
   document.getElementById('modal-nova-faixa').style.display = 'flex';
   setTimeout(() => document.getElementById('modal-faixa-desc').focus(), 100);
 }
@@ -816,7 +816,7 @@ function editarFaixa(data) {
   document.getElementById('modal-faixa-vm').value = data.valor_modulo.toFixed(2).replace('.', ',');
   document.getElementById('modal-faixa-id').value = data.id;
   document.getElementById('modal-faixa-tipo').value = data.tipo || '';
-  document.getElementById('modal-faixa-vm-wrapper').style.display = data.tipo === 'alarme' ? 'block' : 'none';
+  document.getElementById('modal-faixa-vm-wrapper').style.display = 'block';
   document.getElementById('modal-nova-faixa').style.display = 'flex';
   setTimeout(() => document.getElementById('modal-faixa-desc').focus(), 100);
 }
@@ -825,7 +825,7 @@ async function salvarFaixa() {
   const desc = document.getElementById('modal-faixa-desc').value.trim();
   const vb = parseFloat(document.getElementById('modal-faixa-vb').value.replace(/\./g, '').replace(',', '.')) || 0;
   const tipo = document.getElementById('modal-faixa-tipo').value;
-  const vm = tipo === 'alarme' ? (parseFloat(document.getElementById('modal-faixa-vm').value.replace(/\./g, '').replace(',', '.')) || 0) : 0;
+  const vm = parseFloat(document.getElementById('modal-faixa-vm').value.replace(/\./g, '').replace(',', '.')) || 0;
   if (!desc) { alert('Preencha a descrição da faixa.'); return; }
   const faixaId = document.getElementById('modal-faixa-id').value;
   try {
