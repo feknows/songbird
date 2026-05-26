@@ -1,0 +1,2037 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SongBird</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body { font-family: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace; background: #fdfcfc; color: #201d1d; }
+
+  /* Login */
+  #login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #fdfcfc; z-index: 1000; }
+  .login-box { background: #fdfcfc; padding: 40px 36px; width: 360px; border: 1px solid rgba(15,0,0,0.12); border-radius: 0; }
+  .login-box h1 { font-size: 1.3rem; margin-bottom: 4px; text-align: center; }
+  .login-box p { font-size: 0.85rem; color: #646262; margin-bottom: 24px; text-align: center; }
+  .login-box .field { margin-bottom: 16px; }
+  .login-box .field label { display: block; font-size: 0.8rem; font-weight: 500; color: #646262; margin-bottom: 4px; }
+  .login-box .field input { width: 100%; padding: 10px 12px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; outline: none; background: #f8f7f7; }
+  .login-box .field input:focus { border-color: #201d1d; background: #fdfcfc; }
+  .login-box .login-error { color: #ff3b30; font-size: 0.8rem; margin-top: 8px; display: none; }
+  .login-box .btn { width: 100%; padding: 10px; background: #201d1d; color: #fdfcfc; border: none; border-radius: 4px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+  .login-box .btn:hover { background: #0f0000; }
+  .login-box .btn:disabled { opacity: 0.6; cursor: not-allowed; background: #f1eeee; color: #9a9898; }
+
+  /* Layout */
+  #app { display: none; width: 100%; height: 100%; }
+  .app-inner { display: flex; width: 100%; height: 100%; }
+  .sidebar { width: 200px; flex-shrink: 0; background: #201d1d; color: #fdfcfc; display: flex; flex-direction: column; }
+  .sidebar-header { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .sidebar-header h2 { font-size: 1rem; color: #fdfcfc; font-weight: 700; }
+  .sidebar-header span { font-size: 0.75rem; color: #9a9898; }
+  .sidebar-nav { flex: 1; padding: 8px 0; }
+  .sidebar-nav button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; background: none; border: none; color: #9a9898; font-size: 0.88rem; text-align: left; cursor: pointer; }
+  .sidebar-nav button:hover { background: #302c2c; color: #fdfcfc; }
+  .sidebar-nav button.active { background: #302c2c; color: #fdfcfc; }
+  .sidebar-footer { padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .sidebar-footer button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; background: none; border: none; color: #9a9898; font-size: 0.88rem; text-align: left; cursor: pointer; }
+  .sidebar-footer button:hover { background: #302c2c; color: #ff3b30; }
+  .main-content { flex: 1; padding: 24px 32px; overflow-y: auto; min-width: 0; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Home */
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+  .home-card { background: #fdfcfc; padding: 24px; border: 1px solid rgba(15,0,0,0.12); }
+  .home-card h3 { font-size: 0.85rem; color: #646262; margin-bottom: 4px; }
+  .home-card .value { font-size: 1.5rem; font-weight: 700; color: #201d1d; }
+
+  /* Vendas */
+  #hub h1 { font-size: 1.5rem; margin-bottom: 24px; color: #201d1d; }
+  .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .hub-card { background: #fdfcfc; padding: 28px 24px; cursor: pointer; border: 1px solid rgba(15,0,0,0.12); }
+  .hub-card:hover { border-color: #201d1d; }
+  .hub-card .icon { font-size: 2rem; margin-bottom: 12px; }
+  .hub-card h3 { font-size: 1.05rem; margin-bottom: 6px; color: #201d1d; }
+  .hub-card p { font-size: 0.85rem; color: #646262; }
+  #form-container { display: none; }
+  .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .form-header h1 { font-size: 1.3rem; }
+  .btn-back { background: none; border: none; color: #201d1d; font-size: 0.9rem; cursor: pointer; font-weight: 500; padding: 4px 8px; border-radius: 4px; }
+  .btn-back:hover { background: #f8f7f7; }
+  .panel { background: #fdfcfc; padding: 24px; margin-bottom: 20px; border: 1px solid rgba(15,0,0,0.12); }
+  .panel h2 { font-size: 1rem; margin-bottom: 16px; color: #646262; }
+  .row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .field { flex: 1; min-width: 150px; }
+  .field label { display: block; font-size: 0.8rem; font-weight: 500; color: #646262; margin-bottom: 4px; }
+  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; outline: none; font-family: inherit; background: #f8f7f7; }
+  .field input:focus, .field textarea:focus, .field select:focus { border-color: #201d1d; background: #fdfcfc; }
+  .field select, .styled-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: #f8f7f7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23646262' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 10px center; padding-right: 30px; cursor: pointer; }
+  .field select:hover, .styled-select:hover { border-color: #646262; }
+  .field select option, .styled-select option { padding: 8px; background: #fdfcfc; color: #201d1d; }
+  .field select { cursor: pointer; }
+  .item-row { display: grid; grid-template-columns: 100px 1fr 36px; gap: 8px; margin-bottom: 8px; align-items: end; }
+  .item-row .field { min-width: 0; }
+  .btn { padding: 8px 16px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 500; }
+  .btn-primary { background: #201d1d; color: #fdfcfc; }
+  .btn-primary:hover { background: #0f0000; }
+  .btn-success { background: #30d158; color: #201d1d; }
+  .btn-success:hover { background: #28a745; }
+  .btn-danger { background: #ff3b30; color: #fdfcfc; padding: 8px 10px; font-size: 0.9rem; }
+  .btn-danger:hover { background: #d70015; }
+  .btn-secondary { background: #fdfcfc; color: #201d1d; border: 1px solid #646262; }
+  .btn-secondary:hover { background: #f8f7f7; }
+  .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
+  .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+  .output-panel { background: #201d1d; color: #fdfcfc; border-radius: 0; padding: 20px; white-space: pre-wrap; font-family: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; min-height: 200px; margin-bottom: 12px; }
+  .output-actions { display: flex; gap: 8px; }
+  .copied-msg { color: #30d158; font-size: 0.85rem; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
+  .copied-msg.show { opacity: 1; }
+  .total-display { margin-top: 12px; font-size: 0.95rem; font-weight: 600; color: #201d1d; }
+  .inline-radio-group { display: flex; gap: 16px; margin-top: 4px; }
+  .inline-radio-group label { font-size: 0.85rem; font-weight: 400; color: #201d1d; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .inline-radio-group input[type="radio"] { accent-color: #201d1d; width: auto; }
+  .modulo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+  .modulo-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); padding: 12px 14px; cursor: pointer; user-select: none; }
+  .modulo-card:hover { border-color: #646262; }
+  .modulo-card.selected { border-color: #201d1d; background: #f8f7f7; }
+  .modulo-card .modulo-nome { font-size: 0.9rem; font-weight: 600; color: #201d1d; display: flex; align-items: center; gap: 8px; }
+  .modulo-card .modulo-nome input[type="checkbox"] { display: none; }
+  .modulo-card .modulo-valor { margin-top: 8px; display: none; }
+  .modulo-card.selected .modulo-valor { display: block; }
+  .modulo-card .modulo-valor input { width: 100%; padding: 6px 8px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.85rem; outline: none; background: #f8f7f7; }
+  .modulo-card .modulo-valor input:focus { border-color: #201d1d; background: #fdfcfc; }
+
+  /* Config */
+  .config-section { background: #fdfcfc; padding: 24px; margin-bottom: 20px; border: 1px solid rgba(15,0,0,0.12); max-width: 500px; }
+  .config-section h2 { font-size: 1rem; margin-bottom: 16px; color: #646262; }
+  .config-section .field { margin-bottom: 12px; }
+  .config-section .success-msg { color: #30d158; font-size: 0.8rem; font-weight: 500; display: none; margin-top: 8px; }
+  .config-section .success-msg.show { display: block; }
+  .config-section .error-msg { color: #ff3b30; font-size: 0.8rem; font-weight: 500; display: none; margin-top: 8px; }
+  .config-section .error-msg.show { display: block; }
+
+  /* User management */
+  .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .user-table th, .user-table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(15,0,0,0.12); font-size: 0.85rem; }
+  .user-table th { color: #646262; font-weight: 600; font-size: 0.8rem; }
+  .admin-badge { background: #201d1d; color: #fdfcfc; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+  .user-badge { background: #f8f7f7; color: #646262; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+  .create-user-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: end; }
+  .create-user-row .field { min-width: 120px; }
+
+  /* Config tabs */
+  .config-tabs { display: flex; gap: 0; margin-bottom: 20px; max-width: 500px; border-bottom: 1px solid #646262; }
+  .config-tab { flex: 1; padding: 8px 16px; border: none; background: transparent; font-size: 0.85rem; font-weight: 500; color: #646262; cursor: pointer; }
+  .config-tab:hover { color: #201d1d; }
+  .config-tab.active { color: #201d1d; border-bottom: 2px solid #9a9898; }
+  .config-tab-content { display: none; }
+  .config-tab-content.active { display: block; }
+  .config-tab-content .config-section { max-width: 500px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>Sistema de Vendas</h1>
+    <p>Faça login para continuar</p>
+    <div class="field">
+      <label>Usuário</label>
+      <input type="text" id="login-user" placeholder="admin">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="login-pass" placeholder="senha" onkeydown="if(event.key==='Enter')fazerLogin()">
+    </div>
+    <div class="login-error" id="login-error">Usuário ou senha inválidos.</div>
+    <button class="btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+<div class="app-inner">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h2>SongBird</h2>
+      <span id="sidebar-user">carregando...</span>
+    </div>
+    <div class="sidebar-nav">
+      <button class="active" onclick="navegar('home')">🏠 Home</button>
+      <button onclick="navegar('vendas')">📋 Vendas</button>
+      <button onclick="navegar('config')">⚙️ Configurações</button>
+    </div>
+    <div class="sidebar-footer">
+      <button onclick="fazerLogout()">🚪 Sair</button>
+    </div>
+  </div>
+
+  <!-- CONTEÚDO -->
+  <div class="main-content">
+
+    <!-- HOME -->
+    <div class="page active" id="page-home">
+      <h1 style="font-size:1.5rem;">Home</h1>
+      <p style="color:#646262;margin-top:4px;">Bem-vindo ao SongBird.</p>
+      <div class="home-grid">
+        <div class="home-card">
+          <h3>Modelos de Venda</h3>
+          <div class="value">3</div>
+          <p style="font-size:0.8rem;color:#646262;margin-top:4px;">Portaria, Moni Alarme, Módulos</p>
+        </div>
+        <div class="home-card">
+          <h3>Acesso rápido</h3>
+          <p style="font-size:0.85rem;margin-top:8px;">
+            <a href="#" onclick="navegar('vendas');return false;" style="color:#201d1d;">Ir para Vendas →</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- VENDAS -->
+    <div class="page" id="page-vendas">
+      <!-- HUB -->
+      <div id="hub">
+        <h1>Registro de Vendas</h1>
+        <div class="hub-grid">
+          <div class="hub-card" onclick="abrirForm('portaria')">
+            <div class="icon">🏢</div>
+            <h3>Licenças de portaria</h3>
+            <p>Portaria Virtual, Controle de Acesso, Portaria Autônoma</p>
+          </div>
+          <div class="hub-card" onclick="abrirForm('alarme')">
+            <div class="icon">🔐</div>
+            <h3>Moni Alarme</h3>
+            <p>Licença do Moni com faixa de contas</p>
+          </div>
+          <div class="hub-card" onclick="abrirForm('modulo')">
+            <div class="icon">🧩</div>
+            <h3>Módulo Adicional</h3>
+            <p>Moni Discador, Imagens, Mensagens, Mobile, Veículos, Web</p>
+          </div>
+          <div class="hub-card" onclick="abrirForm('desconto')">
+            <div class="icon">🏷️</div>
+            <h3>Verificar Desconto<br>Mudança de Faixa</h3>
+            <p>Calcule descontos e simule upgrades de faixa</p>
+          </div>
+          <div class="hub-card" onclick="abrirForm('orcamento')">
+            <div class="icon">📄</div>
+            <h3>Orçamento</h3>
+            <p>Crie orçamentos combinando múltiplos produtos</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM CONTAINER -->
+      <div id="form-container">
+
+        <!-- PORTARIA -->
+        <div id="form-portaria" style="display:none;">
+          <div class="form-header">
+            <button class="btn-back" onclick="voltarHub()">← Voltar</button>
+            <h1>Licenças de portaria</h1>
+          </div>
+          <div class="panel">
+            <h2>Dados da Venda</h2>
+            <div class="row">
+              <div class="field">
+                <label>Negociado com</label>
+                <input type="text" id="p-cliente" placeholder="Ex: Cleber">
+              </div>
+              <div class="field">
+                <label>Licença de</label>
+                <select id="p-licenca">
+                  <option value="Portaria Virtual">Portaria Virtual</option>
+                  <option value="Controle de Acesso">Controle de Acesso</option>
+                  <option value="Portaria Autonoma">Portaria Autônoma</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Quantidade total</label>
+                <input type="number" id="p-quantidade" placeholder="Ex: 8" min="1">
+              </div>
+              <div class="field">
+                <label>Valor unitário (R$)</label>
+                <input type="text" id="p-valorUnitario" placeholder="R$ 0,00" oninput="formatCurrency(this)">
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Pagamento para</label>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="p-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
+                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                </div>
+              </div>
+              <div class="field">
+                <label>Período teste</label>
+                <select id="p-observacoes">
+                  <option value="">Nenhum</option>
+                  <option value="Período teste pode ser removido">Período teste pode ser removido</option>
+                  <option value="Período teste pode ser mantido">Período teste pode ser mantido</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Portarias</h2>
+            <div id="p-items-container"></div>
+            <button class="btn btn-primary btn-sm" onclick="pAddItem()">+ Adicionar portaria</button>
+          </div>
+          <div class="actions">
+            <button class="btn btn-success" onclick="pGerar()">Gerar texto</button>
+            <button class="btn btn-secondary" onclick="pLimpar()">Limpar</button>
+          </div>
+          <div class="total-display" id="p-totalDisplay"></div>
+          <div class="panel" style="margin-top:20px;">
+            <h2>Texto formatado</h2>
+            <div class="output-panel" id="p-output">Preencha os dados e clique em "Gerar texto"</div>
+            <div class="output-actions">
+              <button class="btn btn-primary btn-sm" onclick="copiar('p-output','p-copiedMsg')">Copiar</button>
+              <span class="copied-msg" id="p-copiedMsg">Copiado!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULO -->
+        <div id="form-modulo" style="display:none;">
+          <div class="form-header">
+            <button class="btn-back" onclick="voltarHub()">← Voltar</button>
+            <h1>Módulo Adicional</h1>
+          </div>
+          <div class="panel">
+            <h2>Dados da Venda</h2>
+            <div class="row">
+              <div class="field">
+                <label>Negociado com</label>
+                <input type="text" id="m-cliente" placeholder="Ex: João">
+              </div>
+              <div class="field">
+                <label>Pagamento para</label>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="m-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
+                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Período teste</label>
+                <div class="inline-radio-group">
+                  <label><input type="radio" name="m-teste" value="remover" checked> Pode ser removido</label>
+                  <label><input type="radio" name="m-teste" value="manter"> Deve ser mantido</label>
+                </div>
+              </div>
+            </div>
+          </div>
+            <div class="panel">
+              <h2>Faixa de Clientes</h2>
+              <div class="field">
+                <select id="m-faixa" onchange="mFaixaChange()">
+                  <option value="">Selecione uma faixa</option>
+                </select>
+              </div>
+            </div>
+            <div class="panel">
+              <h2>Módulos</h2>
+              <p style="font-size:0.85rem;color:#646262;margin-bottom:12px;">Selecione os módulos. O valor será preenchido automaticamente conforme a faixa.</p>
+              <div class="modulo-grid" id="m-modulos"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-success" onclick="mGerar()">Gerar texto</button>
+            <button class="btn btn-secondary" onclick="mLimpar()">Limpar</button>
+          </div>
+          <div class="total-display" id="m-totalDisplay"></div>
+          <div class="panel" style="margin-top:20px;">
+            <h2>Texto formatado</h2>
+            <div class="output-panel" id="m-output">Preencha os dados e clique em "Gerar texto"</div>
+            <div class="output-actions">
+              <button class="btn btn-primary btn-sm" onclick="copiar('m-output','m-copiedMsg')">Copiar</button>
+              <span class="copied-msg" id="m-copiedMsg">Copiado!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ALARME -->
+        <div id="form-alarme" style="display:none;">
+          <div class="form-header">
+            <button class="btn-back" onclick="voltarHub()">← Voltar</button>
+            <h1>Moni Alarme</h1>
+          </div>
+          <div class="panel">
+            <h2>Dados da Venda</h2>
+            <div class="row">
+              <div class="field">
+                <label>Negociado com</label>
+                <input type="text" id="a-cliente" placeholder="Ex: João">
+              </div>
+              <div class="field">
+                <label>Pagamento para</label>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="a-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
+                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Período teste</label>
+                <div class="inline-radio-group">
+                  <label><input type="radio" name="a-teste" value="remover" checked> Pode ser removido</label>
+                  <label><input type="radio" name="a-teste" value="manter"> Deve ser mantido</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Faixa de Contas</h2>
+            <div class="field">
+              <select id="a-faixa" onchange="aFaixaChange()">
+                <option value="">Carregando...</option>
+              </select>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Módulos Adicionais</h2>
+            <p style="font-size:0.85rem;color:#646262;margin-bottom:12px;">Selecione e informe o valor, se houver.</p>
+              <div class="modulo-grid" id="a-modulos-container">
+                <div class="modulo-card" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> Carregando...</div></div>
+              </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-success" onclick="aGerar()">Gerar texto</button>
+            <button class="btn btn-secondary" onclick="aLimpar()">Limpar</button>
+          </div>
+          <div class="total-display" id="a-totalDisplay"></div>
+          <div class="panel" style="margin-top:20px;">
+            <h2>Texto formatado</h2>
+            <div class="output-panel" id="a-output">Preencha os dados e clique em "Gerar texto"</div>
+            <div class="output-actions">
+              <button class="btn btn-primary btn-sm" onclick="copiar('a-output','a-copiedMsg')">Copiar</button>
+              <span class="copied-msg" id="a-copiedMsg">Copiado!</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESCONTO -->
+        <div id="form-desconto" style="display:none;">
+          <div class="form-header">
+            <button class="btn-back" onclick="voltarHub()">← Voltar</button>
+            <h1>Verificar Desconto<br>Mudança de Faixa</h1>
+          </div>
+          <div class="panel">
+            <h2>Dados do Cliente</h2>
+            <div class="row">
+              <div class="field">
+                <label>Negociado com</label>
+                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;">
+              </div>
+              <div class="field">
+                <label>Pagamento para</label>
+                <div style="display:flex;gap:4px;">
+                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;">
+                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Período teste</label>
+                <div class="inline-radio-group">
+                  <label><input type="radio" name="d-teste" value="remover" checked> Pode ser removido</label>
+                  <label><input type="radio" name="d-teste" value="manter"> Deve ser mantido</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <h2>Faixa de Clientes</h2>
+            <div class="field">
+              <select id="d-faixa" onchange="dFaixaChange()">
+                <option value="">Selecione uma faixa</option>
+              </select>
+            </div>
+          </div>
+          <div class="panel" style="overflow-x:auto;">
+            <h2>Comparativo de Desconto</h2>
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
+              <thead>
+                <tr style="background:#f8f7f7;">
+                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid rgba(15,0,0,0.12);">Item</th>
+                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid rgba(15,0,0,0.12);width:70px;">Possui?</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(15,0,0,0.12);width:140px;">Valor Esperado</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(15,0,0,0.12);width:160px;">Valor Pago</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(15,0,0,0.12);width:120px;">Desconto %</th>
+                </tr>
+              </thead>
+              <tbody id="d-tabela-body"></tbody>
+              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid #201d1d;"></tfoot>
+            </table>
+            <button class="btn btn-sm btn-secondary" onclick="dAddModRow()" style="margin-top:8px;">+ Adicionar módulo</button>
+          </div>
+          <div class="panel" id="d-upgrade-panel" style="display:none;">
+            <h2>Mudança de Faixa (Upgrade)</h2>
+            <div class="field">
+              <label>Nova faixa</label>
+              <select id="d-nova-faixa" onchange="dNovaFaixaChange()">
+                <option value="">Selecione a nova faixa</option>
+              </select>
+            </div>
+            <div id="d-upgrade-result" style="margin-top:12px;"></div>
+            <button class="btn btn-sm btn-primary" onclick="dAplicarDesconto()" style="margin-top:8px;">Aplicar mesmo % de desconto na nova faixa</button>
+          </div>
+          <div class="actions">
+            <button class="btn btn-success" onclick="dCalcular()">Calcular desconto</button>
+            <button class="btn btn-primary" onclick="dMudarFaixa()">Mudar faixa</button>
+            <button class="btn btn-secondary" onclick="dLimpar()">Limpar</button>
+          </div>
+          <div class="output-panel" id="d-output" style="margin-top:16px;">Preencha os dados e clique em "Calcular desconto"</div>
+          <div class="output-actions" style="margin-top:8px;">
+            <button class="btn btn-primary btn-sm" onclick="copiar('d-output','d-copiedMsg')">Copiar</button>
+            <span class="copied-msg" id="d-copiedMsg">Copiado!</span>
+          </div>
+        </div>
+
+        <!-- ORÇAMENTO -->
+        <div id="form-orcamento" style="display:none;">
+          <div class="form-header">
+            <button class="btn-back" onclick="voltarHub()">← Voltar</button>
+            <h1>Orçamento</h1>
+          </div>
+          <div class="panel" style="max-width:100%;">
+            <h2>Itens do Orçamento</h2>
+            <div id="orcamento-items"></div>
+            <button class="btn btn-primary btn-sm" onclick="orcamentoAddItem()">+ Adicionar Item</button>
+          </div>
+          <div class="panel">
+            <h2>Resumo</h2>
+            <div id="orcamento-resumo" style="font-size:0.85rem;line-height:1.8;"><span style="color:#9a9898;">Adicione itens e selecione produtos/faixas</span></div>
+            <div class="total-display" id="orcamento-total" style="margin-top:8px;"></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-success" onclick="orcamentoGerar()">Gerar Texto</button>
+            <button class="btn btn-secondary" onclick="orcamentoLimpar()">Limpar</button>
+          </div>
+          <div class="total-display" id="orcamento-totalDisplay"></div>
+          <div class="panel" style="margin-top:20px;">
+            <h2>Texto formatado</h2>
+            <div class="output-panel" id="orcamento-output">Adicione itens e clique em "Gerar Texto"</div>
+            <div class="output-actions">
+              <button class="btn btn-primary btn-sm" onclick="copiar('orcamento-output','orcamento-copiedMsg')">Copiar</button>
+              <span class="copied-msg" id="orcamento-copiedMsg">Copiado!</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="page" id="page-config">
+      <h1 style="font-size:1.5rem;">Configurações</h1>
+      <p style="color:#646262;margin-top:4px;margin-bottom:20px;">Altere sua senha e gerencie o sistema.</p>
+
+      <div class="config-tabs" id="config-tabs">
+        <button class="config-tab active" onclick="configTab('senha')" id="cfg-btn-senha">Minha Senha</button>
+        <button class="config-tab" onclick="configTab('usuarios')" id="cfg-btn-usuarios" style="display:none;">Usuários</button>
+        <button class="config-tab" onclick="configTab('produtos')" id="cfg-btn-produtos" style="display:none;">Produtos</button>
+      </div>
+
+      <div class="config-tab-content active" id="cfg-tab-senha">
+        <div class="config-section">
+          <h2>Alterar minha senha</h2>
+          <div class="field">
+            <label>Senha atual</label>
+            <input type="password" id="cfg-senha-atual" placeholder="Senha atual">
+          </div>
+          <div class="field">
+            <label>Nova senha</label>
+            <input type="password" id="cfg-senha-nova" placeholder="Nova senha">
+          </div>
+          <div class="field">
+            <label>Confirmar nova senha</label>
+            <input type="password" id="cfg-senha-confirm" placeholder="Confirme a senha">
+          </div>
+          <button class="btn btn-primary" onclick="alterarMinhaSenha()">Alterar senha</button>
+          <div class="success-msg" id="cfg-senha-ok"></div>
+          <div class="error-msg" id="cfg-senha-erro"></div>
+        </div>
+      </div>
+
+      <div class="config-tab-content" id="cfg-tab-usuarios">
+        <div class="config-section">
+          <h2>Gerenciar Usuários</h2>
+          <table class="user-table">
+            <thead><tr><th>ID</th><th>Usuário</th><th>Permissão</th><th>Criado em</th><th>Ações</th></tr></thead>
+            <tbody id="user-table-body"></tbody>
+          </table>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(15,0,0,0.12);">
+            <strong style="font-size:0.85rem;color:#646262;">Criar novo usuário</strong>
+            <div class="create-user-row">
+              <div class="field"><input type="text" id="new-user-nome" placeholder="Usuário"></div>
+              <div class="field"><input type="password" id="new-user-senha" placeholder="Senha"></div>
+              <div class="field">
+                <select id="new-user-permissao">
+                  <option value="user">Usuário</option>
+                  <option value="admin">Admin</option>
+                </select>
+              </div>
+              <button class="btn btn-success btn-sm" onclick="criarUsuario()" style="height:36px;">Criar</button>
+            </div>
+            <div class="success-msg" id="cfg-user-ok"></div>
+            <div class="error-msg" id="cfg-user-erro"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-tab-content" id="cfg-tab-produtos">
+        <div class="config-section" style="max-width:100%;">
+          <h2>Gerenciar Produtos</h2>
+          <div id="admin-produtos"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// === SUPABASE INIT ===
+const SUPABASE_URL = 'https://seu-projeto.supabase.co';
+const SUPABASE_ANON_KEY = 'sua-chave-anon';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function sha256(str) {
+  const enc = new TextEncoder().encode(str);
+  const hash = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// === SESSION ===
+let currentUser = null;
+
+async function checkSession() {
+  const userId = sessionStorage.getItem('songbird-user-id');
+  if (!userId) return;
+  try {
+    const { data } = await supabase.from('usuarios').select('*').eq('id', parseInt(userId)).single();
+    if (data) {
+      currentUser = data;
+      document.getElementById('sidebar-user').textContent = data.nome;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      if (data.permissao === 'admin') {
+        document.getElementById('cfg-btn-usuarios').style.display = 'block';
+        document.getElementById('cfg-btn-produtos').style.display = 'block';
+      }
+    }
+  } catch (e) {}
+}
+
+async function fazerLogin() {
+  const nome = document.getElementById('login-user').value.trim();
+  const senha = document.getElementById('login-pass').value.trim();
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  try {
+    const hash = await sha256(senha);
+    const { data, error } = await supabase.from('usuarios').select('*').eq('nome', nome).eq('senha', hash).maybeSingle();
+    if (error) throw error;
+    if (data) {
+      currentUser = data;
+      sessionStorage.setItem('songbird-user-id', data.id);
+      document.getElementById('sidebar-user').textContent = data.nome;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      document.getElementById('login-error').style.display = 'none';
+      if (data.permissao === 'admin') {
+        document.getElementById('cfg-btn-usuarios').style.display = 'block';
+        document.getElementById('cfg-btn-produtos').style.display = 'block';
+      }
+    } else {
+      throw new Error('Invalid');
+    }
+  } catch (e) {
+    document.getElementById('login-error').textContent = 'Usuário ou senha inválidos';
+    document.getElementById('login-error').style.display = 'block';
+  }
+  btn.disabled = false;
+}
+
+async function fazerLogout() {
+  sessionStorage.removeItem('songbird-user-id');
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// === NAVEGAÇÃO ===
+function configTab(tab) {
+  document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.config-tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('cfg-btn-' + tab).classList.add('active');
+  document.getElementById('cfg-tab-' + tab).classList.add('active');
+  if (tab === 'usuarios') carregarUsuarios();
+  if (tab === 'produtos') carregarProdutosAdmin();
+}
+
+function navegar(pagina) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pagina).classList.add('active');
+  const map = {home:'Home',vendas:'Vendas',config:'Configurações'};
+  document.querySelectorAll('.sidebar-nav button').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(map[pagina]));
+  });
+}
+
+// === CONFIG - SENHA ===
+async function alterarMinhaSenha() {
+  const senhaAtual = document.getElementById('cfg-senha-atual').value.trim();
+  const senhaNova = document.getElementById('cfg-senha-nova').value.trim();
+  const confirm = document.getElementById('cfg-senha-confirm').value.trim();
+  const ok = document.getElementById('cfg-senha-ok');
+  const erro = document.getElementById('cfg-senha-erro');
+  ok.classList.remove('show'); erro.classList.remove('show');
+  if (!senhaAtual || !senhaNova || !confirm) { erro.textContent = 'Preencha todos os campos.'; erro.classList.add('show'); return; }
+  if (senhaNova !== confirm) { erro.textContent = 'Senhas não conferem.'; erro.classList.add('show'); return; }
+  try {
+    const hashAtual = await sha256(senhaAtual);
+    if (currentUser.senha !== hashAtual) { erro.textContent = 'Senha atual incorreta.'; erro.classList.add('show'); return; }
+    const hashNova = await sha256(senhaNova);
+    await supabase.from('usuarios').update({ senha: hashNova }).eq('id', currentUser.id);
+    currentUser.senha = hashNova;
+    document.getElementById('cfg-senha-atual').value = '';
+    document.getElementById('cfg-senha-nova').value = '';
+    document.getElementById('cfg-senha-confirm').value = '';
+    ok.textContent = 'Senha alterada com sucesso!';
+    ok.classList.add('show');
+    setTimeout(() => ok.classList.remove('show'), 3000);
+  } catch (e) {
+    erro.textContent = e.message;
+    erro.classList.add('show');
+  }
+}
+
+// === CONFIG - USUÁRIOS (admin) ===
+async function carregarUsuarios() {
+  try {
+    const { data: usuarios } = await supabase.from('usuarios').select('*').order('id');
+    const tbody = document.getElementById('user-table-body');
+    tbody.innerHTML = (usuarios || []).map(u => `
+      <tr id="user-row-${u.id}">
+        <td>${u.id}</td>
+        <td id="user-name-${u.id}"><span id="user-name-text-${u.id}">${u.nome}</span></td>
+        <td><span class="${u.permissao === 'admin' ? 'admin-badge' : 'user-badge'}">${u.permissao === 'admin' ? 'Admin' : 'Usuário'}</span></td>
+        <td>${u.criado_em ? u.criado_em.slice(0,10) : '-'}</td>
+        <td id="user-actions-${u.id}">
+          <button class="btn btn-primary btn-sm" onclick="editarUsuario(${u.id})" style="margin-right:4px;">Editar</button>
+          ${u.permissao !== 'admin' || (usuarios || []).filter(x => x.permissao === 'admin').length > 1
+            ? `<button class="btn btn-danger btn-sm" onclick="deletarUsuario(${u.id})">Remover</button>`
+            : ''}
+        </td>
+      </tr>
+    `).join('');
+  } catch (e) {}
+}
+
+async function criarUsuario() {
+  const nome = document.getElementById('new-user-nome').value.trim();
+  const senha = document.getElementById('new-user-senha').value.trim();
+  const permissao = document.getElementById('new-user-permissao').value;
+  const ok = document.getElementById('cfg-user-ok');
+  const erro = document.getElementById('cfg-user-erro');
+  ok.classList.remove('show'); erro.classList.remove('show');
+  if (!nome || !senha) { erro.textContent = 'Preencha nome e senha.'; erro.classList.add('show'); return; }
+  try {
+    const hash = await sha256(senha);
+    await supabase.from('usuarios').insert({ nome, senha: hash, permissao });
+    document.getElementById('new-user-nome').value = '';
+    document.getElementById('new-user-senha').value = '';
+    carregarUsuarios();
+    ok.textContent = 'Usuário criado com sucesso!';
+    ok.classList.add('show');
+    setTimeout(() => ok.classList.remove('show'), 3000);
+  } catch (e) {
+    erro.textContent = e.message;
+    erro.classList.add('show');
+  }
+}
+
+let editandoId = null;
+
+function editarUsuario(id) {
+  if (editandoId) cancelarEdicao(editandoId);
+  editandoId = id;
+  const nomeEl = document.getElementById('user-name-text-' + id);
+  const nomeAtual = nomeEl.textContent;
+  nomeEl.innerHTML = `<input type="text" id="edit-input-${id}" value="${nomeAtual}" style="width:140px;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;outline:none;" onkeydown="if(event.key==='Enter')salvarEdicao(${id});if(event.key==='Escape')cancelarEdicao(${id})">`;
+  document.getElementById('edit-input-' + id).focus();
+  const actionsEl = document.getElementById('user-actions-' + id);
+  actionsEl.innerHTML = `
+    <button class="btn btn-success btn-sm" onclick="salvarEdicao(${id})" style="margin-right:4px;">Salvar</button>
+    <button class="btn btn-secondary btn-sm" onclick="cancelarEdicao(${id})">Cancelar</button>
+  `;
+}
+
+async function salvarEdicao(id) {
+  const input = document.getElementById('edit-input-' + id);
+  const novoNome = input.value.trim();
+  if (!novoNome) return;
+  try {
+    await supabase.from('usuarios').update({ nome: novoNome }).eq('id', id);
+    carregarUsuarios();
+    editandoId = null;
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function cancelarEdicao(id) {
+  carregarUsuarios();
+  editandoId = null;
+}
+
+async function deletarUsuario(id) {
+  if (!confirm('Tem certeza que deseja remover este usuário?')) return;
+  try {
+    await supabase.from('usuarios').delete().eq('id', id);
+    carregarUsuarios();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+// === ADMIN PRODUTOS ===
+function criarProduto() {
+  document.getElementById('modal-produto-nome').value = '';
+  document.getElementById('modal-produto-tipo').value = '';
+  document.getElementById('modal-novo-produto').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-produto-nome').focus(), 100);
+}
+
+async function salvarNovoProduto() {
+  const nome = document.getElementById('modal-produto-nome').value.trim();
+  const tipo = document.getElementById('modal-produto-tipo').value.trim();
+  if (!nome || !tipo) { alert('Preencha nome e tipo.'); return; }
+  try {
+    const { data: maxOrdem } = await supabase.from('produtos').select('ordem').order('ordem', { ascending: false }).limit(1);
+    await supabase.from('produtos').insert({ nome, tipo, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 });
+    fecharModalProduto();
+    carregarProdutosAdmin();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function fecharModalProduto() {
+  document.getElementById('modal-novo-produto').style.display = 'none';
+}
+
+function deletarProduto(id, nome) {
+  confirmarAcao('Remover Produto', `Remover "${nome}" e todas as suas faixas/módulos?`, async () => {
+    try {
+      await supabase.from('produtos').delete().eq('id', id);
+      carregarProdutosAdmin();
+    } catch (e) {
+      alert(e.message);
+    }
+  });
+}
+
+async function carregarProdutosAdmin() {
+  const div = document.getElementById('admin-produtos');
+  try {
+    const { data: produtos } = await supabase.from('produtos').select('*').order('ordem').order('id');
+    let html = `<button class="btn btn-sm btn-success" onclick="criarProduto()" style="margin-bottom:12px;">+ Novo Produto</button>`;
+
+    const grupos = {};
+    for (const p of (produtos || [])) {
+      if (!grupos[p.tipo]) grupos[p.tipo] = [];
+      grupos[p.tipo].push(p);
+    }
+
+    for (const [tipo, prods] of Object.entries(grupos)) {
+      const nomesTipo = { 'alarme': '🔔 Moni Alarme' };
+      html += `<div style="margin:20px 0 6px 0;font-size:0.8rem;color:#9a9898;text-transform:uppercase;letter-spacing:0.5px;">${nomesTipo[tipo] || tipo}</div>`;
+
+      for (const p of prods) {
+        const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', p.id).order('ordem').order('id');
+        const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', p.id).order('id');
+        const ehAlarme = p.tipo === 'alarme';
+        html += `<div style="background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;margin-bottom:12px;">`;
+        html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
+        html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Faixas</strong> <button class="btn btn-sm btn-success" onclick="adicionarFaixa(${p.id},'${p.tipo}')" style="margin-left:8px;">+</button></div>`;
+        html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
+        html += `<thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th>${ehAlarme ? '<th style="padding:4px 6px;text-align:left;">Valor Módulo</th>' : ''}<th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        for (const f of (faixas || [])) {
+          const fdata = JSON.stringify({id:f.id,descricao:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,tipo:p.tipo});
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">${f.descricao}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
+          if (ehAlarme) html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+        }
+        html += `</tbody></table>`;
+        html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Módulos</strong> <button class="btn btn-sm btn-success" onclick="adicionarModulo(${p.id})" style="margin-left:8px;">+</button></div>`;
+        html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
+        html += `<thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        for (const m of (modulos || [])) {
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">${m.nome}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+        }
+        html += `</tbody></table></div>`;
+      }
+    }
+
+    div.innerHTML = html;
+  } catch (e) {
+    div.innerHTML = `<span style="color:red;">Erro ao carregar produtos: ${e.message}</span>`;
+  }
+}
+
+let faixaProdutoId = null;
+
+function adicionarFaixa(produtoId, tipo) {
+  faixaProdutoId = produtoId;
+  document.getElementById('modal-faixa-titulo').textContent = 'Nova Faixa';
+  document.getElementById('modal-faixa-desc').value = '';
+  document.getElementById('modal-faixa-vb').value = '';
+  document.getElementById('modal-faixa-vm').value = '';
+  document.getElementById('modal-faixa-id').value = '';
+  document.getElementById('modal-faixa-tipo').value = tipo || '';
+  document.getElementById('modal-faixa-vm-wrapper').style.display = tipo === 'alarme' ? 'block' : 'none';
+  document.getElementById('modal-nova-faixa').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-faixa-desc').focus(), 100);
+}
+
+function editarFaixa(data) {
+  faixaProdutoId = null;
+  document.getElementById('modal-faixa-titulo').textContent = 'Editar Faixa';
+  document.getElementById('modal-faixa-desc').value = data.descricao;
+  document.getElementById('modal-faixa-vb').value = data.valor_base.toFixed(2).replace('.', ',');
+  document.getElementById('modal-faixa-vm').value = data.valor_modulo.toFixed(2).replace('.', ',');
+  document.getElementById('modal-faixa-id').value = data.id;
+  document.getElementById('modal-faixa-tipo').value = data.tipo || '';
+  document.getElementById('modal-faixa-vm-wrapper').style.display = data.tipo === 'alarme' ? 'block' : 'none';
+  document.getElementById('modal-nova-faixa').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-faixa-desc').focus(), 100);
+}
+
+async function salvarFaixa() {
+  const desc = document.getElementById('modal-faixa-desc').value.trim();
+  const vb = parseFloat(document.getElementById('modal-faixa-vb').value.replace(/\./g, '').replace(',', '.')) || 0;
+  const tipo = document.getElementById('modal-faixa-tipo').value;
+  const vm = tipo === 'alarme' ? (parseFloat(document.getElementById('modal-faixa-vm').value.replace(/\./g, '').replace(',', '.')) || 0) : 0;
+  if (!desc) { alert('Preencha a descrição da faixa.'); return; }
+  const faixaId = document.getElementById('modal-faixa-id').value;
+  try {
+    if (faixaId) {
+      await supabase.from('faixas').update({ descricao: desc, valor_base: vb, valor_modulo: vm }).eq('id', parseInt(faixaId));
+    } else {
+      const { data: maxOrdem } = await supabase.from('faixas').select('ordem').eq('produto_id', faixaProdutoId).order('ordem', { ascending: false }).limit(1);
+      await supabase.from('faixas').insert({ produto_id: faixaProdutoId, descricao: desc, valor_base: vb, valor_modulo: vm, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 });
+    }
+    fecharModalFaixa();
+    carregarProdutosAdmin();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function fecharModalFaixa() {
+  document.getElementById('modal-nova-faixa').style.display = 'none';
+}
+
+function deletarFaixa(id, desc) {
+  confirmarAcao('Remover Faixa', `Remover a faixa "${desc}"?`, async () => {
+    try {
+      await supabase.from('faixas').delete().eq('id', id);
+      carregarProdutosAdmin();
+    } catch (e) {
+      alert(e.message);
+    }
+  });
+}
+
+let moduloProdutoId = null;
+
+function adicionarModulo(produtoId) {
+  moduloProdutoId = produtoId;
+  document.getElementById('modal-modulo-nome').value = '';
+  document.getElementById('modal-novo-modulo').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-modulo-nome').focus(), 100);
+}
+
+async function salvarModulo() {
+  const nome = document.getElementById('modal-modulo-nome').value.trim();
+  if (!nome) { alert('Preencha o nome do módulo.'); return; }
+  try {
+    await supabase.from('modulos').insert({ produto_id: moduloProdutoId, nome });
+    fecharModalModulo();
+    carregarProdutosAdmin();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function fecharModalModulo() {
+  document.getElementById('modal-novo-modulo').style.display = 'none';
+}
+
+function deletarModulo(id, nome) {
+  confirmarAcao('Remover Módulo', `Remover o módulo "${nome}"?`, async () => {
+    try {
+      await supabase.from('modulos').delete().eq('id', id);
+      carregarProdutosAdmin();
+    } catch (e) {
+      alert(e.message);
+    }
+  });
+}
+
+// === MÁSCARAS ===
+function abrirCalendario(inputId) {
+  const input = document.getElementById(inputId);
+  document.querySelector('.temp-date-picker')?.remove();
+  const rect = input.getBoundingClientRect();
+  const temp = document.createElement('input');
+  temp.type = 'date';
+  temp.className = 'temp-date-picker';
+  temp.style.cssText = `
+    position: fixed;
+    left: ${rect.left}px;
+    top: ${rect.top}px;
+    width: ${rect.width}px;
+    height: ${rect.height}px;
+    opacity: 0.99;
+    color: transparent;
+    background: transparent;
+    border: none;
+    outline: none;
+    z-index: 10000;
+  `;
+  temp.addEventListener('change', () => {
+    if (temp.value) {
+      const [ano, mes, dia] = temp.value.split('-');
+      input.value = `${dia}/${mes}/${ano}`;
+    }
+    temp.remove();
+  });
+  temp.addEventListener('blur', () => setTimeout(() => temp.remove(), 500));
+  document.body.appendChild(temp);
+  temp.focus();
+  setTimeout(() => {
+    try { temp.showPicker(); } catch (e) { temp.click(); }
+  }, 50);
+}
+
+function formatDate(input) {
+  let val = input.value.replace(/\D/g, '').slice(0, 8);
+  if (val.length > 4) val = val.slice(0, 2) + '/' + val.slice(2, 4) + '/' + val.slice(4);
+  else if (val.length > 2) val = val.slice(0, 2) + '/' + val.slice(2);
+  input.value = val;
+}
+
+function formatDateShort(input) {
+  let val = input.value.replace(/\D/g, '').slice(0, 6);
+  if (val.length > 4) val = val.slice(0, 2) + '/' + val.slice(2, 4) + '/' + val.slice(4);
+  else if (val.length > 2) val = val.slice(0, 2) + '/' + val.slice(2);
+  input.value = val;
+}
+
+function formatCurrency(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length === 0) { input.value = ''; return; }
+  v = v.padStart(3, '0');
+  let reais = v.slice(0, -2).replace(/^0+/, '') || '0';
+  let centavos = v.slice(-2);
+  reais = reais.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  input.value = reais + ',' + centavos;
+}
+
+function parseCurrency(str) {
+  return parseFloat(str.replace(/\./g, '').replace(',', '.')) || 0;
+}
+
+function pluralizar(nome) {
+  const map = {
+    'Portaria Virtual': 'Portarias Virtuais',
+    'Controle de Acesso': 'Controles de Acesso',
+    'Portaria Autonoma': 'Portarias Autônomas',
+  };
+  return map[nome] || nome + 's';
+}
+
+// === NAVEGAÇÃO VENDAS ===
+function abrirForm(tipo) {
+  document.getElementById('hub').style.display = 'none';
+  document.getElementById('form-container').style.display = 'block';
+  document.getElementById('form-' + tipo).style.display = 'block';
+  if (tipo === 'orcamento') orcamentoAddItem();
+}
+
+function voltarHub() {
+  pLimpar(); aLimpar(); mLimpar(); dLimpar(); orcamentoLimpar();
+  document.getElementById('hub').style.display = 'block';
+  document.getElementById('form-container').style.display = 'none';
+  document.getElementById('form-portaria').style.display = 'none';
+  document.getElementById('form-alarme').style.display = 'none';
+  document.getElementById('form-modulo').style.display = 'none';
+  document.getElementById('form-desconto').style.display = 'none';
+  document.getElementById('form-orcamento').style.display = 'none';
+}
+
+// === PORTARIA ===
+let pItemCount = 0;
+function pAddItem(numero, nome) {
+  numero = numero || ''; nome = nome || '';
+  pItemCount++;
+  const div = document.createElement('div');
+  div.className = 'item-row'; div.id = 'p-item-' + pItemCount;
+  div.innerHTML = `<div class="field"><label>Número</label><input type="text" class="p-item-numero" value="${numero}" placeholder="Ex: 21"></div><div class="field"><label>Nome</label><input type="text" class="p-item-nome" value="${nome}" placeholder="Ex: Condomínio Paineiras"></div><button class="btn btn-danger" onclick="this.parentElement.remove()" style="margin-bottom:0;align-self:end;height:36px;padding:0 10px;">X</button>`;
+  document.getElementById('p-items-container').appendChild(div);
+}
+
+function pGerar() {
+  const cliente = document.getElementById('p-cliente').value.trim();
+  const licenca = document.getElementById('p-licenca').value.trim();
+  const quantidade = parseInt(document.getElementById('p-quantidade').value.trim()) || 0;
+  const valorUnitario = parseCurrency(document.getElementById('p-valorUnitario').value);
+  const pagamento = document.getElementById('p-pagamento').value.trim();
+  const observacoes = document.getElementById('p-observacoes').value.trim();
+  if (!cliente || !licenca || !quantidade || !valorUnitario) {
+    document.getElementById('p-output').textContent = 'Preencha todos os campos obrigatórios.'; return;
+  }
+  const itens = document.querySelectorAll('#form-portaria .item-row');
+  const listaItens = [];
+  itens.forEach(row => {
+    const num = row.querySelector('.p-item-numero').value.trim();
+    const nome = row.querySelector('.p-item-nome').value.trim();
+    if (num || nome) listaItens.push({ numero: num, nome: nome });
+  });
+  const valorTotal = (quantidade * valorUnitario).toFixed(2).replace('.', ',');
+  const valorUnitStr = valorUnitario.toFixed(2).replace('.', ',');
+  const licencaPlural = quantidade === 1 ? licenca : pluralizar(licenca);
+  let texto = `Negociado com ${cliente} a licença de ${quantidade} ${licencaPlural}\nVALORES:\n${quantidade} ${licencaPlural} = R$ ${valorUnitStr} cada\n\n`;
+  if (listaItens.length > 0) {
+    let lastNum = '';
+    listaItens.forEach(item => {
+      const num = item.numero;
+      if (num) {
+        if (lastNum) {
+          const currInt = parseInt(num);
+          texto += currInt === parseInt(lastNum) + 1 ? `${num}º - ${item.nome}\n` : `\n${num}º - ${item.nome}\n`;
+        } else { texto += `${num}º - ${item.nome}\n`; }
+        lastNum = num;
+      } else if (item.nome) { texto += `${item.nome}\n`; }
+    });
+  }
+  texto += `TOTAL = R$ ${valorTotal}\n\n`;
+  if (pagamento) texto += `Pagamento para ${pagamento}\n`;
+  if (observacoes) texto += `${observacoes}\n`;
+  document.getElementById('p-output').textContent = texto;
+  document.getElementById('p-totalDisplay').textContent = `Total: R$ ${valorTotal}`;
+  setTimeout(() => copiar('p-output', 'p-copiedMsg'), 50);
+}
+
+function pLimpar() {
+  document.getElementById('p-cliente').value = ''; document.getElementById('p-licenca').selectedIndex = 0;
+  document.getElementById('p-quantidade').value = ''; document.getElementById('p-valorUnitario').value = '';
+  document.getElementById('p-pagamento').value = ''; document.getElementById('p-observacoes').selectedIndex = 0;
+  document.getElementById('p-items-container').innerHTML = '';
+  document.getElementById('p-output').textContent = 'Preencha os dados e clique em "Gerar texto"';
+  document.getElementById('p-totalDisplay').textContent = '';
+  pItemCount = 0;
+}
+
+// === PRODUTOS (carregar do banco) ===
+let faixasAlarme = [];
+let modulosAlarme = [];
+
+async function carregarProdutos() {
+  try {
+    const { data: produtos } = await supabase.from('produtos').select('*').order('id');
+    const moniBase = (produtos || []).find(p => p.tipo === 'alarme');
+    if (!moniBase) return;
+
+    const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', moniBase.id).order('ordem').order('id');
+    const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', moniBase.id).order('id');
+    faixasAlarme = faixas || [];
+    modulosAlarme = modulos || [];
+
+    // Preencher select de faixas
+    const select = document.getElementById('a-faixa');
+    select.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
+      `<option value='${JSON.stringify({desc: f.descricao, valor: f.valor_base, valor_modulo: f.valor_modulo})}'>${f.descricao} = R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+    ).join('');
+
+    // Preencher módulos no Moni Alarme
+    const container = document.getElementById('a-modulos-container');
+    container.innerHTML = modulosAlarme.map(m =>
+      `<div class="modulo-card" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+    ).join('');
+
+    // Preencher faixas no Módulo Adicional
+    const mSelect = document.getElementById('m-faixa');
+    mSelect.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
+      `<option value='${JSON.stringify({desc: f.descricao, valor_modulo: f.valor_modulo})}'>${f.descricao}</option>`
+    ).join('');
+
+    // Preencher módulos no Módulo Adicional
+    const mContainer = document.getElementById('m-modulos');
+    mContainer.innerHTML = modulosAlarme.map(m =>
+      `<div class="modulo-card" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+    ).join('');
+
+    // Preencher faixas no Verificar Desconto
+    const dSelect = document.getElementById('d-faixa');
+    dSelect.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
+      `<option value='${JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo})}'>${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+    ).join('');
+
+    // Preencher faixas no upgrade
+    const dNovaSelect = document.getElementById('d-nova-faixa');
+    dNovaSelect.innerHTML = '<option value="">Selecione a nova faixa</option>' + faixasAlarme.map(f =>
+      `<option value='${JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo})}'>${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+    ).join('');
+
+    // Tabela do Verificar Desconto: apenas linha da faixa
+    const tbody = document.getElementById('d-tabela-body');
+    tbody.innerHTML = `<tr id="d-row-faixa" style="background:#f8f7f7;"><td style="padding:8px;border-bottom:1px solid rgba(15,0,0,0.12);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(15,0,0,0.12);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
+  } catch (e) {}
+}
+
+carregarProdutos();
+
+let valorModuloAtual = 0;
+let valorModuloModulo = 0;
+
+function aFaixaChange() {
+  const select = document.getElementById('a-faixa');
+  if (!select.value) return;
+  const faixa = JSON.parse(select.value);
+  valorModuloAtual = faixa.valor_modulo || 0;
+}
+
+function mFaixaChange() {
+  const select = document.getElementById('m-faixa');
+  if (!select.value) { valorModuloModulo = 0; return; }
+  const faixa = JSON.parse(select.value);
+  valorModuloModulo = faixa.valor_modulo || 0;
+}
+
+// === ALARME ===
+function aMToggle(el) {
+  const checkbox = el.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+  el.classList.toggle('selected', checkbox.checked);
+  if (checkbox.checked && valorModuloAtual > 0) {
+    const valorInput = el.querySelector('.a-m-valor');
+    const reais = Math.floor(valorModuloAtual);
+    const centavos = Math.round((valorModuloAtual - reais) * 100);
+    valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+  }
+}
+
+function aGerar() {
+  const cliente = document.getElementById('a-cliente').value.trim();
+  const pagamento = document.getElementById('a-pagamento').value.trim();
+  const periodoTeste = document.querySelector('input[name="a-teste"]:checked');
+  if (!cliente) { document.getElementById('a-output').textContent = 'Preencha o nome do cliente.'; return; }
+  const faixaVal = document.getElementById('a-faixa').value;
+  if (!faixaVal) { document.getElementById('a-output').textContent = 'Selecione uma faixa de contas.'; return; }
+  const faixa = JSON.parse(faixaVal);
+  const valorFormatado = faixa.valor.toFixed(2).replace('.', ',');
+  const testeLabel = periodoTeste ? (periodoTeste.value === 'remover' ? 'Pode ser removido' : 'Deve ser mantido') : '';
+  const faixaDescUppercase = faixa.desc.toUpperCase();
+  const modulos = document.querySelectorAll('#form-alarme .modulo-card.selected');
+  let totalMod = 0;
+  const linhasMod = [];
+  modulos.forEach(card => {
+    const nome = card.querySelector('.modulo-nome').textContent.trim();
+    const valor = parseCurrency(card.querySelector('.a-m-valor').value);
+    const valorStr = valor.toFixed(2).replace('.', ',');
+    linhasMod.push({ nome, valorStr }); totalMod += valor;
+  });
+  const totalGeralStr = (faixa.valor + totalMod).toFixed(2).replace('.', ',');
+  let texto = `Negociado com ${cliente} a Licença do Moni ${faixaDescUppercase}\nLICENÇA DO MONI ${faixaDescUppercase} = R$ ${valorFormatado}\n`;
+  linhasMod.forEach(l => { texto += `${l.nome} = R$ ${l.valorStr}\n`; });
+  texto += `TOTAL = R$ ${totalGeralStr}\n`;
+  if (pagamento) texto += `Pagamento para ${pagamento}\n`;
+  if (testeLabel) texto += `${testeLabel}\n`;
+  document.getElementById('a-output').textContent = texto;
+  document.getElementById('a-totalDisplay').textContent = `Total: R$ ${totalGeralStr}`;
+  setTimeout(() => copiar('a-output', 'a-copiedMsg'), 50);
+}
+
+function aLimpar() {
+  document.getElementById('a-cliente').value = ''; document.getElementById('a-pagamento').value = '';
+  document.querySelector('input[name="a-teste"][value="remover"]').checked = true;
+  if (document.getElementById('a-faixa').options.length > 0) document.getElementById('a-faixa').selectedIndex = 0;
+  aFaixaChange();
+  document.querySelectorAll('#form-alarme .modulo-card').forEach(c => {
+    c.classList.remove('selected'); c.querySelector('input[type="checkbox"]').checked = false; c.querySelector('.a-m-valor').value = '';
+  });
+  document.getElementById('a-output').textContent = 'Preencha os dados e clique em "Gerar texto"';
+  document.getElementById('a-totalDisplay').textContent = '';
+}
+
+// === MÓDULO ===
+function mToggle(el) {
+  const checkbox = el.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+  el.classList.toggle('selected', checkbox.checked);
+  if (checkbox.checked && valorModuloModulo > 0) {
+    const valorInput = el.querySelector('.m-valor');
+    const reais = Math.floor(valorModuloModulo);
+    const centavos = Math.round((valorModuloModulo - reais) * 100);
+    valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+  }
+}
+
+function mGerar() {
+  const cliente = document.getElementById('m-cliente').value.trim();
+  const pagamento = document.getElementById('m-pagamento').value.trim();
+  const periodoTeste = document.querySelector('input[name="m-teste"]:checked');
+  const testeLabel = periodoTeste ? (periodoTeste.value === 'remover' ? 'Pode ser removido' : 'Deve ser mantido') : '';
+  if (!cliente) { document.getElementById('m-output').textContent = 'Preencha o nome do cliente.'; return; }
+  const modulos = document.querySelectorAll('#m-modulos .modulo-card.selected');
+  if (modulos.length === 0) { document.getElementById('m-output').textContent = 'Selecione pelo menos um módulo.'; return; }
+  let total = 0;
+  const linhas = [];
+  modulos.forEach(card => {
+    const nome = card.querySelector('.modulo-nome').textContent.trim();
+    const valor = parseCurrency(card.querySelector('.m-valor').value);
+    const valorStr = valor.toFixed(2).replace('.', ',');
+    linhas.push({ nome, valorStr }); total += valor;
+  });
+  const totalStr = total.toFixed(2).replace('.', ',');
+  let texto = `Negociado com ${cliente}\nMódulo Adicional\n\n`;
+  linhas.forEach(l => { texto += `${l.nome} = R$ ${l.valorStr}\n`; });
+  texto += `TOTAL = R$ ${totalStr}\n\n`;
+  if (pagamento) texto += `Pagamento para ${pagamento}\n`;
+  if (testeLabel) texto += `${testeLabel}\n`;
+  document.getElementById('m-output').textContent = texto;
+  document.getElementById('m-totalDisplay').textContent = `Total: R$ ${totalStr}`;
+  setTimeout(() => copiar('m-output', 'm-copiedMsg'), 50);
+}
+
+function mLimpar() {
+  document.getElementById('m-cliente').value = ''; document.getElementById('m-pagamento').value = '';
+  document.querySelector('input[name="m-teste"][value="remover"]').checked = true;
+  if (document.getElementById('m-faixa').options.length > 0) document.getElementById('m-faixa').selectedIndex = 0;
+  mFaixaChange();
+  document.querySelectorAll('#m-modulos .modulo-card').forEach(c => {
+    c.classList.remove('selected'); c.querySelector('input[type="checkbox"]').checked = false; c.querySelector('.m-valor').value = '';
+  });
+  document.getElementById('m-output').textContent = 'Preencha os dados e clique em "Gerar texto"';
+  document.getElementById('m-totalDisplay').textContent = '';
+}
+
+// === DESCONTO ===
+var dFaixaData = null;
+var dModCounter = 0;
+var dPercDesconto = 0;
+var dTotalEsperado = 0;
+var dTotalPago = 0;
+
+function dFaixaChange() {
+  const select = document.getElementById('d-faixa');
+  if (!select.value) { dFaixaData = null; document.getElementById('d-faixa-nome').textContent = 'Faixa de contas'; return; }
+  dFaixaData = JSON.parse(select.value);
+  document.getElementById('d-faixa-nome').textContent = dFaixaData.desc;
+  document.getElementById('d-valor-base').textContent = 'R$ ' + dFaixaData.valor_base.toFixed(2).replace('.', ',');
+  dAutoCalc();
+}
+
+function dAddModRow() {
+  dModCounter++;
+  const id = dModCounter;
+  const tbody = document.getElementById('d-tabela-body');
+  const tr = document.createElement('tr');
+  tr.id = 'd-mod-row-' + id;
+  tr.className = 'd-mod-row';
+  const modOptions = modulosAlarme.map(m => `<option value="${m.nome}">${m.nome}</option>`).join('');
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid rgba(15,0,0,0.12);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:#ff3b30;font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
+  tbody.appendChild(tr);
+  tr.querySelector('.d-mod-select').focus();
+}
+
+function dModSelectChange(sel) {
+  const row = sel.closest('tr');
+  if (sel.value && dFaixaData) {
+    const reais = Math.floor(dFaixaData.valor_modulo);
+    const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
+    row.querySelector('.d-mod-esperado').value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+  }
+  dAutoCalc();
+}
+
+function dRemoveModRow(id) {
+  const row = document.getElementById('d-mod-row-' + id);
+  if (row) row.remove();
+  dAutoCalc();
+}
+
+function dAutoCalc() {
+  const foot = document.getElementById('d-tabela-foot');
+  if (!dFaixaData) {
+    foot.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#9a9898;">Selecione uma faixa para ver os resultados</td></tr>';
+    document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
+    return;
+  }
+  const inputs = document.querySelectorAll('#d-tabela-body .d-pago');
+  let totalEsperado = dFaixaData.valor_base;
+  let totalPago = 0;
+  inputs.forEach(inp => {
+    const pago = parseCurrency(inp.value);
+    totalPago += pago;
+    if (inp.dataset.tipo === 'faixa') {
+      const faixaPago = pago;
+      const descEl = document.getElementById('d-desc-faixa');
+      if (dFaixaData.valor_base > 0 && faixaPago > 0) {
+        const fpct = ((dFaixaData.valor_base - faixaPago) / dFaixaData.valor_base) * 100;
+        descEl.textContent = fpct.toFixed(2).replace('.', ',') + '%';
+        descEl.style.color = fpct > 0 ? '#30d158' : '#ff3b30';
+      } else {
+        descEl.textContent = '—';
+      }
+      return;
+    }
+  });
+  document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
+    const chk = row.querySelector('input[type="checkbox"]');
+    const select = row.querySelector('.d-mod-select');
+    const esperadoInput = row.querySelector('.d-mod-esperado');
+    const pagoInput = row.querySelector('.d-pago');
+    const descEl = row.querySelector('.d-desc-pct');
+    if (!chk.checked) {
+      pagoInput.disabled = true;
+      descEl.textContent = '—';
+      return;
+    }
+    pagoInput.disabled = false;
+    const esperado = parseCurrency(esperadoInput.value);
+    const pago = parseCurrency(pagoInput.value);
+    totalEsperado += esperado;
+    if (esperado > 0 && pago > 0) {
+      const pct = ((esperado - pago) / esperado) * 100;
+      descEl.textContent = pct.toFixed(2).replace('.', ',') + '%';
+      descEl.style.color = pct > 0 ? '#30d158' : '#ff3b30';
+    } else {
+      descEl.textContent = '—';
+    }
+  });
+  dTotalEsperado = totalEsperado;
+  dTotalPago = totalPago;
+  const dif = totalEsperado - totalPago;
+  const perc = totalEsperado > 0 ? (dif / totalEsperado) * 100 : 0;
+  dPercDesconto = perc;
+  const f = v => 'R$ ' + v.toFixed(2).replace('.', ',');
+  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#201d1d;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#201d1d;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? '#30d158' : '#ff3b30'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
+  const linhas = [];
+  linhas.push(`Faixa: ${dFaixaData.desc} — Valor base: ${f(dFaixaData.valor_base)} | Pago: ${f(document.querySelector('#d-row-faixa .d-pago') ? parseCurrency(document.querySelector('#d-row-faixa .d-pago').value) : 0)}`);
+  document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
+    const chk = row.querySelector('input[type="checkbox"]');
+    if (!chk.checked) return;
+    const nome = row.querySelector('.d-mod-select').value || 'Módulo';
+    const esperado = parseCurrency(row.querySelector('.d-mod-esperado').value);
+    const pago = parseCurrency(row.querySelector('.d-pago').value);
+    linhas.push(`${nome}: Esperado ${f(esperado)} | Pago ${f(pago)}`);
+  });
+  linhas.push(`Total esperado: ${f(totalEsperado)}`);
+  linhas.push(`Total pago: ${f(totalPago)}`);
+  linhas.push(`Diferença: ${dif >= 0 ? '-' : '+'}${f(Math.abs(dif))}`);
+  linhas.push(`Desconto total: ${perc.toFixed(2).replace('.', ',')}%`);
+  document.getElementById('d-output').textContent = linhas.join('\n');
+}
+
+function dCalcular() {
+  if (!dFaixaData) { document.getElementById('d-output').textContent = 'Selecione uma faixa de clientes.'; return; }
+  dAutoCalc();
+  setTimeout(() => copiar('d-output', 'd-copiedMsg'), 50);
+}
+
+function dMudarFaixa() {
+  if (!dFaixaData) { document.getElementById('d-output').textContent = 'Selecione a faixa atual primeiro.'; return; }
+  const panel = document.getElementById('d-upgrade-panel');
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    document.getElementById('d-nova-faixa').value = '';
+    document.getElementById('d-upgrade-result').innerHTML = '';
+  } else {
+    panel.style.display = 'none';
+  }
+}
+
+function dNovaFaixaChange() {
+  const select = document.getElementById('d-nova-faixa');
+  const resultDiv = document.getElementById('d-upgrade-result');
+  if (!select.value || !dFaixaData) { resultDiv.innerHTML = ''; return; }
+  const novaFaixa = JSON.parse(select.value);
+  const cliente = document.getElementById('d-cliente').value.trim() || 'Cliente';
+
+  // Usar valor pago se preenchido, senão usar valor esperado
+  const faixaPagoInput = document.querySelector('#d-row-faixa .d-pago');
+  const faixaPago = faixaPagoInput ? parseCurrency(faixaPagoInput.value) : 0;
+  const valorBaseAtual = faixaPago > 0 ? faixaPago : dFaixaData.valor_base;
+
+  const difBase = novaFaixa.valor_base - valorBaseAtual;
+
+  const modRows = document.querySelectorAll('#d-tabela-body .d-mod-row');
+  let totalModAtual = 0;
+  let totalModNovo = 0;
+  let qtdMod = 0;
+  modRows.forEach(row => {
+    const chk = row.querySelector('input[type="checkbox"]');
+    if (!chk || !chk.checked) return;
+    qtdMod++;
+    const pagoInput = row.querySelector('.d-pago');
+    const pagoVal = pagoInput ? parseCurrency(pagoInput.value) : 0;
+    const modValAtual = pagoVal > 0 ? pagoVal : dFaixaData.valor_modulo;
+    totalModAtual += modValAtual;
+    totalModNovo += novaFaixa.valor_modulo;
+  });
+
+  const difMod = qtdMod > 0 ? novaFaixa.valor_modulo - (totalModAtual / qtdMod) : 0;
+
+  const totalAtual = valorBaseAtual + totalModAtual;
+  const totalNovo = novaFaixa.valor_base + totalModNovo;
+  const totalDif = totalNovo - totalAtual;
+
+  const f = v => (v >= 0 ? 'R$ ' : '-R$ ') + Math.abs(v).toFixed(2).replace('.', ',');
+  const descAtual = dFaixaData.desc;
+  const descNovo = novaFaixa.desc;
+
+  const labelAtual = faixaPago > 0 ? 'Valor atual (pago)' : 'Valor atual';
+  const modLabel = (pagoVal) => pagoVal > 0 ? 'pago' : 'esperado';
+
+  let html = `<div style="background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:#30d158;">Resumo da Mudança</strong><br><br>
+    <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
+    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
+  if (qtdMod > 0) {
+    const modValLabel = `Módulos (${qtdMod}x)`;
+    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
+  }
+  html += `<br><strong>${labelAtual}:</strong> ${f(totalAtual)}<br>
+    <strong>Total novo:</strong> ${f(totalNovo)}<br>
+    <strong style="color:#201d1d;">Diferença total: ${f(totalDif)}</strong>
+  </div>`;
+  resultDiv.innerHTML = html;
+
+  // Generate text
+  let texto = `Negociado com ${cliente} — mudança para ${descNovo.toUpperCase()}\nVALORES + DIFERENÇAS:\n`;
+  texto += `Mudança ${descNovo} = ${f(novaFaixa.valor_base)} (diferença = ${f(difBase)})\n`;
+  modRows.forEach(row => {
+    if (!row.querySelector('input[type="checkbox"]')?.checked) return;
+    const nomeMod = row.querySelector('.d-mod-select').value || 'Módulo';
+    const pago = parseCurrency(row.querySelector('.d-pago').value);
+    const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
+    const dif = novaFaixa.valor_modulo - modAtual;
+    texto += `${nomeMod} ${descNovo} = ${f(novaFaixa.valor_modulo)} (diferença = ${f(dif)})\n`;
+  });
+  texto += `\nTOTAL = ${f(totalNovo)} (diferença = ${f(totalDif)})\n`;
+  const pagamento = document.getElementById('d-pagamento').value.trim();
+  if (pagamento) texto += `\nPagamento para ${pagamento}\n`;
+  const testeLabel = document.querySelector('input[name="d-teste"]:checked');
+  if (testeLabel) texto += `${testeLabel.value === 'remover' ? 'Período teste pode ser removido' : 'Período teste deve ser mantido'}\n`;
+  texto += `\nObservações:\n`;
+  document.getElementById('d-output').textContent = texto;
+  setTimeout(() => copiar('d-output', 'd-copiedMsg'), 50);
+}
+
+function dAplicarDesconto() {
+  const select = document.getElementById('d-nova-faixa');
+  if (!select.value || !dFaixaData) { document.getElementById('d-output').textContent = 'Selecione a nova faixa primeiro.'; return; }
+  if (dPercDesconto === 0 && dTotalPago === 0) { document.getElementById('d-output').textContent = 'Calcule o desconto atual primeiro.'; return; }
+  const novaFaixa = JSON.parse(select.value);
+  const cliente = document.getElementById('d-cliente').value.trim() || 'Cliente';
+  const f = v => (v >= 0 ? 'R$ ' : '-R$ ') + Math.abs(v).toFixed(2).replace('.', ',');
+
+  const modRows = document.querySelectorAll('#d-tabela-body .d-mod-row');
+
+  // Usar valor pago se preenchido, senão usar valor esperado
+  const faixaPagoInput = document.querySelector('#d-row-faixa .d-pago');
+  const faixaPago = faixaPagoInput ? parseCurrency(faixaPagoInput.value) : 0;
+  const valorBaseAtual = faixaPago > 0 ? faixaPago : dFaixaData.valor_base;
+
+  let qtdMod = 0;
+  let totalModAtualPago = 0;
+  modRows.forEach(row => {
+    const chk = row.querySelector('input[type="checkbox"]');
+    if (!chk || !chk.checked) return;
+    qtdMod++;
+    const pagoInput = row.querySelector('.d-pago');
+    const pagoVal = pagoInput ? parseCurrency(pagoInput.value) : 0;
+    totalModAtualPago += pagoVal > 0 ? pagoVal : dFaixaData.valor_modulo;
+  });
+
+  const totalPagoAtual = valorBaseAtual + totalModAtualPago;
+  const totalNovoCheio = novaFaixa.valor_base + qtdMod * novaFaixa.valor_modulo;
+  const totalNovoDesc = totalNovoCheio * (1 - dPercDesconto / 100);
+  const difCliente = totalNovoDesc - totalPagoAtual;
+
+  const difBase = novaFaixa.valor_base - valorBaseAtual;
+  const difMod = qtdMod > 0 ? novaFaixa.valor_modulo - (totalModAtualPago / qtdMod) : 0;
+
+  const resultDiv = document.getElementById('d-upgrade-result');
+
+  const descAtual = dFaixaData.desc;
+  const descNovo = novaFaixa.desc;
+
+  // Discounted values per item
+  const propBase = valorBaseAtual / (totalPagoAtual || 1);
+  const propMod = totalModAtualPago > 0 ? totalModAtualPago / (totalPagoAtual || 1) : 0;
+  const novoBaseDesc = novaFaixa.valor_base * (1 - dPercDesconto / 100);
+  const novoModDesc = qtdMod > 0 ? novaFaixa.valor_modulo * (1 - dPercDesconto / 100) : 0;
+  const difBaseDesc = novoBaseDesc - valorBaseAtual;
+  const difModDesc = novoModDesc - (totalModAtualPago > 0 ? totalModAtualPago / qtdMod : 0);
+
+  const labelAtual = faixaPago > 0 ? 'pago' : 'esperado';
+
+  let html = `<div style="background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:#30d158;">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
+    <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
+    Valor ${labelAtual}: ${f(valorBaseAtual)} → cheio: ${f(novaFaixa.valor_base)} / c/ desc: ${f(novoBaseDesc)}<br>
+    Diferença: ${f(difBase)} (cheio) | ${f(difBaseDesc)} (c/ desconto)<br>`;
+  if (qtdMod > 0) {
+    html += `<br><strong>Módulos (${qtdMod}x):</strong><br>
+      Valor ${labelAtual}: ${f(totalModAtualPago)} → cheio: ${f(qtdMod * novaFaixa.valor_modulo)} / c/ desc: ${f(novoModDesc * qtdMod)}<br>
+      Diferença: ${f(difMod * qtdMod)} (cheio) | ${f(difModDesc * qtdMod)} (c/ desconto)<br>`;
+  }
+  html += `<br><strong>Total ${labelAtual}:</strong> ${f(totalPagoAtual)}<br>
+    <strong>Total novo cheio:</strong> ${f(totalNovoCheio)}<br>
+    <strong style="color:#201d1d;">Total novo c/ desconto: ${f(totalNovoDesc)}</strong><br>
+    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">${f(difCliente)}</span>
+  </div>`;
+  resultDiv.innerHTML = html;
+
+  const pagamento = document.getElementById('d-pagamento').value.trim();
+  const testeLabel = document.querySelector('input[name="d-teste"]:checked');
+
+  // Full upgrade details
+  let texto = `Negociado com ${cliente} — mudança para ${descNovo.toUpperCase()}\nVALORES + DIFERENÇAS:\n`;
+  texto += `Mudança ${descNovo} = ${f(novaFaixa.valor_base)} (diferença = ${f(difBase)})\n`;
+  modRows.forEach(row => {
+    if (!row.querySelector('input[type="checkbox"]')?.checked) return;
+    const nomeMod = row.querySelector('.d-mod-select').value || 'Módulo';
+    const pago = parseCurrency(row.querySelector('.d-pago').value);
+    const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
+    const dif = novaFaixa.valor_modulo - modAtual;
+    texto += `${nomeMod} ${descNovo} = ${f(novaFaixa.valor_modulo)} (diferença = ${f(dif)})\n`;
+  });
+  texto += `\nTOTAL = ${f(totalNovoCheio)} (diferença = ${f(totalNovoCheio - totalPagoAtual)})\n`;
+
+  // Discounted version
+  texto += `\n--- COM MESMO DESCONTO (${dPercDesconto.toFixed(2).replace('.', ',')}%) ---\n`;
+  texto += `Mudança ${descNovo} = ${f(novoBaseDesc)} (diferença = ${f(difBaseDesc)})\n`;
+  modRows.forEach(row => {
+    if (!row.querySelector('input[type="checkbox"]')?.checked) return;
+    const nomeMod = row.querySelector('.d-mod-select').value || 'Módulo';
+    const pago = parseCurrency(row.querySelector('.d-pago').value);
+    const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
+    const dif = novoModDesc - modAtual;
+    texto += `${nomeMod} ${descNovo} = ${f(novoModDesc)} (diferença = ${f(dif)})\n`;
+  });
+  texto += `\nTOTAL = ${f(totalNovoDesc)} (diferença = ${f(difCliente)})\n`;
+  if (pagamento) texto += `\nPagamento para ${pagamento}\n`;
+  if (testeLabel) texto += `${testeLabel.value === 'remover' ? 'Período teste pode ser removido' : 'Período teste deve ser mantido'}\n`;
+  texto += `\nObservações:\n`;
+  document.getElementById('d-output').textContent = texto;
+  setTimeout(() => copiar('d-output', 'd-copiedMsg'), 50);
+}
+
+function dLimpar() {
+  if (document.getElementById('d-faixa').options.length > 0) document.getElementById('d-faixa').selectedIndex = 0;
+  document.getElementById('d-cliente').value = '';
+  document.getElementById('d-pagamento').value = '';
+  document.querySelector('input[name="d-teste"][value="remover"]').checked = true;
+  dFaixaData = null;
+  dPercDesconto = 0;
+  dTotalEsperado = 0;
+  dTotalPago = 0;
+  document.getElementById('d-faixa-nome').textContent = 'Faixa de contas';
+  document.getElementById('d-valor-base').textContent = 'R$ 0,00';
+  document.querySelector('#d-row-faixa .d-pago').value = '';
+  document.querySelectorAll('.d-mod-row').forEach(r => r.remove());
+  document.getElementById('d-desc-faixa').textContent = '—';
+  document.getElementById('d-tabela-foot').innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#9a9898;">Selecione uma faixa para ver os resultados</td></tr>';
+  document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
+  document.getElementById('d-upgrade-panel').style.display = 'none';
+  document.getElementById('d-nova-faixa').value = '';
+  document.getElementById('d-upgrade-result').innerHTML = '';
+  dModCounter = 0;
+}
+
+// === ORÇAMENTO ===
+let orcItemCount = 0;
+
+function orcamentoAddItem() {
+  orcItemCount++;
+  const id = orcItemCount;
+  const div = document.createElement('div');
+  div.className = 'orcamento-item';
+  div.dataset.id = id;
+  div.style.cssText = 'background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;margin-bottom:12px;';
+
+  div.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 70px 130px;gap:8px;margin-bottom:8px;">
+      <div class="field"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;background:#f8f7f7;"><option value="">Selecione</option></select></div>
+      <div class="field"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;background:#f8f7f7;"><option value="">Carregando...</option></select></div>
+      <div class="field"><label>Qtd</label><input type="number" class="o-qtd" value="1" min="1" oninput="orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+      <div class="field"><label>Valor unit. (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+    </div>
+    <div class="modulo-grid o-modulos" style="margin-bottom:4px;"></div>
+    <button class="btn btn-sm btn-danger" onclick="orcamentoRemoveItem(${id})">✕ Remover item</button>
+  `;
+
+  document.getElementById('orcamento-items').appendChild(div);
+  orcamentoCarregarSelect(div.querySelector('.o-produto'));
+}
+
+async function orcamentoCarregarSelect(select) {
+  try {
+    const { data: produtos } = await supabase.from('produtos').select('*').order('id');
+    select.innerHTML = '<option value="">Selecione</option>' + (produtos || []).map(p =>
+      `<option value="${p.id}">${p.nome}</option>`
+    ).join('');
+  } catch (e) {
+    select.innerHTML = '<option value="">Erro ao carregar</option>';
+  }
+}
+
+async function orcamentoProdutoChange(el) {
+  const item = el.closest('.orcamento-item');
+  const produtoId = el.value;
+  const faixaSelect = item.querySelector('.o-faixa');
+  const modContainer = item.querySelector('.o-modulos');
+  const valorDiv = item.querySelector('.o-valor');
+
+  if (!produtoId) {
+    faixaSelect.innerHTML = '<option value="">Selecione um produto</option>';
+    modContainer.innerHTML = '';
+    valorDiv.textContent = 'R$ 0,00';
+    orcamentoAtualizarResumo();
+    return;
+  }
+
+  try {
+    const [{ data: faixas }, { data: modulos }] = await Promise.all([
+      supabase.from('faixas').select('*').eq('produto_id', produtoId).order('ordem').order('id'),
+      supabase.from('modulos').select('*').eq('produto_id', produtoId).order('id')
+    ]);
+
+    faixaSelect.innerHTML = '<option value="">Selecione a faixa</option>' + (faixas || []).map(f =>
+      `<option value='${JSON.stringify({desc:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo})}'>${f.descricao}</option>`
+    ).join('');
+
+    modContainer.innerHTML = (modulos || []).map(m =>
+      `<div class="modulo-card" onclick="orcamentoModToggle(this)">
+        <div class="modulo-nome">
+          <input type="checkbox" onclick="event.stopPropagation()" onchange="orcamentoModToggle(this.parentElement.parentElement)">
+          ${m.nome}
+        </div>
+        <div class="modulo-valor">
+          <span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span>
+          <span class="o-mod-valor">0,00</span>
+        </div>
+      </div>`
+    ).join('');
+
+    valorDiv.value = '0,00';
+    orcamentoAtualizarResumo();
+  } catch (e) {
+    faixaSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+  }
+}
+
+function orcamentoFaixaChange(el) {
+  const item = el.closest('.orcamento-item');
+  const valorDiv = item.querySelector('.o-valor');
+  const modCards = item.querySelectorAll('.o-modulos .modulo-card');
+
+  if (!el.value) {
+    valorDiv.value = '0,00';
+    modCards.forEach(card => { card.querySelector('.o-mod-valor').textContent = '0,00'; });
+    orcamentoAtualizarResumo();
+    return;
+  }
+
+  const faixa = JSON.parse(el.value);
+  const intPart = Math.floor(faixa.valor_modulo);
+  const centPart = Math.round((faixa.valor_modulo - intPart) * 100);
+  const modValorStr = intPart.toLocaleString('pt-BR') + ',' + String(centPart).padStart(2, '0');
+
+  valorDiv.value = faixa.valor_base.toFixed(2).replace('.', ',');
+
+  modCards.forEach(card => {
+    card.querySelector('.o-mod-valor').textContent = modValorStr;
+  });
+
+  orcamentoAtualizarResumo();
+}
+
+function orcamentoModToggle(el) {
+  const checkbox = el.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+  el.classList.toggle('selected', checkbox.checked);
+  orcamentoAtualizarResumo();
+}
+
+function orcamentoRemoveItem(id) {
+  const el = document.querySelector(`.orcamento-item[data-id="${id}"]`);
+  if (el) el.remove();
+  orcamentoAtualizarResumo();
+}
+
+function orcamentoAtualizarResumo() {
+  const items = document.querySelectorAll('.orcamento-item');
+  const resumoDiv = document.getElementById('orcamento-resumo');
+  const totalDiv = document.getElementById('orcamento-total');
+
+  let html = '';
+  let totalGeral = 0;
+  let idx = 0;
+
+  items.forEach(item => {
+    const faixaSelect = item.querySelector('.o-faixa');
+    const qtd = parseInt(item.querySelector('.o-qtd').value) || 1;
+    if (!faixaSelect.value) return;
+    idx++;
+
+    const valorUnit = parseCurrency(item.querySelector('.o-valor').value) || 0;
+    const subtotal = valorUnit * qtd;
+    const prodSelect = item.querySelector('.o-produto');
+    const prodName = prodSelect.options[prodSelect.selectedIndex]?.text || 'Produto';
+
+    html += `<div style="font-size:0.85rem;margin-bottom:4px;">${idx}. ${prodName} (${faixa.desc}) x${qtd} = R$ ${subtotal.toFixed(2).replace('.', ',')}</div>`;
+
+    item.querySelectorAll('.o-modulos .modulo-card.selected').forEach(card => {
+      const nome = card.querySelector('.modulo-nome').textContent.trim();
+      const valStr = card.querySelector('.o-mod-valor').textContent;
+      const val = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+      totalGeral += val;
+      html += `<div style="font-size:0.8rem;color:#646262;padding-left:16px;margin-bottom:2px;">+ ${nome} = R$ ${valStr}</div>`;
+    });
+
+    totalGeral += subtotal;
+  });
+
+  if (!html) {
+    resumoDiv.innerHTML = '<span style="color:#9a9898;font-size:0.85rem;">Adicione itens e selecione produtos/faixas</span>';
+    totalDiv.textContent = '';
+    return;
+  }
+
+  resumoDiv.innerHTML = html;
+  totalDiv.textContent = 'TOTAL GERAL = R$ ' + totalGeral.toFixed(2).replace('.', ',');
+}
+
+function orcamentoGerar() {
+  const items = document.querySelectorAll('.orcamento-item');
+  if (items.length === 0) { document.getElementById('orcamento-output').textContent = 'Adicione pelo menos um item.'; return; }
+
+  let texto = 'ORÇAMENTO\n\n';
+  let totalGeral = 0;
+  let idx = 0;
+  let hasItems = false;
+
+  items.forEach(item => {
+    const faixaSelect = item.querySelector('.o-faixa');
+    const qtd = parseInt(item.querySelector('.o-qtd').value) || 1;
+    if (!faixaSelect.value) return;
+    hasItems = true;
+    idx++;
+
+    const faixa = JSON.parse(faixaSelect.value);
+    const prodSelect = item.querySelector('.o-produto');
+    const prodName = prodSelect.options[prodSelect.selectedIndex]?.text || 'Produto';
+    const valorUnit = parseCurrency(item.querySelector('.o-valor').value) || 0;
+    const subtotal = valorUnit * qtd;
+    const modCards = item.querySelectorAll('.o-modulos .modulo-card.selected');
+
+    texto += `${idx}) ${prodName.toUpperCase()} (${faixa.desc.toUpperCase()}) x${qtd}\n`;
+    texto += `${qtd >= 1 ? qtd + ' ' : ''}${prodName} ${faixa.desc} = R$ ${valorUnit.toFixed(2).replace('.', ',')} cada\n`;
+
+    let totalMod = 0;
+    modCards.forEach(card => {
+      const nome = card.querySelector('.modulo-nome').textContent.trim();
+      const valStr = card.querySelector('.o-mod-valor').textContent;
+      const val = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
+      totalMod += val;
+      texto += `${nome} = R$ ${valStr}\n`;
+    });
+
+    texto += `Subtotal: R$ ${(subtotal + totalMod).toFixed(2).replace('.', ',')}\n\n`;
+    totalGeral += subtotal + totalMod;
+  });
+
+  if (!hasItems) { document.getElementById('orcamento-output').textContent = 'Configure pelo menos um item com produto e faixa.'; return; }
+
+  texto += `TOTAL GERAL = R$ ${totalGeral.toFixed(2).replace('.', ',')}\n`;
+
+  document.getElementById('orcamento-output').textContent = texto;
+  document.getElementById('orcamento-totalDisplay').textContent = 'Total: R$ ' + totalGeral.toFixed(2).replace('.', ',');
+  setTimeout(() => copiar('orcamento-output', 'orcamento-copiedMsg'), 50);
+}
+
+function orcamentoLimpar() {
+  document.getElementById('orcamento-items').innerHTML = '';
+  document.getElementById('orcamento-resumo').innerHTML = '<span style="color:#9a9898;font-size:0.85rem;">Adicione itens e selecione produtos/faixas</span>';
+  document.getElementById('orcamento-total').textContent = '';
+  document.getElementById('orcamento-totalDisplay').textContent = '';
+  document.getElementById('orcamento-output').textContent = 'Adicione itens e clique em "Gerar Texto"';
+  orcItemCount = 0;
+}
+
+// === COPIAR ===
+function copiar(outputId, msgId) {
+  const output = document.getElementById(outputId);
+  const textarea = document.createElement('textarea');
+  textarea.value = output.textContent;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+  const msg = document.getElementById(msgId);
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2000);
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await checkSession();
+});
+
+// === ITEM INICIAL PORTARIA ===
+pAddItem();
+
+// === MODAL CONFIRMAÇÃO ===
+let confirmCallback = null;
+
+function confirmarAcao(titulo, msg, callback) {
+  document.getElementById('modal-confirm-titulo').textContent = titulo;
+  document.getElementById('modal-confirm-msg').innerHTML = msg;
+  confirmCallback = callback;
+  document.getElementById('modal-confirm').style.display = 'flex';
+}
+
+function fecharModalConfirm() {
+  document.getElementById('modal-confirm').style.display = 'none';
+  confirmCallback = null;
+}
+
+function executarConfirm() {
+  document.getElementById('modal-confirm').style.display = 'none';
+  if (confirmCallback) {
+    const cb = confirmCallback;
+    confirmCallback = null;
+    cb();
+  }
+}
+
+</script>
+<!-- MODAL CONFIRMAÇÃO -->
+<div id="modal-confirm" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalConfirm()">
+  <div style="background:#fdfcfc;color:#201d1d;max-width:400px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
+      <span style="font-weight:700;" id="modal-confirm-titulo">Confirmar</span>
+      <span onclick="fecharModalConfirm()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+    </div>
+    <div style="padding:20px;">
+      <p style="font-size:0.9rem;line-height:1.6;margin-bottom:20px;" id="modal-confirm-msg"></p>
+      <div class="actions" style="margin-top:0;">
+        <button class="btn btn-secondary" onclick="fecharModalConfirm()">Cancelar</button>
+        <button class="btn btn-danger" onclick="executarConfirm()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA/EDITAR FAIXA -->
+<div id="modal-nova-faixa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalFaixa()">
+  <div style="background:#fdfcfc;color:#201d1d;max-width:420px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
+      <span style="font-weight:700;" id="modal-faixa-titulo">Nova Faixa</span>
+      <span onclick="fecharModalFaixa()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+    </div>
+    <div style="padding:20px;">
+      <input type="hidden" id="modal-faixa-id" value="">
+      <input type="hidden" id="modal-faixa-tipo" value="">
+      <div class="field">
+        <label>Descrição</label>
+        <input type="text" id="modal-faixa-desc" placeholder="Ex: até 50 clientes" onkeydown="if(event.key==='Enter')document.getElementById('modal-faixa-vb').focus()">
+      </div>
+      <div class="field">
+        <label>Valor Base (R$)</label>
+        <input type="text" id="modal-faixa-vb" placeholder="0,00" oninput="formatCurrency(this)" onkeydown="if(event.key==='Enter'){var vm=document.getElementById('modal-faixa-vm-wrapper');vm.style.display!='none'?document.getElementById('modal-faixa-vm').focus():salvarFaixa()}">
+      </div>
+      <div class="field" id="modal-faixa-vm-wrapper">
+        <label>Valor Módulo (R$)</label>
+        <input type="text" id="modal-faixa-vm" placeholder="0,00" oninput="formatCurrency(this)" onkeydown="if(event.key==='Enter')salvarFaixa()">
+      </div>
+      <div class="actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="fecharModalFaixa()">Cancelar</button>
+        <button class="btn btn-success" onclick="salvarFaixa()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO MÓDULO -->
+<div id="modal-novo-modulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalModulo()">
+  <div style="background:#fdfcfc;color:#201d1d;max-width:400px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
+      <span style="font-weight:700;">[+] Novo Módulo</span>
+      <span onclick="fecharModalModulo()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+    </div>
+    <div style="padding:20px;">
+      <div class="field">
+        <label>Nome do módulo</label>
+        <input type="text" id="modal-modulo-nome" placeholder="Ex: Moni Notificações" onkeydown="if(event.key==='Enter')salvarModulo()">
+      </div>
+      <div class="actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="fecharModalModulo()">Cancelar</button>
+        <button class="btn btn-success" onclick="salvarModulo()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal-novo-produto" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalProduto()">
+  <div style="background:#fdfcfc;color:#201d1d;max-width:400px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
+      <span style="font-weight:700;">[+] Novo Produto</span>
+      <span onclick="fecharModalProduto()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+    </div>
+    <div style="padding:20px;">
+      <div class="field">
+        <label>Nome do produto</label>
+        <input type="text" id="modal-produto-nome" placeholder="Ex: Moni Base" onkeydown="if(event.key==='Enter')document.getElementById('modal-produto-tipo').focus()">
+      </div>
+      <div class="field">
+        <label>Tipo/categoria</label>
+        <input type="text" id="modal-produto-tipo" placeholder="Ex: alarme" onkeydown="if(event.key==='Enter')salvarNovoProduto()">
+      </div>
+      <div class="actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="fecharModalProduto()">Cancelar</button>
+        <button class="btn btn-success" onclick="salvarNovoProduto()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
