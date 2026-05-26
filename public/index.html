@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SongBird</title>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co; img-src 'self' data:;">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -541,7 +542,6 @@
 
       <div class="config-tabs" id="config-tabs">
         <button class="config-tab active" onclick="configTab('senha')" id="cfg-btn-senha">Minha Senha</button>
-        <button class="config-tab" onclick="configTab('usuarios')" id="cfg-btn-usuarios" style="display:none;">Usuários</button>
         <button class="config-tab" onclick="configTab('produtos')" id="cfg-btn-produtos" style="display:none;">Produtos</button>
       </div>
 
@@ -563,32 +563,6 @@
           <button class="btn btn-primary" onclick="alterarMinhaSenha()">Alterar senha</button>
           <div class="success-msg" id="cfg-senha-ok"></div>
           <div class="error-msg" id="cfg-senha-erro"></div>
-        </div>
-      </div>
-
-      <div class="config-tab-content" id="cfg-tab-usuarios">
-        <div class="config-section">
-          <h2>Gerenciar Usuários</h2>
-          <table class="user-table">
-            <thead><tr><th>ID</th><th>Usuário</th><th>Permissão</th><th>Criado em</th><th>Ações</th></tr></thead>
-            <tbody id="user-table-body"></tbody>
-          </table>
-          <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(15,0,0,0.12);">
-            <strong style="font-size:0.85rem;color:#646262;">Criar novo usuário</strong>
-            <div class="create-user-row">
-              <div class="field"><input type="text" id="new-user-nome" placeholder="Usuário"></div>
-              <div class="field"><input type="password" id="new-user-senha" placeholder="Senha"></div>
-              <div class="field">
-                <select id="new-user-permissao">
-                  <option value="user">Usuário</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <button class="btn btn-success btn-sm" onclick="criarUsuario()" style="height:36px;">Criar</button>
-            </div>
-            <div class="success-msg" id="cfg-user-ok"></div>
-            <div class="error-msg" id="cfg-user-erro"></div>
-          </div>
         </div>
       </div>
 
@@ -692,7 +666,6 @@ function configTab(tab) {
   document.querySelectorAll('.config-tab-content').forEach(c => c.classList.remove('active'));
   document.getElementById('cfg-btn-' + tab).classList.add('active');
   document.getElementById('cfg-tab-' + tab).classList.add('active');
-  if (tab === 'usuarios') carregarUsuarios();
   if (tab === 'produtos') carregarProdutosAdmin();
 }
 
@@ -703,6 +676,7 @@ function navegar(pagina) {
   document.querySelectorAll('.sidebar-nav button').forEach(b => {
     b.classList.toggle('active', b.textContent.includes(map[pagina]));
   });
+  if (pagina === 'vendas') voltarHub();
 }
 
 // === CONFIG - SENHA ===
@@ -730,95 +704,6 @@ async function alterarMinhaSenha() {
   } catch (e) {
     erro.textContent = e.message;
     erro.classList.add('show');
-  }
-}
-
-// === CONFIG - USUÁRIOS (admin) ===
-async function carregarUsuarios() {
-  try {
-    const { data: usuarios } = await supabase.from('usuarios').select('*').order('id');
-    const tbody = document.getElementById('user-table-body');
-    tbody.innerHTML = (usuarios || []).map(u => `
-      <tr id="user-row-${u.id}">
-        <td>${u.id}</td>
-        <td id="user-name-${u.id}"><span id="user-name-text-${u.id}">${u.nome}</span></td>
-        <td><span class="${u.permissao === 'admin' ? 'admin-badge' : 'user-badge'}">${u.permissao === 'admin' ? 'Admin' : 'Usuário'}</span></td>
-        <td>${u.criado_em ? u.criado_em.slice(0,10) : '-'}</td>
-        <td id="user-actions-${u.id}">
-          <button class="btn btn-primary btn-sm" onclick="editarUsuario(${u.id})" style="margin-right:4px;">Editar</button>
-          ${u.permissao !== 'admin' || (usuarios || []).filter(x => x.permissao === 'admin').length > 1
-            ? `<button class="btn btn-danger btn-sm" onclick="deletarUsuario(${u.id})">Remover</button>`
-            : ''}
-        </td>
-      </tr>
-    `).join('');
-  } catch (e) {}
-}
-
-async function criarUsuario() {
-  const nome = document.getElementById('new-user-nome').value.trim();
-  const senha = document.getElementById('new-user-senha').value.trim();
-  const permissao = document.getElementById('new-user-permissao').value;
-  const ok = document.getElementById('cfg-user-ok');
-  const erro = document.getElementById('cfg-user-erro');
-  ok.classList.remove('show'); erro.classList.remove('show');
-  if (!nome || !senha) { erro.textContent = 'Preencha nome e senha.'; erro.classList.add('show'); return; }
-  try {
-    const hash = await sha256(senha);
-    await supabase.from('usuarios').insert({ nome, senha: hash, permissao });
-    document.getElementById('new-user-nome').value = '';
-    document.getElementById('new-user-senha').value = '';
-    carregarUsuarios();
-    ok.textContent = 'Usuário criado com sucesso!';
-    ok.classList.add('show');
-    setTimeout(() => ok.classList.remove('show'), 3000);
-  } catch (e) {
-    erro.textContent = e.message;
-    erro.classList.add('show');
-  }
-}
-
-let editandoId = null;
-
-function editarUsuario(id) {
-  if (editandoId) cancelarEdicao(editandoId);
-  editandoId = id;
-  const nomeEl = document.getElementById('user-name-text-' + id);
-  const nomeAtual = nomeEl.textContent;
-  nomeEl.innerHTML = `<input type="text" id="edit-input-${id}" value="${nomeAtual}" style="width:140px;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;outline:none;" onkeydown="if(event.key==='Enter')salvarEdicao(${id});if(event.key==='Escape')cancelarEdicao(${id})">`;
-  document.getElementById('edit-input-' + id).focus();
-  const actionsEl = document.getElementById('user-actions-' + id);
-  actionsEl.innerHTML = `
-    <button class="btn btn-success btn-sm" onclick="salvarEdicao(${id})" style="margin-right:4px;">Salvar</button>
-    <button class="btn btn-secondary btn-sm" onclick="cancelarEdicao(${id})">Cancelar</button>
-  `;
-}
-
-async function salvarEdicao(id) {
-  const input = document.getElementById('edit-input-' + id);
-  const novoNome = input.value.trim();
-  if (!novoNome) return;
-  try {
-    await supabase.from('usuarios').update({ nome: novoNome }).eq('id', id);
-    carregarUsuarios();
-    editandoId = null;
-  } catch (e) {
-    alert(e.message);
-  }
-}
-
-function cancelarEdicao(id) {
-  carregarUsuarios();
-  editandoId = null;
-}
-
-async function deletarUsuario(id) {
-  if (!confirm('Tem certeza que deseja remover este usuário?')) return;
-  try {
-    await supabase.from('usuarios').delete().eq('id', id);
-    carregarUsuarios();
-  } catch (e) {
-    alert(e.message);
   }
 }
 
@@ -1091,7 +976,12 @@ function abrirForm(tipo) {
 }
 
 function voltarHub() {
-  pLimpar(); aLimpar(); mLimpar(); dLimpar(); orcamentoLimpar();
+  console.log('voltarHub');
+  try { pLimpar(); } catch (_) { console.warn('pLimpar', _); }
+  try { aLimpar(); } catch (_) { console.warn('aLimpar', _); }
+  try { mLimpar(); } catch (_) { console.warn('mLimpar', _); }
+  try { dLimpar(); } catch (_) { console.warn('dLimpar', _); }
+  try { orcamentoLimpar(); } catch (_) { console.warn('orcamentoLimpar', _); }
   document.getElementById('hub').style.display = 'block';
   document.getElementById('form-container').style.display = 'none';
   document.getElementById('form-portaria').style.display = 'none';
@@ -1182,7 +1072,7 @@ async function carregarProdutos() {
     // Preencher select de faixas
     const select = document.getElementById('a-faixa');
     select.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
-      `<option value='${JSON.stringify({desc: f.descricao, valor: f.valor_base, valor_modulo: f.valor_modulo})}'>${f.descricao} = R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor: f.valor_base, valor_modulo: f.valor_modulo}))}">${f.descricao} = R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
     // Preencher módulos no Moni Alarme
@@ -1194,7 +1084,7 @@ async function carregarProdutos() {
     // Preencher faixas no Módulo Adicional
     const mSelect = document.getElementById('m-faixa');
     mSelect.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
-      `<option value='${JSON.stringify({desc: f.descricao, valor_modulo: f.valor_modulo})}'>${f.descricao}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_modulo: f.valor_modulo}))}">${f.descricao}</option>`
     ).join('');
 
     // Preencher módulos no Módulo Adicional
@@ -1206,13 +1096,13 @@ async function carregarProdutos() {
     // Preencher faixas no Verificar Desconto
     const dSelect = document.getElementById('d-faixa');
     dSelect.innerHTML = '<option value="">Selecione uma faixa</option>' + faixasAlarme.map(f =>
-      `<option value='${JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo})}'>${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
     // Preencher faixas no upgrade
     const dNovaSelect = document.getElementById('d-nova-faixa');
     dNovaSelect.innerHTML = '<option value="">Selecione a nova faixa</option>' + faixasAlarme.map(f =>
-      `<option value='${JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo})}'>${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
     // Tabela do Verificar Desconto: apenas linha da faixa
@@ -1229,14 +1119,14 @@ let valorModuloModulo = 0;
 function aFaixaChange() {
   const select = document.getElementById('a-faixa');
   if (!select.value) return;
-  const faixa = JSON.parse(select.value);
+  const faixa = JSON.parse(decodeURIComponent(select.value));
   valorModuloAtual = faixa.valor_modulo || 0;
 }
 
 function mFaixaChange() {
   const select = document.getElementById('m-faixa');
   if (!select.value) { valorModuloModulo = 0; return; }
-  const faixa = JSON.parse(select.value);
+  const faixa = JSON.parse(decodeURIComponent(select.value));
   valorModuloModulo = faixa.valor_modulo || 0;
 }
 
@@ -1260,7 +1150,7 @@ function aGerar() {
   if (!cliente) { document.getElementById('a-output').textContent = 'Preencha o nome do cliente.'; return; }
   const faixaVal = document.getElementById('a-faixa').value;
   if (!faixaVal) { document.getElementById('a-output').textContent = 'Selecione uma faixa de contas.'; return; }
-  const faixa = JSON.parse(faixaVal);
+  const faixa = JSON.parse(decodeURIComponent(faixaVal));
   const valorFormatado = faixa.valor.toFixed(2).replace('.', ',');
   const testeLabel = periodoTeste ? (periodoTeste.value === 'remover' ? 'Pode ser removido' : 'Deve ser mantido') : '';
   const faixaDescUppercase = faixa.desc.toUpperCase();
@@ -1290,7 +1180,11 @@ function aLimpar() {
   if (document.getElementById('a-faixa').options.length > 0) document.getElementById('a-faixa').selectedIndex = 0;
   aFaixaChange();
   document.querySelectorAll('#form-alarme .modulo-card').forEach(c => {
-    c.classList.remove('selected'); c.querySelector('input[type="checkbox"]').checked = false; c.querySelector('.a-m-valor').value = '';
+    c.classList.remove('selected');
+    var el = c.querySelector('input[type="checkbox"]');
+    if (el) el.checked = false;
+    var el = c.querySelector('.a-m-valor');
+    if (el) el.value = '';
   });
   document.getElementById('a-output').textContent = 'Preencha os dados e clique em "Gerar texto"';
   document.getElementById('a-totalDisplay').textContent = '';
@@ -1342,7 +1236,11 @@ function mLimpar() {
   if (document.getElementById('m-faixa').options.length > 0) document.getElementById('m-faixa').selectedIndex = 0;
   mFaixaChange();
   document.querySelectorAll('#m-modulos .modulo-card').forEach(c => {
-    c.classList.remove('selected'); c.querySelector('input[type="checkbox"]').checked = false; c.querySelector('.m-valor').value = '';
+    c.classList.remove('selected');
+    var el = c.querySelector('input[type="checkbox"]');
+    if (el) el.checked = false;
+    var el = c.querySelector('.m-valor');
+    if (el) el.value = '';
   });
   document.getElementById('m-output').textContent = 'Preencha os dados e clique em "Gerar texto"';
   document.getElementById('m-totalDisplay').textContent = '';
@@ -1358,7 +1256,7 @@ var dTotalPago = 0;
 function dFaixaChange() {
   const select = document.getElementById('d-faixa');
   if (!select.value) { dFaixaData = null; document.getElementById('d-faixa-nome').textContent = 'Faixa de contas'; return; }
-  dFaixaData = JSON.parse(select.value);
+  dFaixaData = JSON.parse(decodeURIComponent(select.value));
   document.getElementById('d-faixa-nome').textContent = dFaixaData.desc;
   document.getElementById('d-valor-base').textContent = 'R$ ' + dFaixaData.valor_base.toFixed(2).replace('.', ',');
   dAutoCalc();
@@ -1488,7 +1386,7 @@ function dNovaFaixaChange() {
   const select = document.getElementById('d-nova-faixa');
   const resultDiv = document.getElementById('d-upgrade-result');
   if (!select.value || !dFaixaData) { resultDiv.innerHTML = ''; return; }
-  const novaFaixa = JSON.parse(select.value);
+  const novaFaixa = JSON.parse(decodeURIComponent(select.value));
   const cliente = document.getElementById('d-cliente').value.trim() || 'Cliente';
 
   // Usar valor pago se preenchido, senão usar valor esperado
@@ -1564,8 +1462,8 @@ function dNovaFaixaChange() {
 function dAplicarDesconto() {
   const select = document.getElementById('d-nova-faixa');
   if (!select.value || !dFaixaData) { document.getElementById('d-output').textContent = 'Selecione a nova faixa primeiro.'; return; }
+  const novaFaixa = JSON.parse(decodeURIComponent(select.value));
   if (dPercDesconto === 0 && dTotalPago === 0) { document.getElementById('d-output').textContent = 'Calcule o desconto atual primeiro.'; return; }
-  const novaFaixa = JSON.parse(select.value);
   const cliente = document.getElementById('d-cliente').value.trim() || 'Cliente';
   const f = v => (v >= 0 ? 'R$ ' : '-R$ ') + Math.abs(v).toFixed(2).replace('.', ',');
 
@@ -1666,21 +1564,29 @@ function dLimpar() {
   if (document.getElementById('d-faixa').options.length > 0) document.getElementById('d-faixa').selectedIndex = 0;
   document.getElementById('d-cliente').value = '';
   document.getElementById('d-pagamento').value = '';
-  document.querySelector('input[name="d-teste"][value="remover"]').checked = true;
+  var el = document.querySelector('input[name="d-teste"][value="remover"]');
+  if (el) el.checked = true;
   dFaixaData = null;
   dPercDesconto = 0;
   dTotalEsperado = 0;
   dTotalPago = 0;
-  document.getElementById('d-faixa-nome').textContent = 'Faixa de contas';
-  document.getElementById('d-valor-base').textContent = 'R$ 0,00';
-  document.querySelector('#d-row-faixa .d-pago').value = '';
+  var el = document.getElementById('d-faixa-nome');
+  if (el) el.textContent = 'Faixa de contas';
+  var el = document.getElementById('d-valor-base');
+  if (el) el.textContent = 'R$ 0,00';
+  var el = document.querySelector('#d-row-faixa .d-pago');
+  if (el) el.value = '';
   document.querySelectorAll('.d-mod-row').forEach(r => r.remove());
-  document.getElementById('d-desc-faixa').textContent = '—';
-  document.getElementById('d-tabela-foot').innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#9a9898;">Selecione uma faixa para ver os resultados</td></tr>';
+  var el = document.getElementById('d-desc-faixa');
+  if (el) el.textContent = '—';
+  var el = document.getElementById('d-tabela-foot');
+  if (el) el.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#9a9898;">Selecione uma faixa para ver os resultados</td></tr>';
   document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
-  document.getElementById('d-upgrade-panel').style.display = 'none';
+  var el = document.getElementById('d-upgrade-panel');
+  if (el) el.style.display = 'none';
   document.getElementById('d-nova-faixa').value = '';
-  document.getElementById('d-upgrade-result').innerHTML = '';
+  var el = document.getElementById('d-upgrade-result');
+  if (el) el.innerHTML = '';
   dModCounter = 0;
 }
 
@@ -1743,7 +1649,7 @@ async function orcamentoProdutoChange(el) {
     ]);
 
     faixaSelect.innerHTML = '<option value="">Selecione a faixa</option>' + (faixas || []).map(f =>
-      `<option value='${JSON.stringify({desc:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo})}'>${f.descricao}</option>`
+      `<option value="${encodeURIComponent(JSON.stringify({desc:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo}))}">${f.descricao}</option>`
     ).join('');
 
     modContainer.innerHTML = (modulos || []).map(m =>
@@ -1778,7 +1684,7 @@ function orcamentoFaixaChange(el) {
     return;
   }
 
-  const faixa = JSON.parse(el.value);
+  const faixa = JSON.parse(decodeURIComponent(el.value));
   const intPart = Math.floor(faixa.valor_modulo);
   const centPart = Math.round((faixa.valor_modulo - intPart) * 100);
   const modValorStr = intPart.toLocaleString('pt-BR') + ',' + String(centPart).padStart(2, '0');
@@ -1864,7 +1770,7 @@ function orcamentoGerar() {
     hasItems = true;
     idx++;
 
-    const faixa = JSON.parse(faixaSelect.value);
+    const faixa = JSON.parse(decodeURIComponent(faixaSelect.value));
     const prodSelect = item.querySelector('.o-produto');
     const prodName = prodSelect.options[prodSelect.selectedIndex]?.text || 'Produto';
     const valorUnit = parseCurrency(item.querySelector('.o-valor').value) || 0;
@@ -1906,16 +1812,20 @@ function orcamentoLimpar() {
 }
 
 // === COPIAR ===
-function copiar(outputId, msgId) {
+async function copiar(outputId, msgId) {
   const output = document.getElementById(outputId);
-  const textarea = document.createElement('textarea');
-  textarea.value = output.textContent;
-  textarea.style.position = 'fixed';
-  textarea.style.opacity = '0';
-  document.body.appendChild(textarea);
-  textarea.select();
-  document.execCommand('copy');
-  document.body.removeChild(textarea);
+  try {
+    await navigator.clipboard.writeText(output.textContent);
+  } catch (_) {
+    const textarea = document.createElement('textarea');
+    textarea.value = output.textContent;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  }
   const msg = document.getElementById(msgId);
   msg.classList.add('show');
   setTimeout(() => msg.classList.remove('show'), 2000);

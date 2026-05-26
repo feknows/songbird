@@ -3,7 +3,7 @@
  *
  * 1. Crie um arquivo .env com:
  *    SUPABASE_URL=https://xxxxx.supabase.co
- *    SUPABASE_ANON_KEY=eyJhbGciOiJ...
+ *    SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJ...  (Project Settings → API → service_role key)
  *
  * 2. Execute o script supabase-schema.sql no SQL Editor do Supabase
  *
@@ -27,10 +27,10 @@ if (fs.existsSync(envPath)) {
 }
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('Erro: Crie o arquivo .env com SUPABASE_URL e SUPABASE_ANON_KEY');
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('Erro: Crie o arquivo .env com SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY');
   process.exit(1);
 }
 
@@ -41,8 +41,19 @@ function sha256(str) {
   return crypto.createHash('sha256').update(str).digest('hex');
 }
 
+async function batchUpsert(supabase, table, rows, conflictColumn = 'id') {
+  if (rows.length === 0) return;
+  const { error } = await supabase.from(table).upsert(rows, { onConflict: conflictColumn });
+  if (error) {
+    console.error(`  Erro ao migrar lote de ${table}:`, error.message);
+  } else {
+    console.log(`  ${rows.length} registro(s) de "${table}" migrado(s)`);
+  }
+}
+
 async function main() {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Usa service_role key para contornar RLS durante a migração
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
   const SQL = await initSqlJs();
 
   const dbPath = path.join(__dirname, 'dados.db');
@@ -64,82 +75,37 @@ async function main() {
   }
 
   // --- Migrate usuarios ---
-  const usuarios = query('SELECT * FROM usuarios');
-  for (const u of usuarios) {
-    const hash = sha256(u.senha);
-    const { error } = await supabase.from('usuarios').upsert({
-      id: u.id,
-      nome: u.nome,
-      senha: hash,
-      permissao: u.permissao,
-      criado_em: u.criado_em
-    }, { onConflict: 'id' });
-    if (error) console.error(`Erro ao migrar usuário ${u.nome}:`, error.message);
-    else console.log(`  Usuário "${u.nome}" migrado`);
-  }
+  const usuarios = query('SELECT * FROM usuarios').map(u => ({
+    id: u.id,
+    nome: u.nome,
+    senha: sha256(u.senha),
+    permissao: u.permissao,
+    criado_em: u.criado_em
+  }));
+  await batchUpsert(supabase, 'usuarios', usuarios);
 
   // --- Migrate produtos ---
   const produtos = query('SELECT * FROM produtos');
-  for (const p of produtos) {
-    const { error } = await supabase.from('produtos').upsert({
-      id: p.id,
-      nome: p.nome,
-      tipo: p.tipo,
-      ativo: p.ativo,
-      ordem: p.ordem
-    }, { onConflict: 'id' });
-    if (error) console.error(`Erro ao migrar produto ${p.nome}:`, error.message);
-    else console.log(`  Produto "${p.nome}" migrado`);
-  }
+  await batchUpsert(supabase, 'produtos', produtos);
 
   // --- Migrate faixas ---
   const faixas = query('SELECT * FROM faixas');
-  for (const f of faixas) {
-    const { error } = await supabase.from('faixas').upsert({
-      id: f.id,
-      produto_id: f.produto_id,
-      descricao: f.descricao,
-      valor_base: f.valor_base,
-      valor_modulo: f.valor_modulo,
-      ordem: f.ordem
-    }, { onConflict: 'id' });
-    if (error) console.error(`Erro ao migrar faixa ${f.id}:`, error.message);
-    else console.log(`  Faixa "${f.descricao}" migrada`);
-  }
+  await batchUpsert(supabase, 'faixas', faixas);
 
   // --- Migrate modulos ---
   const modulos = query('SELECT * FROM modulos');
-  for (const m of modulos) {
-    const { error } = await supabase.from('modulos').upsert({
-      id: m.id,
-      produto_id: m.produto_id,
-      nome: m.nome,
-      ativo: m.ativo,
-      ordem: m.ordem
-    }, { onConflict: 'id' });
-    if (error) console.error(`Erro ao migrar módulo ${m.nome}:`, error.message);
-    else console.log(`  Módulo "${m.nome}" migrado`);
-  }
+  await batchUpsert(supabase, 'modulos', modulos);
 
   // --- Migrate leads ---
-  const leads = query('SELECT * FROM leads');
-  for (const l of leads) {
-    const { error } = await supabase.from('leads').upsert({
-      id: l.id,
-      nome: l.nome,
-      telefone: l.telefone || '',
-      whatsapp: l.whatsapp || '',
-      site: l.site || '',
-      endereco: l.endereco || '',
-      avaliacao: l.avaliacao,
-      redes_sociais: l.redes_sociais || '',
-      cidade: l.cidade,
-      termo: l.termo,
-      criado_em: l.criado_em
-    }, { onConflict: 'id' });
-    if (error) console.error(`Erro ao migrar lead ${l.nome}:`, error.message);
-    else console.log(`  Lead "${l.nome}" migrado`);
-  }
+  const leads = query('SELECT * FROM leads').map(l => ({
+    ...l,
+    telefone: l.telefone || '',
+    whatsapp: l.whatsapp || '',
+    site: l.site || '',
+    endereco: l.endereco || '',
+    redes_sociais: l.redes_sociais || ''
+  }));
+  await batchUpsert(supabase, 'leads', leads);
 
   db.close();
   console.log('\nMigração concluída!');
