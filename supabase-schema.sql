@@ -59,13 +59,19 @@ ALTER TABLE modulos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 
 -- Usuários: só SELECT (login) e UPDATE própria senha
-CREATE POLICY IF NOT EXISTS "usuarios_select" ON usuarios FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "usuarios_update" ON usuarios FOR UPDATE USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "usuarios_select" ON usuarios;
+DROP POLICY IF EXISTS "usuarios_update" ON usuarios;
+CREATE POLICY "usuarios_select" ON usuarios FOR SELECT USING (true);
+CREATE POLICY "usuarios_update" ON usuarios FOR UPDATE USING (true) WITH CHECK (true);
 
 -- Produtos/faixas/módulos: CRUD completo (admin usa pelo frontend)
-CREATE POLICY IF NOT EXISTS "produtos_all" ON produtos FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "faixas_all" ON faixas FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "modulos_all" ON modulos FOR ALL USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "produtos_all" ON produtos;
+DROP POLICY IF EXISTS "faixas_all" ON faixas;
+DROP POLICY IF EXISTS "modulos_all" ON modulos;
+CREATE POLICY "produtos_all" ON produtos FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "faixas_all" ON faixas FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "modulos_all" ON modulos FOR ALL USING (true) WITH CHECK (true);
 
 -- Leads: CRUD completo (coleta + visualização)
-CREATE POLICY IF NOT EXISTS "leads_all" ON leads FOR ALL USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "leads_all" ON leads;
+CREATE POLICY "leads_all" ON leads FOR ALL USING (true) WITH CHECK (true);
