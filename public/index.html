@@ -630,7 +630,6 @@ async function checkSession() {
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       if (data.permissao === 'admin') {
-        document.getElementById('cfg-btn-usuarios').style.display = 'block';
         document.getElementById('cfg-btn-produtos').style.display = 'block';
       }
     }
@@ -654,7 +653,6 @@ async function fazerLogin() {
       document.getElementById('app').style.display = 'block';
       document.getElementById('login-error').style.display = 'none';
       if (data.permissao === 'admin') {
-        document.getElementById('cfg-btn-usuarios').style.display = 'block';
         document.getElementById('cfg-btn-produtos').style.display = 'block';
       }
     } else {
