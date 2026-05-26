@@ -659,7 +659,19 @@ async function fazerLogin() {
       throw new Error('Invalid');
     }
   } catch (e) {
-    document.getElementById('login-error').textContent = 'Usuário ou senha inválidos';
+    let msg;
+    if (e.message === 'Invalid') {
+      msg = 'Usuário ou senha inválidos';
+    } else if (e?.message?.includes('Failed to fetch') || e?.message?.includes('NetworkError')) {
+      msg = 'Erro de conexão com o servidor. Verifique sua internet.';
+    } else if (e?.code === '42501' || e?.message?.includes('permission denied')) {
+      msg = 'Erro de permissão no banco de dados.';
+    } else if (e?.code === 'PGRST116' || e?.message?.includes('does not exist')) {
+      msg = 'Banco de dados não configurado (tabelas ausentes).';
+    } else {
+      msg = 'Erro inesperado: ' + (e?.message || 'desconhecido');
+    }
+    document.getElementById('login-error').textContent = msg;
     document.getElementById('login-error').style.display = 'block';
   }
   btn.disabled = false;
