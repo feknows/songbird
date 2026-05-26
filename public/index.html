@@ -807,7 +807,6 @@ function adicionarFaixa(produtoId, tipo) {
   document.getElementById('modal-faixa-vm-wrapper').style.display = tipo === 'alarme' ? 'block' : 'none';
   document.getElementById('modal-nova-faixa').style.display = 'flex';
   setTimeout(() => document.getElementById('modal-faixa-desc').focus(), 100);
-  carregarModulosFaixa(produtoId, null);
 }
 
 function editarFaixa(data) {
@@ -820,7 +819,6 @@ function editarFaixa(data) {
   document.getElementById('modal-faixa-vm-wrapper').style.display = data.tipo === 'alarme' ? 'block' : 'none';
   document.getElementById('modal-nova-faixa').style.display = 'flex';
   setTimeout(() => document.getElementById('modal-faixa-desc').focus(), 100);
-  carregarModulosFaixa(data.produto_id, data.id);
 }
 
 async function salvarFaixa() {
@@ -837,23 +835,8 @@ async function salvarFaixa() {
       novaId = parseInt(faixaId);
     } else {
       const { data: maxOrdem } = await supabase.from('faixas').select('ordem').eq('produto_id', faixaProdutoId).order('ordem', { ascending: false }).limit(1);
-      const { data: inserida } = await supabase.from('faixas').insert({ produto_id: faixaProdutoId, descricao: desc, valor_base: vb, valor_modulo: vm, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 }).select().single();
-      novaId = inserida?.id;
+      await supabase.from('faixas').insert({ produto_id: faixaProdutoId, descricao: desc, valor_base: vb, valor_modulo: vm, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 });
     }
-    // Salvar preços por módulo
-    const modInputs = document.querySelectorAll('.faixa-mod-preco');
-    const proms = [];
-    for (const inp of modInputs) {
-      const modId = parseInt(inp.dataset.moduloId);
-      const valStr = inp.value.trim();
-      if (valStr) {
-        const v = parseFloat(valStr.replace(/\./g, '').replace(',', '.')) || 0;
-        proms.push(supabase.from('modulo_precos').upsert({ modulo_id: modId, faixa_id: novaId, valor: v }, { onConflict: 'modulo_id,faixa_id' }));
-      } else {
-        proms.push(supabase.from('modulo_precos').delete().eq('modulo_id', modId).eq('faixa_id', novaId));
-      }
-    }
-    await Promise.all(proms);
     fecharModalFaixa();
     carregarProdutosAdmin();
   } catch (e) {
@@ -910,28 +893,6 @@ function deletarModulo(id, nome) {
       alert(e.message);
     }
   });
-}
-
-async function carregarModulosFaixa(produtoId, faixaId) {
-  const container = document.getElementById('modal-faixa-modulos-container');
-  const wrapper = document.getElementById('modal-faixa-modulos');
-  if (!produtoId) { wrapper.style.display = 'none'; return; }
-  const [{ data: modulos }, { data: precos }] = await Promise.all([
-    supabase.from('modulos').select('*').eq('produto_id', produtoId).order('id'),
-    faixaId ? supabase.from('modulo_precos').select('*').eq('faixa_id', faixaId) : Promise.resolve({ data: [] })
-  ]);
-  if (!modulos || modulos.length === 0) { wrapper.style.display = 'none'; return; }
-  const precosMap = {};
-  for (const p of (precos || [])) precosMap[p.modulo_id] = p.valor;
-  container.innerHTML = modulos.map(m => {
-    const v = precosMap[m.id];
-    const valStr = v !== undefined ? v.toFixed(2).replace('.', ',') : '';
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <span style="flex:1;font-size:0.85rem;">${m.nome}</span>
-      <input type="text" class="faixa-mod-preco" data-modulo-id="${m.id}" value="${valStr}" placeholder="0,00" oninput="formatCurrency(this)" style="width:120px;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;">
-    </div>`;
-  }).join('');
-  wrapper.style.display = 'block';
 }
 
 // === MÁSCARAS ===
@@ -1097,7 +1058,6 @@ function pLimpar() {
 // === PRODUTOS (carregar do banco) ===
 let faixasAlarme = [];
 let modulosAlarme = [];
-let moduloPrecos = {};
 let faixaIdAtual = null;
 let faixaIdModulo = null;
 
@@ -1109,14 +1069,8 @@ async function carregarProdutos() {
 
     const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', moniBase.id).order('ordem').order('id');
     const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', moniBase.id).order('id');
-    const { data: precos } = await supabase.from('modulo_precos').select('*');
     faixasAlarme = faixas || [];
     modulosAlarme = modulos || [];
-    moduloPrecos = {};
-    for (const p of (precos || [])) {
-      if (!moduloPrecos[p.modulo_id]) moduloPrecos[p.modulo_id] = {};
-      moduloPrecos[p.modulo_id][p.faixa_id] = p.valor;
-    }
 
     // Preencher select de faixas
     const select = document.getElementById('a-faixa');
@@ -1173,9 +1127,8 @@ function aFaixaChange() {
   valorModuloAtual = faixa.valor_modulo || 0;
   document.querySelectorAll('#form-alarme .modulo-card').forEach(c => {
     const mid = parseInt(c.dataset.moduloId);
-    const valor = moduloPrecos[mid]?.[faixaIdAtual];
-    const el = c.querySelector('.a-m-valor');
-    if (el) el.value = valor !== undefined ? (Math.floor(valor).toLocaleString('pt-BR') + ',' + String(Math.round((valor - Math.floor(valor)) * 100)).padStart(2, '0')) : '';
+    var el = c.querySelector('.a-m-valor');
+    if (el) el.value = faixa.valor_modulo > 0 ? (Math.floor(faixa.valor_modulo).toLocaleString('pt-BR') + ',' + String(Math.round((faixa.valor_modulo - Math.floor(faixa.valor_modulo)) * 100)).padStart(2, '0')) : '';
   });
 }
 
@@ -1187,9 +1140,8 @@ function mFaixaChange() {
   valorModuloModulo = faixa.valor_modulo || 0;
   document.querySelectorAll('#m-modulos .modulo-card').forEach(c => {
     const mid = parseInt(c.dataset.moduloId);
-    const valor = moduloPrecos[mid]?.[faixaIdModulo];
-    const el = c.querySelector('.m-valor');
-    if (el) el.value = valor !== undefined ? (Math.floor(valor).toLocaleString('pt-BR') + ',' + String(Math.round((valor - Math.floor(valor)) * 100)).padStart(2, '0')) : '';
+    var el = c.querySelector('.m-valor');
+    if (el) el.value = faixa.valor_modulo > 0 ? (Math.floor(faixa.valor_modulo).toLocaleString('pt-BR') + ',' + String(Math.round((faixa.valor_modulo - Math.floor(faixa.valor_modulo)) * 100)).padStart(2, '0')) : '';
   });
 }
 
@@ -1200,11 +1152,10 @@ function aMToggle(el) {
   el.classList.toggle('selected', checkbox.checked);
   if (checkbox.checked) {
     const moduloId = parseInt(el.dataset.moduloId);
-    const valor = moduloPrecos[moduloId]?.[faixaIdAtual] ?? valorModuloAtual;
-    if (valor > 0) {
+    if (valorModuloAtual > 0) {
       const valorInput = el.querySelector('.a-m-valor');
-      const reais = Math.floor(valor);
-      const centavos = Math.round((valor - reais) * 100);
+      const reais = Math.floor(valorModuloAtual);
+      const centavos = Math.round((valorModuloAtual - reais) * 100);
       valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
     }
   }
@@ -1264,11 +1215,10 @@ function mToggle(el) {
   el.classList.toggle('selected', checkbox.checked);
   if (checkbox.checked) {
     const moduloId = parseInt(el.dataset.moduloId);
-    const valor = moduloPrecos[moduloId]?.[faixaIdModulo] ?? valorModuloModulo;
-    if (valor > 0) {
+    if (valorModuloModulo > 0) {
       const valorInput = el.querySelector('.m-valor');
-      const reais = Math.floor(valor);
-      const centavos = Math.round((valor - reais) * 100);
+      const reais = Math.floor(valorModuloModulo);
+      const centavos = Math.round((valorModuloModulo - reais) * 100);
       valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
     }
   }
@@ -1350,9 +1300,8 @@ function dModSelectChange(sel) {
   const row = sel.closest('tr');
   if (sel.value && dFaixaData) {
     const modId = parseInt(sel.value);
-    const valor = moduloPrecos[modId]?.[dFaixaData.id] ?? dFaixaData.valor_modulo;
-    const reais = Math.floor(valor);
-    const centavos = Math.round((valor - reais) * 100);
+    const reais = Math.floor(dFaixaData.valor_modulo);
+    const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
     row.querySelector('.d-mod-esperado').value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
   }
   dAutoCalc();
@@ -1481,9 +1430,9 @@ function dNovaFaixaChange() {
     const modId = select ? parseInt(select.value) : 0;
     const pagoInput = row.querySelector('.d-pago');
     const pagoVal = pagoInput ? parseCurrency(pagoInput.value) : 0;
-    const modValAtual = pagoVal > 0 ? pagoVal : (modId ? (moduloPrecos[modId]?.[dFaixaData.id] ?? dFaixaData.valor_modulo) : dFaixaData.valor_modulo);
+    const modValAtual = pagoVal > 0 ? pagoVal : dFaixaData.valor_modulo;
     totalModAtual += modValAtual;
-    const modValNovo = modId ? (moduloPrecos[modId]?.[novaFaixa.id] ?? novaFaixa.valor_modulo) : novaFaixa.valor_modulo;
+    const modValNovo = novaFaixa.valor_modulo;
     totalModNovo += modValNovo;
   });
 
@@ -1719,22 +1668,14 @@ async function orcamentoProdutoChange(el) {
   }
 
   try {
-    const [{ data: faixas }, { data: modulos }, { data: precos }] = await Promise.all([
+    const [{ data: faixas }, { data: modulos }] = await Promise.all([
       supabase.from('faixas').select('*').eq('produto_id', produtoId).order('ordem').order('id'),
-      supabase.from('modulos').select('*').eq('produto_id', produtoId).order('id'),
-      supabase.from('modulo_precos').select('*')
+      supabase.from('modulos').select('*').eq('produto_id', produtoId).order('id')
     ]);
 
     faixaSelect.innerHTML = '<option value="">Selecione a faixa</option>' + (faixas || []).map(f =>
       `<option value="${encodeURIComponent(JSON.stringify({desc:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,id:f.id}))}">${f.descricao}</option>`
     ).join('');
-
-    const precosMap = {};
-    for (const p of (precos || [])) {
-      if (!precosMap[p.modulo_id]) precosMap[p.modulo_id] = {};
-      precosMap[p.modulo_id][p.faixa_id] = p.valor;
-    }
-    item.dataset.precos = JSON.stringify(precosMap);
 
     modContainer.innerHTML = (modulos || []).map(m =>
       `<div class="modulo-card" data-modulo-id="${m.id}" onclick="orcamentoModToggle(this)">
@@ -1769,16 +1710,12 @@ function orcamentoFaixaChange(el) {
   }
 
   const faixa = JSON.parse(decodeURIComponent(el.value));
-  const precosMap = {};
-  try { Object.assign(precosMap, JSON.parse(item.dataset.precos || '{}')); } catch (_) {}
 
   valorDiv.value = faixa.valor_base.toFixed(2).replace('.', ',');
 
   modCards.forEach(card => {
-    const mid = parseInt(card.dataset.moduloId);
-    const valor = precosMap[mid]?.[faixa.id] ?? faixa.valor_modulo;
-    const intPart = Math.floor(valor);
-    const centPart = Math.round((valor - intPart) * 100);
+    var intPart = Math.floor(faixa.valor_modulo);
+    var centPart = Math.round((faixa.valor_modulo - intPart) * 100);
     card.querySelector('.o-mod-valor').textContent = intPart.toLocaleString('pt-BR') + ',' + String(centPart).padStart(2, '0');
   });
 
@@ -1988,10 +1925,6 @@ function executarConfirm() {
       <div class="field" id="modal-faixa-vm-wrapper">
         <label>Valor Módulo (R$)</label>
         <input type="text" id="modal-faixa-vm" placeholder="0,00" oninput="formatCurrency(this)" onkeydown="if(event.key==='Enter')salvarFaixa()">
-      </div>
-      <div id="modal-faixa-modulos" style="margin-top:12px;display:none;">
-        <label style="display:block;margin-bottom:8px;font-weight:600;font-size:0.85rem;">Valor por Módulo (R$)</label>
-        <div id="modal-faixa-modulos-container"></div>
       </div>
       <div class="actions" style="margin-top:20px;">
         <button class="btn btn-secondary" onclick="fecharModalFaixa()">Cancelar</button>
