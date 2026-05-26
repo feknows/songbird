@@ -10,9 +10,14 @@ Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted
 
 ## Supabase setup
 
-1. Create a Supabase project, run **`supabase-setup.sql`** in SQL Editor (creates schema, RLS policies, and admin user).
+1. Create a Supabase project, run **`supabase-schema.sql`** in SQL Editor (creates schema + RLS policies — see Policies section).
 2. Copy `.env.example` to `.env` locally (for `migrate-supabase.js`).
 3. **Critical**: In `public/index.html:609-610`, replace the placeholder credentials with real Supabase URL and anon key.
+4. Create an admin user via SQL Editor (generate SHA-256 hash with `node -e "console.log(require('crypto').createHash('sha256').update('SUA_SENHA').digest('hex'))"`):
+   ```sql
+   INSERT INTO usuarios (nome, senha, permissao)
+   VALUES ('seu_usuario', 'SEU_HASH_AQUI', 'admin');
+   ```
 
 ## Commands
 
@@ -37,6 +42,6 @@ Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted
 - `public/index.html:609-610` has hardcoded Supabase credentials that must be replaced with real ones before the app works.
 - `DESIGN.md` is for the OpenCode marketing site design system, unrelated to this project.
 - `migrate-supabase.js` is a one-shot script for migrating legacy SQLite data.
-- Password is SHA-256, **not bcrypt**. Both client-side login and server-side migration use it.
+- Password is SHA-256, **not bcrypt**. Both client-side login (and server-side migration) use it.
 - Gerenciamento de usuários (criar/editar/deletar) é feito pelo SQL Editor do Supabase — o frontend não tem essa aba.
-- `supabase-setup.sql` é o setup oficial. `supabase-schema.sql` é legado e só existe como referência.
+- `supabase-setup.sql` é local e **nunca** deve ser commitado. Está no `.gitignore`.
