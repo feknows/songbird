@@ -10,7 +10,7 @@ Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted
 
 ## Supabase setup
 
-1. Create a Supabase project, run **`supabase-schema.sql`** in SQL Editor (creates schema + RLS policies — see Policies section).
+1. Create a Supabase project, run **`supabase-schema.sql`** in SQL Editor (creates schema + RLS policies).
 2. Copy `.env.example` to `.env` locally (for `migrate-supabase.js`).
 3. **Critical**: In `public/index.html:609-610`, replace the placeholder credentials with real Supabase URL and anon key.
 4. Create an admin user via SQL Editor (generate SHA-256 hash with `node -e "console.log(require('crypto').createHash('sha256').update('SUA_SENHA').digest('hex'))"`):
