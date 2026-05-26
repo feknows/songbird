@@ -58,12 +58,15 @@ Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted
      termo TEXT NOT NULL,
      criado_em TIMESTAMPTZ DEFAULT NOW()
    );
-   ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE produtos ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE faixas ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE modulos ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
-   DROP POLICY IF EXISTS "usuarios_select" ON usuarios;
+    GRANT USAGE ON SCHEMA public TO anon;
+    GRANT ALL ON ALL TABLES IN SCHEMA public TO anon;
+    GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon;
+    ALTER TABLE usuarios ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE produtos ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE faixas ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE modulos ENABLE ROW LEVEL SECURITY;
+    ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+    DROP POLICY IF EXISTS "usuarios_select" ON usuarios;
    DROP POLICY IF EXISTS "usuarios_update" ON usuarios;
    CREATE POLICY "usuarios_select" ON usuarios FOR SELECT USING (true);
    CREATE POLICY "usuarios_update" ON usuarios FOR UPDATE USING (true) WITH CHECK (true);
