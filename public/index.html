@@ -1626,11 +1626,10 @@ function orcamentoAddItem() {
   div.style.cssText = 'background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;margin-bottom:12px;';
 
   div.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr 70px 130px;gap:8px;margin-bottom:8px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 130px;gap:8px;margin-bottom:8px;">
       <div class="field"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;background:#f8f7f7;"><option value="">Selecione</option></select></div>
       <div class="field"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;background:#f8f7f7;"><option value="">Carregando...</option></select></div>
-      <div class="field"><label>Qtd</label><input type="number" class="o-qtd" value="1" min="1" oninput="orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;"></div>
-      <div class="field"><label>Valor unit. (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+      <div class="field"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;"></div>
     </div>
     <div class="modulo-grid o-modulos" style="margin-bottom:4px;"></div>
     <button class="btn btn-sm btn-danger" onclick="orcamentoRemoveItem(${id})">✕ Remover item</button>
@@ -1745,16 +1744,16 @@ function orcamentoAtualizarResumo() {
 
   items.forEach(item => {
     const faixaSelect = item.querySelector('.o-faixa');
-    const qtd = parseInt(item.querySelector('.o-qtd').value) || 1;
     if (!faixaSelect.value) return;
     idx++;
 
     const valorUnit = parseCurrency(item.querySelector('.o-valor').value) || 0;
-    const subtotal = valorUnit * qtd;
+    const subtotal = valorUnit;
     const prodSelect = item.querySelector('.o-produto');
     const prodName = prodSelect.options[prodSelect.selectedIndex]?.text || 'Produto';
+    const faixa = JSON.parse(decodeURIComponent(faixaSelect.value));
 
-    html += `<div style="font-size:0.85rem;margin-bottom:4px;">${idx}. ${prodName} (${faixa.desc}) x${qtd} = R$ ${subtotal.toFixed(2).replace('.', ',')}</div>`;
+    html += `<div style="font-size:0.85rem;margin-bottom:4px;">${idx}. ${prodName} (${faixa.desc}) = R$ ${subtotal.toFixed(2).replace('.', ',')}</div>`;
 
     item.querySelectorAll('.o-modulos .modulo-card.selected').forEach(card => {
       const nome = card.querySelector('.modulo-nome').textContent.trim();
@@ -1788,7 +1787,6 @@ function orcamentoGerar() {
 
   items.forEach(item => {
     const faixaSelect = item.querySelector('.o-faixa');
-    const qtd = parseInt(item.querySelector('.o-qtd').value) || 1;
     if (!faixaSelect.value) return;
     hasItems = true;
     idx++;
@@ -1797,11 +1795,11 @@ function orcamentoGerar() {
     const prodSelect = item.querySelector('.o-produto');
     const prodName = prodSelect.options[prodSelect.selectedIndex]?.text || 'Produto';
     const valorUnit = parseCurrency(item.querySelector('.o-valor').value) || 0;
-    const subtotal = valorUnit * qtd;
+    const subtotal = valorUnit;
     const modCards = item.querySelectorAll('.o-modulos .modulo-card.selected');
 
-    texto += `${idx}) ${prodName.toUpperCase()} (${faixa.desc.toUpperCase()}) x${qtd}\n`;
-    texto += `${qtd >= 1 ? qtd + ' ' : ''}${prodName} ${faixa.desc} = R$ ${valorUnit.toFixed(2).replace('.', ',')} cada\n`;
+    texto += `${idx}) ${prodName.toUpperCase()} (${faixa.desc.toUpperCase()})\n`;
+    texto += `${prodName} ${faixa.desc} = R$ ${valorUnit.toFixed(2).replace('.', ',')}\n`;
 
     let totalMod = 0;
     modCards.forEach(card => {
