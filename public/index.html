@@ -101,9 +101,10 @@
   .modulo-card.selected { border-color: #201d1d; background: #f8f7f7; }
   .modulo-card .modulo-nome { font-size: 0.9rem; font-weight: 600; color: #201d1d; display: flex; align-items: center; gap: 8px; }
   .modulo-card .modulo-nome input[type="checkbox"] { display: none; }
+  .modulo-card .modulo-icone { margin-left: auto; font-size: 1.1rem; }
   .modulo-card .modulo-valor { margin-top: 8px; display: none; }
   .modulo-card.selected .modulo-valor { display: block; }
-  .modulo-card .modulo-valor input { width: 100%; padding: 6px 8px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.85rem; outline: none; background: #f8f7f7; }
+  .modulo-card .modulo-valor input { width: 100%; padding: 8px 10px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; font-family: inherit; outline: none; background: #f8f7f7; }
   .modulo-card .modulo-valor input:focus { border-color: #201d1d; background: #fdfcfc; }
 
   /* Config */
@@ -1073,6 +1074,15 @@ let modulosAlarme = [];
 let faixaIdAtual = null;
 let faixaIdModulo = null;
 
+const iconesModulos = {
+  'Moni Discador': '📞',
+  'Moni Imagens': '📷',
+  'Moni Mensagens': '✉️',
+  'Moni Mobile': '📱',
+  'Moni Veículos': '🚗',
+  'Moni Web': '💻',
+};
+
 async function carregarProdutos() {
   try {
     const { data: produtos } = await supabase.from('produtos').select('*').order('id');
@@ -1093,7 +1103,7 @@ async function carregarProdutos() {
     // Preencher módulos no Moni Alarme
     const container = document.getElementById('a-modulos-container');
     container.innerHTML = modulosAlarme.map(m =>
-      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
     ).join('');
 
     // Preencher faixas no Módulo Adicional
@@ -1105,7 +1115,7 @@ async function carregarProdutos() {
     // Preencher módulos no Módulo Adicional
     const mContainer = document.getElementById('m-modulos');
     mContainer.innerHTML = modulosAlarme.map(m =>
-      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}</div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
     ).join('');
 
     // Preencher faixas no Verificar Desconto
@@ -1692,7 +1702,7 @@ async function orcamentoProdutoChange(el) {
       `<div class="modulo-card" data-modulo-id="${m.id}" onclick="orcamentoModToggle(this)">
         <div class="modulo-nome">
           <input type="checkbox" onclick="event.stopPropagation()" onchange="orcamentoModToggle(this.parentElement.parentElement)">
-          ${m.nome}
+          ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span>
         </div>
         <div class="modulo-valor">
           <span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span>
