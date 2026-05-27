@@ -7,151 +7,524 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co; img-src 'self' data:;">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
+  :root {
+    --bg-canvas: #0a0a0a;
+    --bg-surface: #141414;
+    --bg-raised: #1c1c1c;
+    --bg-elevated: #242424;
+    --green: #30d158;
+    --green-bright: #4cd964;
+    --green-dim: rgba(48, 209, 88, 0.12);
+    --green-hairline: rgba(48, 209, 88, 0.25);
+    --green-glow: rgba(48, 209, 88, 0.4);
+    --text-primary: #e8e8e8;
+    --text-secondary: #8a8a8a;
+    --text-muted: #525252;
+    --danger: #ff3b30;
+    --danger-hover: #d70015;
+    --font-mono: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
-  body { font-family: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace; background: #fdfcfc; color: #201d1d; }
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+  }
 
-  /* Login */
-  #login-screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: #fdfcfc; z-index: 1000; }
-  .login-box { background: #fdfcfc; padding: 40px 36px; width: 360px; border: 1px solid rgba(15,0,0,0.12); border-radius: 0; }
-  .login-box h1 { font-size: 1.3rem; margin-bottom: 4px; text-align: center; }
-  .login-box p { font-size: 0.85rem; color: #646262; margin-bottom: 24px; text-align: center; }
-  .login-box .field { margin-bottom: 16px; }
-  .login-box .field label { display: block; font-size: 0.8rem; font-weight: 500; color: #646262; margin-bottom: 4px; }
-  .login-box .field input { width: 100%; padding: 10px 12px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; outline: none; background: #f8f7f7; }
-  .login-box .field input:focus { border-color: #201d1d; background: #fdfcfc; }
-  .login-box .login-error { color: #ff3b30; font-size: 0.8rem; margin-top: 8px; display: none; }
-  .login-box .btn { width: 100%; padding: 10px; background: #201d1d; color: #fdfcfc; border: none; border-radius: 4px; font-size: 0.9rem; font-weight: 500; cursor: pointer; }
-  .login-box .btn:hover { background: #0f0000; }
-  .login-box .btn:disabled { opacity: 0.6; cursor: not-allowed; background: #f1eeee; color: #9a9898; }
+  /* ===== LOGIN ===== */
+  #login-screen {
+    position: fixed; inset: 0; display: flex; align-items: center;
+    justify-content: center; background: var(--bg-canvas); z-index: 1000;
+  }
+  .login-box { padding: 40px 36px; width: 380px; }
+  .login-ascii {
+    font-size: 0.7rem; line-height: 1.3; color: var(--green);
+    text-align: center; margin-bottom: 24px; white-space: pre;
+  }
+  .login-box .prompt { margin-bottom: 16px; }
+  .login-box .prompt .label {
+    font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;
+  }
+  .login-box .prompt input {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg-raised); color: var(--text-primary);
+    border: 1px solid var(--green-hairline); border-radius: 4px;
+    font-size: 0.9rem; outline: none; font-family: var(--font-mono);
+  }
+  .login-box .prompt input:focus {
+    border-color: var(--green); box-shadow: 0 0 8px var(--green-glow);
+  }
+  .login-box .login-error {
+    color: var(--danger); font-size: 0.8rem; margin-top: 8px; display: none;
+  }
+  .login-box .btn-login {
+    width: 100%; padding: 10px; margin-top: 8px;
+    background: transparent; color: var(--green);
+    border: 1px solid var(--green); border-radius: 4px;
+    font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    font-family: var(--font-mono); text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .login-box .btn-login:hover {
+    background: var(--green-dim); box-shadow: 0 0 12px var(--green-glow);
+  }
+  .login-box .btn-login:disabled {
+    opacity: 0.4; cursor: not-allowed; box-shadow: none;
+  }
 
-  /* Layout */
+  /* ===== LAYOUT ===== */
   #app { display: none; width: 100%; height: 100%; }
   .app-inner { display: flex; width: 100%; height: 100%; }
-  .sidebar { width: 200px; flex-shrink: 0; background: #201d1d; color: #fdfcfc; display: flex; flex-direction: column; }
-  .sidebar-header { padding: 20px 16px; border-bottom: 1px solid rgba(255,255,255,0.12); }
-  .sidebar-header svg { display: block; }
-  .sidebar-header span { font-size: 0.75rem; color: #9a9898; }
+
+  /* Topbar (Dashboard) */
+  .topbar {
+    display: none; height: 44px; flex-shrink: 0;
+    background: var(--bg-surface); border-bottom: 1px solid var(--green-hairline);
+    align-items: center; padding: 0 20px;
+  }
+  .topbar .breadcrumb { font-size: 0.8rem; color: var(--text-secondary); }
+  .topbar .breadcrumb span { color: var(--green); }
+
+  /* Sidebar */
+  .sidebar {
+    width: 200px; flex-shrink: 0; background: var(--bg-surface);
+    border-right: 1px solid var(--green-hairline);
+    display: flex; flex-direction: column; transition: width 0.3s;
+  }
+  .sidebar-header {
+    padding: 18px 16px; border-bottom: 1px solid var(--green-hairline);
+  }
+  .sidebar-header .logo-terminal {
+    font-size: 0.85rem; color: var(--green); text-align: center;
+  }
+  .sidebar-header .logo-terminal .prompt { color: var(--text-secondary); }
+  .sidebar-header .logo-dashboard {
+    display: none; font-size: 1.1rem; font-weight: 700; color: var(--green);
+  }
+  .sidebar-header .logo-dashboard span { color: var(--text-secondary); font-weight: 400; }
   .sidebar-nav { flex: 1; padding: 8px 0; }
-  .sidebar-nav button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 16px; background: none; border: none; color: #9a9898; font-size: 0.88rem; text-align: left; cursor: pointer; }
-  .sidebar-nav button:hover { background: #302c2c; color: #fdfcfc; }
-  .sidebar-nav button.active { background: #302c2c; color: #fdfcfc; }
-.sidebar-footer { display: flex; align-items: center; padding: 8px 16px; border-top: 1px solid rgba(255,255,255,0.12); }
-.sidebar-footer #sidebar-user { margin-right: auto; }
-.sidebar-footer button { margin-left: auto; display: inline-flex; align-items: center; gap: 10px; width: auto; padding: 10px 0; background: none; border: none; color: #9a9898; font-size: 0.88rem; cursor: pointer; }
-  .sidebar-footer button:hover { background: #302c2c; color: #ff3b30; }
-  .main-content { flex: 1; padding: 24px 32px; overflow-y: auto; min-width: 0; }
+  .sidebar-nav button {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    padding: 10px 16px; background: none; border: none;
+    color: var(--text-secondary); font-size: 0.85rem;
+    text-align: left; cursor: pointer; font-family: var(--font-mono);
+  }
+  .sidebar-nav button:hover { background: var(--bg-raised); color: var(--text-primary); }
+  .sidebar-nav button.active { background: var(--green-dim); color: var(--green); }
+  .sidebar-nav .nav-indicator { color: var(--green); display: none; }
+  .sidebar-nav button.active .nav-indicator { display: inline; }
+  .sidebar-footer {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-top: 1px solid var(--green-hairline);
+    font-size: 0.75rem; color: var(--text-muted);
+  }
+  .sidebar-footer .user { margin-right: auto; color: var(--green); }
+  .sidebar-footer button {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 0.75rem; font-family: var(--font-mono);
+    padding: 4px 8px;
+  }
+  .sidebar-footer button:hover { color: var(--green); }
+
+  .wrap-sidebar-content {
+    display: flex; flex-direction: column;
+    width: 100%; min-width: 0;
+  }
+  .main-content {
+    flex: 1; padding: 24px 32px; overflow-y: auto; min-width: 0;
+  }
   .page { display: none; }
   .page.active { display: block; }
 
-  /* Home */
-  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
-  .home-card { background: #fdfcfc; padding: 24px; border: 1px solid rgba(15,0,0,0.12); }
-  .home-card h3 { font-size: 0.85rem; color: #646262; margin-bottom: 4px; }
-  .home-card .value { font-size: 1.5rem; font-weight: 700; color: #201d1d; }
+  /* ===== TOGGLE ===== */
+  .mode-toggle {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: none; border: 1px solid var(--green-hairline);
+    color: var(--text-secondary); font-size: 0.75rem;
+    padding: 4px 10px; border-radius: 4px; cursor: pointer;
+    font-family: var(--font-mono);
+  }
+  .mode-toggle:hover { border-color: var(--green); color: var(--green); }
 
-  /* Vendas */
-  #hub h1 { font-size: 1.5rem; margin-bottom: 24px; color: #201d1d; }
+  /* ===== MODE: DASHBOARD ===== */
+  .mode-dashboard .topbar { display: flex; }
+  .mode-dashboard .sidebar { width: 200px; }
+  .mode-dashboard .logo-terminal { display: none; }
+  .mode-dashboard .logo-dashboard { display: block; }
+  .mode-dashboard .nav-indicator { display: none; }
+  .mode-dashboard .sidebar-nav button.active .nav-indicator { display: inline; }
+  .mode-dashboard .sidebar-nav button.active { background: var(--green-dim); }
+
+  /* ===== MODE: TERMINAL ===== */
+  .mode-terminal .topbar { display: none; }
+  .mode-terminal .sidebar { width: 180px; }
+  .mode-terminal .logo-terminal { display: block; }
+  .mode-terminal .logo-dashboard { display: none; }
+  .mode-terminal .nav-indicator { display: none; }
+  .mode-terminal .sidebar-nav button { padding: 8px 16px; }
+  .mode-terminal .sidebar-nav button .nav-indicator { display: inline; color: var(--text-muted); }
+  .mode-terminal .sidebar-nav button.active .nav-indicator { color: var(--green); }
+  .mode-terminal .sidebar-nav button.active { background: transparent; }
+  .mode-terminal .sidebar-footer { flex-direction: column; align-items: stretch; }
+
+  /* ===== HOME ===== */
+  #page-home h1 { font-size: 1.5rem; color: var(--text-primary); margin-bottom: 4px; }
+  #page-home h1 span { color: var(--green); }
+  #page-home p { color: var(--text-secondary); font-size: 0.85rem; }
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+  .home-card {
+    background: var(--bg-surface); padding: 24px;
+    border: 1px solid var(--green-hairline);
+  }
+  .home-card:hover { border-color: var(--green); }
+  .home-card h3 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+  .home-card .value { font-size: 1.5rem; font-weight: 700; color: var(--green); }
+  .home-card p { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
+  .home-card a { color: var(--green); }
+
+  .terminal-output {
+    background: var(--bg-canvas); color: var(--green);
+    padding: 16px; font-size: 0.85rem; line-height: 1.8;
+    border-left: 2px solid var(--green);
+  }
+  .terminal-output .tree { color: var(--text-secondary); }
+  .terminal-output .highlight { color: var(--green); font-weight: 700; }
+  .terminal-output .link { color: var(--green); cursor: pointer; text-decoration: underline; }
+
+  /* ===== VENDAS HUB ===== */
+  #hub h1 { font-size: 1.3rem; margin-bottom: 20px; color: var(--text-primary); }
+  #hub h1 span { color: var(--green); }
   .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
-  .hub-card { background: #fdfcfc; padding: 28px 24px; cursor: pointer; border: 1px solid rgba(15,0,0,0.12); }
-  .hub-card:hover { border-color: #201d1d; }
+  .hub-card {
+    background: var(--bg-surface); padding: 28px 24px; cursor: pointer;
+    border: 1px solid var(--green-hairline);
+  }
+  .hub-card:hover { border-color: var(--green); box-shadow: 0 0 8px var(--green-glow); }
   .hub-card .icon { font-size: 2rem; margin-bottom: 12px; }
-  .hub-card h3 { font-size: 1.05rem; margin-bottom: 6px; color: #201d1d; }
-  .hub-card p { font-size: 0.85rem; color: #646262; }
+  .hub-card h3 { font-size: 1.05rem; margin-bottom: 6px; color: var(--text-primary); }
+  .hub-card p { font-size: 0.85rem; color: var(--text-secondary); }
+
+  .terminal-menu { list-style: none; }
+  .terminal-menu li {
+    padding: 12px 16px; cursor: pointer;
+    border-bottom: 1px solid var(--green-hairline);
+    color: var(--text-primary); font-size: 0.9rem;
+  }
+  .terminal-menu li:hover { background: var(--green-dim); }
+  .terminal-menu li .idx { color: var(--green); margin-right: 12px; }
+  .terminal-menu li .desc { color: var(--text-secondary); font-size: 0.8rem; display: block; margin-left: 28px; }
+  .terminal-menu li:last-child { border-bottom: none; }
+
+  /* ===== FORMS ===== */
   #form-container { display: none; }
-  .form-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
-  .form-header h1 { font-size: 1.3rem; }
-  .btn-back { background: none; border: none; color: #201d1d; font-size: 0.9rem; cursor: pointer; font-weight: 500; padding: 4px 8px; border-radius: 4px; }
-  .btn-back:hover { background: #f8f7f7; }
-  .panel { background: #fdfcfc; padding: 24px; margin-bottom: 20px; border: 1px solid rgba(15,0,0,0.12); }
-  .panel h2 { font-size: 1rem; margin-bottom: 16px; color: #646262; }
+  .form-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  }
+  .form-header h1 { font-size: 1.3rem; color: var(--text-primary); }
+  .btn-back {
+    background: transparent; border: 1px solid var(--green-hairline);
+    color: var(--green); font-size: 0.85rem; cursor: pointer;
+    padding: 6px 12px; font-family: var(--font-mono);
+  }
+  .btn-back:hover { background: var(--green-dim); }
+  .panel {
+    background: var(--bg-surface); padding: 24px; margin-bottom: 20px;
+    border: 1px solid var(--green-hairline);
+  }
+  .panel h2 { font-size: 1rem; margin-bottom: 16px; color: var(--green); }
   .row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
   .field { flex: 1; min-width: 150px; }
-  .field label { display: block; font-size: 0.8rem; font-weight: 500; color: #646262; margin-bottom: 4px; }
-  .field input, .field textarea, .field select { width: 100%; padding: 8px 10px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; outline: none; font-family: inherit; background: #f8f7f7; }
-  .field input:focus, .field textarea:focus, .field select:focus { border-color: #201d1d; background: #fdfcfc; }
-  .field select, .styled-select { appearance: none; -webkit-appearance: none; -moz-appearance: none; background: #f8f7f7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23646262' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 10px center; padding-right: 30px; cursor: pointer; }
-  .field select:hover, .styled-select:hover { border-color: #646262; }
-  .field select option, .styled-select option { padding: 8px; background: #fdfcfc; color: #201d1d; }
+  .field label {
+    display: block; font-size: 0.8rem; font-weight: 400;
+    color: var(--text-secondary); margin-bottom: 4px;
+  }
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid var(--green-hairline); border-radius: 4px;
+    font-size: 0.9rem; outline: none; font-family: var(--font-mono);
+    background: var(--bg-raised); color: var(--text-primary);
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--green); background: var(--bg-surface);
+    box-shadow: 0 0 6px var(--green-glow);
+  }
+  .field select, .styled-select {
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    background: var(--bg-raised) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2330d158' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 10px center;
+    padding-right: 30px; cursor: pointer;
+  }
+  .field select:hover, .styled-select:hover { border-color: var(--green); }
+  .field select option, .styled-select option {
+    padding: 8px; background: var(--bg-elevated); color: var(--text-primary);
+  }
   .field select { cursor: pointer; }
   .item-row { display: grid; grid-template-columns: 100px 1fr 36px; gap: 8px; margin-bottom: 8px; align-items: end; }
   .item-row .field { min-width: 0; }
-  .btn { padding: 8px 16px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 500; }
-  .btn-primary { background: #201d1d; color: #fdfcfc; }
-  .btn-primary:hover { background: #0f0000; }
-  .btn-success { background: #30d158; color: #201d1d; }
-  .btn-success:hover { background: #28a745; }
-  .btn-danger { background: #ff3b30; color: #fdfcfc; }
-  .btn-danger:hover { background: #d70015; }
-  .btn-secondary { background: #fdfcfc; color: #201d1d; border: 1px solid #646262; }
-  .btn-secondary:hover { background: #f8f7f7; }
+  .btn {
+    padding: 8px 16px; border: none; border-radius: 4px;
+    font-size: 0.85rem; cursor: pointer; font-weight: 500;
+    font-family: var(--font-mono);
+  }
+  .btn-primary {
+    background: transparent; color: var(--green);
+    border: 1px solid var(--green);
+  }
+  .btn-primary:hover { background: var(--green-dim); }
+  .btn-success {
+    background: var(--green); color: #0a0a0a;
+  }
+  .btn-success:hover { background: var(--green-bright); }
+  .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
+  .btn-danger:hover { background: rgba(255, 59, 48, 0.15); }
+  .btn-secondary {
+    background: transparent; color: var(--text-secondary);
+    border: 1px solid var(--green-hairline);
+  }
+  .btn-secondary:hover { background: var(--bg-raised); color: var(--text-primary); }
   .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
   .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
-  .output-panel { background: #201d1d; color: #fdfcfc; border-radius: 0; padding: 20px; white-space: pre-wrap; font-family: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace; font-size: 0.85rem; line-height: 1.6; min-height: 200px; margin-bottom: 12px; }
+  .output-panel {
+    background: #000; color: var(--green);
+    padding: 20px; white-space: pre-wrap;
+    font-family: var(--font-mono); font-size: 0.85rem;
+    line-height: 1.6; min-height: 200px; margin-bottom: 12px;
+    border: 1px solid var(--green-hairline);
+  }
+  .output-panel .header {
+    color: var(--text-muted); border-bottom: 1px solid var(--green-hairline);
+    padding-bottom: 8px; margin-bottom: 8px; display: block;
+  }
   .output-actions { display: flex; gap: 8px; }
-  .copied-msg { color: #30d158; font-size: 0.85rem; font-weight: 500; opacity: 0; transition: opacity 0.3s; }
+  .copied-msg {
+    color: var(--green); font-size: 0.85rem; font-weight: 500;
+    opacity: 0; transition: opacity 0.3s;
+  }
   .copied-msg.show { opacity: 1; }
-  .total-display { margin-top: 12px; font-size: 0.95rem; font-weight: 600; color: #201d1d; }
+  .total-display {
+    margin-top: 12px; font-size: 0.95rem; font-weight: 600; color: var(--green);
+  }
   .inline-radio-group { display: flex; gap: 16px; margin-top: 4px; }
-  .inline-radio-group label { font-size: 0.85rem; font-weight: 400; color: #201d1d; display: flex; align-items: center; gap: 6px; cursor: pointer; }
-  .inline-radio-group input[type="radio"] { accent-color: #201d1d; width: auto; }
+  .inline-radio-group label {
+    font-size: 0.85rem; font-weight: 400; color: var(--text-primary);
+    display: flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .inline-radio-group input[type="radio"] { accent-color: var(--green); width: auto; }
   .modulo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
-  .modulo-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); padding: 12px 14px; cursor: pointer; user-select: none; }
-  .modulo-card:hover { border-color: #646262; }
-  .modulo-card.selected { border-color: #201d1d; background: #f8f7f7; }
-  .modulo-card .modulo-nome { font-size: 0.9rem; font-weight: 600; color: #201d1d; display: flex; align-items: center; gap: 8px; }
+  .modulo-card {
+    background: var(--bg-raised); border: 1px solid var(--green-hairline);
+    padding: 12px 14px; cursor: pointer; user-select: none;
+  }
+  .modulo-card:hover { border-color: var(--green); }
+  .modulo-card.selected { border-color: var(--green); background: var(--green-dim); }
+  .modulo-card .modulo-nome {
+    font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
+    display: flex; align-items: center; gap: 8px;
+  }
   .modulo-card .modulo-nome input[type="checkbox"] { display: none; }
   .modulo-card .modulo-icone { margin-left: auto; font-size: 1.1rem; }
   .modulo-card .modulo-valor { margin-top: 8px; display: none; }
   .modulo-card.selected .modulo-valor { display: block; }
-  .modulo-card .modulo-valor input { width: 100%; padding: 8px 10px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; font-family: inherit; outline: none; background: #f8f7f7; }
-  .modulo-card .modulo-valor input:focus { border-color: #201d1d; background: #fdfcfc; }
+  .modulo-card .modulo-valor input {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid var(--green-hairline); border-radius: 4px;
+    font-size: 0.9rem; font-family: var(--font-mono); outline: none;
+    background: var(--bg-surface); color: var(--text-primary);
+  }
+  .modulo-card .modulo-valor input:focus { border-color: var(--green); }
 
-  /* Config */
-  .config-section { background: #fdfcfc; padding: 24px; margin-bottom: 20px; border: 1px solid rgba(15,0,0,0.12); max-width: 500px; }
-  .config-section h2 { font-size: 1rem; margin-bottom: 16px; color: #646262; }
+  /* ===== CONFIG ===== */
+  #page-config h1 { font-size: 1.3rem; color: var(--text-primary); margin-bottom: 4px; }
+  #page-config p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px; }
+  .config-section {
+    background: var(--bg-surface); padding: 24px; margin-bottom: 20px;
+    border: 1px solid var(--green-hairline); max-width: 500px;
+  }
+  .config-section h2 { font-size: 1rem; margin-bottom: 16px; color: var(--green); }
   .config-section .field { margin-bottom: 12px; }
-  .config-section .success-msg { color: #30d158; font-size: 0.8rem; font-weight: 500; display: none; margin-top: 8px; }
+  .config-section .success-msg {
+    color: var(--green); font-size: 0.8rem; font-weight: 500;
+    display: none; margin-top: 8px;
+  }
   .config-section .success-msg.show { display: block; }
-  .config-section .error-msg { color: #ff3b30; font-size: 0.8rem; font-weight: 500; display: none; margin-top: 8px; }
+  .config-section .error-msg {
+    color: var(--danger); font-size: 0.8rem; font-weight: 500;
+    display: none; margin-top: 8px;
+  }
   .config-section .error-msg.show { display: block; }
-
-  /* User management */
-  .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-  .user-table th, .user-table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid rgba(15,0,0,0.12); font-size: 0.85rem; }
-  .user-table th { color: #646262; font-weight: 600; font-size: 0.8rem; }
-  .admin-badge { background: #201d1d; color: #fdfcfc; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
-  .user-badge { background: #f8f7f7; color: #646262; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
-  .create-user-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: end; }
-  .create-user-row .field { min-width: 120px; }
-
-  /* Config tabs */
-  .config-tabs { display: flex; gap: 0; margin-bottom: 20px; max-width: 500px; border-bottom: 1px solid #646262; }
-  .config-tab { flex: 1; padding: 8px 16px; border: none; background: transparent; font-size: 0.85rem; font-weight: 500; color: #646262; cursor: pointer; }
-  .config-tab:hover { color: #201d1d; }
-  .config-tab.active { color: #201d1d; border-bottom: 2px solid #9a9898; }
+  .config-tabs {
+    display: flex; gap: 0; margin-bottom: 20px; max-width: 500px;
+    border-bottom: 1px solid var(--green-hairline);
+  }
+  .config-tab {
+    flex: 1; padding: 8px 16px; border: none; background: transparent;
+    font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
+    cursor: pointer; font-family: var(--font-mono);
+  }
+  .config-tab:hover { color: var(--green); }
+  .config-tab.active { color: var(--green); border-bottom: 2px solid var(--green); }
   .config-tab-content { display: none; }
   .config-tab-content.active { display: block; }
   .config-tab-content .config-section { max-width: 500px; }
+
+  /* ===== USER MANAGEMENT ===== */
+  .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .user-table th, .user-table td {
+    text-align: left; padding: 10px 8px;
+    border-bottom: 1px solid var(--green-hairline); font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+  .user-table th { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; }
+  .create-user-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: end; }
+  .create-user-row .field { min-width: 120px; }
+
+  /* ===== MODE BLOCKS ===== */
+  .mode-terminal-only { display: none; }
+  .mode-dashboard-only { display: none; }
+  body.mode-terminal .mode-terminal-only { display: block; }
+  body.mode-terminal .mode-terminal-only.hub-grid { display: grid; }
+  body.mode-dashboard .mode-dashboard-only { display: block; }
+  body.mode-dashboard .mode-dashboard-only.hub-grid { display: grid; }
+  body.mode-classic .mode-terminal-only { display: none; }
+  body.mode-classic .mode-dashboard-only { display: block; }
+  body.mode-classic .mode-dashboard-only.hub-grid { display: grid; }
+  body.mode-classic .topbar { display: none; }
+  body.mode-classic { background: #fdfcfc; color: #201d1d; }
+
+  /* ===== MODAIS ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 2100; display: none; align-items: center; justify-content: center;
+  }
+  .modal-box {
+    background: var(--bg-surface); color: var(--text-primary);
+    max-width: 420px; width: 90%; margin: 0 auto;
+    border: 1px solid var(--green-hairline);
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; border-bottom: 1px solid var(--green-hairline);
+  }
+  .modal-body { padding: 20px; }
+
+  /* ===== MISC ===== */
+  .placeholder-text { color: var(--text-muted); font-size: 0.85rem; }
+  .login-classic { display: none; }
+
+  /* ===== MODE: CLASSIC (original light theme overrides) ===== */
+  .mode-classic .login-classic { display: block; text-align: center; }
+  .mode-classic .login-ascii { display: none; }
+  .mode-classic #login-screen { background: #fdfcfc; }
+  .mode-classic .login-box { background: #fdfcfc; padding: 40px 36px; width: 360px; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .login-box h1 { font-size: 1.3rem; margin-bottom: 4px; text-align: center; color: #201d1d; }
+  .mode-classic .login-box p { font-size: 0.85rem; color: #646262; margin-bottom: 24px; text-align: center; }
+  .mode-classic .login-box .prompt { margin-bottom: 16px; }
+  .mode-classic .login-box .prompt .label { display: block; font-size: 0.8rem; font-weight: 500; color: #646262; margin-bottom: 4px; }
+  .mode-classic .login-box .prompt input { width: 100%; padding: 10px 12px; border: 1px solid rgba(15,0,0,0.12); border-radius: 4px; font-size: 0.9rem; outline: none; background: #f8f7f7; color: #201d1d; }
+  .mode-classic .login-box .prompt input:focus { border-color: #201d1d; background: #fdfcfc; }
+  .mode-classic .login-box .login-error { color: #ff3b30; font-size: 0.8rem; margin-top: 8px; }
+  .mode-classic .btn-login { width: 100%; padding: 10px; background: #201d1d; color: #fdfcfc; border: none; border-radius: 4px; font-size: 0.9rem; font-weight: 500; cursor: pointer; text-transform: none; letter-spacing: 0; }
+  .mode-classic .btn-login:hover { background: #0f0000; box-shadow: none; }
+  .mode-classic .btn-login:disabled { opacity: 0.6; cursor: not-allowed; background: #f1eeee; color: #9a9898; }
+  .mode-classic .sidebar { background: #201d1d; color: #fdfcfc; border-right: none; }
+  .mode-classic .sidebar-header { border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .mode-classic .sidebar-header .logo-terminal,
+  .mode-classic .sidebar-header .logo-dashboard { display: block; text-align: left; }
+  .mode-classic .sidebar-header .prompt { color: #9a9898; }
+  .mode-classic .sidebar-header span { color: #9a9898; }
+  .mode-classic .sidebar-nav button { color: #9a9898; }
+  .mode-classic .sidebar-nav button:hover { background: #302c2c; color: #fdfcfc; }
+  .mode-classic .sidebar-nav button.active { background: #302c2c; color: #fdfcfc; }
+  .mode-classic .sidebar-nav .nav-indicator { display: none; }
+  .mode-classic .sidebar-footer { border-top: 1px solid rgba(255,255,255,0.12); color: #9a9898; }
+  .mode-classic .sidebar-footer .user { color: #fdfcfc; }
+  .mode-classic .sidebar-footer button { color: #9a9898; }
+  .mode-classic .sidebar-footer button:hover { background: #302c2c; color: #ff3b30; }
+  .mode-classic .mode-toggle { color: #9a9898; border-color: rgba(255,255,255,0.3); }
+  .mode-classic .mode-toggle:hover { color: #fdfcfc; border-color: #fdfcfc; }
+  .mode-classic #page-home h1 { color: #201d1d; }
+  .mode-classic #page-home h1 span { color: inherit; }
+  .mode-classic #page-home p { color: #646262; }
+  .mode-classic .home-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .home-card:hover { border-color: #201d1d; }
+  .mode-classic .home-card h3 { color: #646262; }
+  .mode-classic .home-card .value { color: #201d1d; }
+  .mode-classic .home-card p { color: #646262; }
+  .mode-classic #hub h1 { color: #201d1d; }
+  .mode-classic #hub h1 span { color: inherit; }
+  .mode-classic .hub-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); box-shadow: none; }
+  .mode-classic .hub-card:hover { border-color: #201d1d; box-shadow: none; }
+  .mode-classic .hub-card h3 { color: #201d1d; }
+  .mode-classic .hub-card p { color: #646262; }
+  .mode-classic .form-header h1 { color: #201d1d; }
+  .mode-classic .btn-back { background: none; border: none; color: #201d1d; padding: 4px 8px; }
+  .mode-classic .btn-back:hover { background: #f8f7f7; }
+  .mode-classic .panel { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .panel h2 { color: #646262; }
+  .mode-classic .field label { color: #646262; }
+  .mode-classic .field input,
+  .mode-classic .field textarea,
+  .mode-classic .field select { border: 1px solid rgba(15,0,0,0.12); background: #f8f7f7; color: #201d1d; }
+  .mode-classic .field input:focus,
+  .mode-classic .field textarea:focus,
+  .mode-classic .field select:focus { border-color: #201d1d; background: #fdfcfc; box-shadow: none; }
+  .mode-classic .field select,
+  .mode-classic .styled-select { background: #f8f7f7 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23646262' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 10px center; }
+  .mode-classic .field select option,
+  .mode-classic .styled-select option { background: #fdfcfc; color: #201d1d; }
+  .mode-classic .inline-radio-group label { color: #201d1d; }
+  .mode-classic .inline-radio-group input[type="radio"] { accent-color: #201d1d; }
+  .mode-classic .btn-primary { background: #201d1d; color: #fdfcfc; border: none; }
+  .mode-classic .btn-primary:hover { background: #0f0000; }
+  .mode-classic .btn-success { background: #30d158; color: #201d1d; border: none; }
+  .mode-classic .btn-success:hover { background: #28a745; }
+  .mode-classic .btn-danger { background: #ff3b30; color: #fdfcfc; border: none; }
+  .mode-classic .btn-danger:hover { background: #d70015; }
+  .mode-classic .btn-secondary { background: #fdfcfc; color: #201d1d; border: 1px solid #646262; }
+  .mode-classic .btn-secondary:hover { background: #f8f7f7; }
+  .mode-classic .output-panel { background: #201d1d; color: #fdfcfc; border: none; }
+  .mode-classic .total-display { color: #201d1d; }
+  .mode-classic .modulo-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .modulo-card:hover { border-color: #646262; }
+  .mode-classic .modulo-card.selected { border-color: #201d1d; background: #f8f7f7; }
+  .mode-classic .modulo-card .modulo-nome { color: #201d1d; }
+  .mode-classic .modulo-card .modulo-valor input { border: 1px solid rgba(15,0,0,0.12); background: #f8f7f7; color: #201d1d; }
+  .mode-classic .modulo-card .modulo-valor input:focus { border-color: #201d1d; background: #fdfcfc; }
+  .mode-classic #page-config h1 { color: #201d1d; }
+  .mode-classic #page-config p { color: #646262; }
+  .mode-classic .config-section { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .config-section h2 { color: #646262; }
+  .mode-classic .config-tabs { border-bottom: 1px solid #646262; }
+  .mode-classic .config-tab { color: #646262; }
+  .mode-classic .config-tab:hover { color: #201d1d; }
+  .mode-classic .config-tab.active { color: #201d1d; border-bottom: 2px solid #9a9898; }
+  .mode-classic .modal-overlay { background: rgba(0,0,0,0.7); }
+  .mode-classic .modal-box { background: #fdfcfc; color: #201d1d; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .modal-header { border-bottom: 1px solid rgba(15,0,0,0.12); }
 </style>
 </head>
-<body>
+<body class="mode-dashboard">
 
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <h1>Sistema de Vendas</h1>
-    <p>Faça login para continuar</p>
-    <div class="field">
-      <label>Usuário</label>
+    <div class="login-ascii">╔═══╗ ┌─┐ ┌┐┌┌─┐┌┬┐┌─┐┬─┐┬ ┬
+╚══╗║ │ │ │││├┤  │ │ │├┬┘└┬┘
+  ══╬╝ └─┘ ┘└┘└─┘ ┴ └─┘┴└─ ┴
+  ╚══╝  SISTEMA DE VENDAS</div>
+    <h1 class="login-classic">SongBird</h1>
+    <p class="login-classic">Sistema de Vendas</p>
+    <div class="prompt">
+      <div class="label">$ login</div>
       <input type="text" id="login-user" placeholder="admin">
     </div>
-    <div class="field">
-      <label>Senha</label>
+    <div class="prompt">
+      <div class="label">$ senha</div>
       <input type="password" id="login-pass" placeholder="senha" onkeydown="if(event.key==='Enter')fazerLogin()">
     </div>
     <div class="login-error" id="login-error">Usuário ou senha inválidos.</div>
-    <button class="btn" id="login-btn" onclick="fazerLogin()">Entrar</button>
+    <button class="btn-login" id="login-btn" onclick="fazerLogin()">&gt;&gt; ENTRAR &lt;&lt;</button>
   </div>
 </div>
 
@@ -162,28 +535,31 @@
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <svg viewBox="0 0 220 52" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="sg" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#e8008a"/>
-            <stop offset="100%" stop-color="#00d4ff"/>
-          </linearGradient>
-        </defs>
-        <path d="M4 28 L8 22 L14 16 L22 18 L30 12 L44 2 L38 18 L52 14 L44 24 L54 32 L40 26 L34 40 L26 30 L16 32 L10 28 Z" fill="url(#sg)"/>
-        <text x="64" y="24" font-family="'Segoe UI',Arial,sans-serif" font-size="20" font-weight="700" fill="url(#sg)" letter-spacing="1.5">SongBird</text>
-        <text x="64" y="40" font-family="'Segoe UI',Arial,sans-serif" font-size="11" fill="#9a9898" letter-spacing="1.5">Registro de vendas</text>
-      </svg>
+      <div class="logo-terminal">
+        <span class="prompt">></span> songbird v2.0
+      </div>
+      <div class="logo-dashboard">
+        S<span>ongBird</span>
+      </div>
     </div>
     <div class="sidebar-nav">
-      <button class="active" onclick="navegar('home')">🏠 Home</button>
-      <button onclick="navegar('vendas')">📋 Vendas</button>
-      <button onclick="navegar('config')">⚙️ Configurações</button>
+      <button class="active" onclick="navegar('home')"><span class="nav-indicator">></span> Home</button>
+      <button onclick="navegar('vendas')"><span class="nav-indicator">></span> Vendas</button>
+      <button onclick="navegar('config')"><span class="nav-indicator">></span> Config</button>
     </div>
     <div class="sidebar-footer">
-      <span id="sidebar-user" style="font-size:0.75rem;color:#9a9898;"></span>
-      <span style="color:#555;font-size:0.75rem;">|</span>
-      <button onclick="fazerLogout()">🚪 Sair</button>
+      <span class="user" id="sidebar-user"></span>
+      <button class="mode-toggle" id="mode-toggle-btn" onclick="toggleModo()">[ >_ Terminal ]</button>
+      <button onclick="fazerLogout()">Sair</button>
     </div>
+  </div>
+
+  <!-- WRAP (topbar + content) -->
+  <div class="wrap-sidebar-content">
+
+  <!-- TOPBAR (Dashboard) -->
+  <div class="topbar">
+    <div class="breadcrumb"><span>></span> home</div>
   </div>
 
   <!-- CONTEÚDO -->
@@ -191,19 +567,17 @@
 
     <!-- HOME -->
     <div class="page active" id="page-home">
-      <h1 style="font-size:1.5rem;">Home</h1>
-      <p style="color:#646262;margin-top:4px;">Bem-vindo ao SongBird.</p>
+      <h1><span>></span> home / status</h1>
+      <p>Bem-vindo ao SongBird. Sistema pronto.</p>
       <div class="home-grid">
         <div class="home-card">
           <h3>Modelos de Venda</h3>
           <div class="value">3</div>
-          <p style="font-size:0.8rem;color:#646262;margin-top:4px;">Portaria, Moni Alarme, Módulos</p>
+          <p>Portaria, Moni Alarme, Módulos</p>
         </div>
         <div class="home-card">
           <h3>Acesso rápido</h3>
-          <p style="font-size:0.85rem;margin-top:8px;">
-            <a href="#" onclick="navegar('vendas');return false;" style="color:#201d1d;">Ir para Vendas →</a>
-          </p>
+          <p><a href="#" onclick="navegar('vendas');return false;">Ir para Vendas →</a></p>
         </div>
       </div>
     </div>
@@ -212,8 +586,9 @@
     <div class="page" id="page-vendas">
       <!-- HUB -->
       <div id="hub">
-        <h1>Registro de Vendas</h1>
-        <div class="hub-grid">
+        <h1><span>></span> Registro de Vendas</h1>
+        <!-- Dashboard mode -->
+        <div class="hub-grid mode-dashboard-only">
           <div class="hub-card" onclick="abrirForm('portaria')">
             <div class="icon">🏢</div>
             <h3>Licenças de portaria</h3>
@@ -240,6 +615,14 @@
             <p>Crie orçamentos combinando múltiplos produtos</p>
           </div>
         </div>
+        <!-- Terminal mode -->
+        <ul class="terminal-menu mode-terminal-only">
+          <li onclick="abrirForm('portaria')"><span class="idx">[1]</span> Licenças de portaria<span class="desc">Portaria Virtual, Controle de Acesso, Portaria Autônoma</span></li>
+          <li onclick="abrirForm('alarme')"><span class="idx">[2]</span> Moni Alarme<span class="desc">Licença do Moni com faixa de contas</span></li>
+          <li onclick="abrirForm('modulo')"><span class="idx">[3]</span> Módulo Adicional<span class="desc">Moni Discador, Imagens, Mensagens, Mobile, Veículos, Web</span></li>
+          <li onclick="abrirForm('desconto')"><span class="idx">[4]</span> Verificar Desconto / Mudança de Faixa<span class="desc">Calcule descontos e simule upgrades de faixa</span></li>
+          <li onclick="abrirForm('orcamento')"><span class="idx">[5]</span> Orçamento<span class="desc">Crie orçamentos combinando múltiplos produtos</span></li>
+        </ul>
       </div>
 
       <!-- FORM CONTAINER -->
@@ -249,7 +632,7 @@
         <div id="form-portaria" style="display:none;">
           <div class="form-header">
             <button class="btn-back" onclick="voltarHub()">← Voltar</button>
-            <h1>Licenças de portaria</h1>
+            <h1>> Licenças de portaria</h1>
           </div>
           <div class="panel">
             <h2>Dados da Venda</h2>
@@ -282,7 +665,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="p-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
               <div class="field">
@@ -319,7 +702,7 @@
         <div id="form-modulo" style="display:none;">
           <div class="form-header">
             <button class="btn-back" onclick="voltarHub()">← Voltar</button>
-            <h1>Módulo Adicional</h1>
+            <h1>> Módulo Adicional</h1>
           </div>
           <div class="panel">
             <h2>Dados da Venda</h2>
@@ -332,7 +715,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="m-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -356,7 +739,7 @@
             </div>
             <div class="panel">
               <h2>Módulos</h2>
-              <p style="font-size:0.85rem;color:#646262;margin-bottom:12px;">Selecione os módulos. O valor será preenchido automaticamente conforme a faixa.</p>
+              <p style="font-size:0.85rem;color:#8a8a8a;margin-bottom:12px;">Selecione os módulos. O valor será preenchido automaticamente conforme a faixa.</p>
               <div class="modulo-grid" id="m-modulos"></div>
           </div>
           <div class="actions">
@@ -378,7 +761,7 @@
         <div id="form-alarme" style="display:none;">
           <div class="form-header">
             <button class="btn-back" onclick="voltarHub()">← Voltar</button>
-            <h1>Moni Alarme</h1>
+            <h1>> Moni Alarme</h1>
           </div>
           <div class="panel">
             <h2>Dados da Venda</h2>
@@ -391,7 +774,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="a-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -415,7 +798,7 @@
           </div>
           <div class="panel">
             <h2>Módulos Adicionais</h2>
-            <p style="font-size:0.85rem;color:#646262;margin-bottom:12px;">Selecione e informe o valor, se houver.</p>
+            <p style="font-size:0.85rem;color:#8a8a8a;margin-bottom:12px;">Selecione e informe o valor, se houver.</p>
               <div class="modulo-grid" id="a-modulos-container">
                 <div class="modulo-card" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> Carregando...</div></div>
               </div>
@@ -439,20 +822,20 @@
         <div id="form-desconto" style="display:none;">
           <div class="form-header">
             <button class="btn-back" onclick="voltarHub()">← Voltar</button>
-            <h1>Verificar Desconto<br>Mudança de Faixa</h1>
+            <h1>> Verificar Desconto / Mudança de Faixa</h1>
           </div>
           <div class="panel">
             <h2>Dados do Cliente</h2>
             <div class="row">
               <div class="field">
                 <label>Negociado com</label>
-                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;">
+                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;">
               </div>
               <div class="field">
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
-                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;">
-                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid rgba(15,0,0,0.12);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;">
+                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -478,16 +861,16 @@
             <h2>Comparativo de Desconto</h2>
             <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
               <thead>
-                <tr style="background:#f8f7f7;">
-                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid rgba(15,0,0,0.12);">Item</th>
-                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid rgba(15,0,0,0.12);width:70px;">Possui?</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(15,0,0,0.12);width:140px;">Valor Esperado</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(15,0,0,0.12);width:160px;">Valor Pago</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(15,0,0,0.12);width:120px;">Desconto %</th>
+                <tr style="background:#1c1c1c;">
+                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid rgba(48,209,88,0.25);">Item</th>
+                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid rgba(48,209,88,0.25);width:70px;">Possui?</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(48,209,88,0.25);width:140px;">Valor Esperado</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(48,209,88,0.25);width:160px;">Valor Pago</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(48,209,88,0.25);width:120px;">Desconto %</th>
                 </tr>
               </thead>
               <tbody id="d-tabela-body"></tbody>
-              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid #201d1d;"></tfoot>
+              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid rgba(48,209,88,0.25);"></tfoot>
             </table>
             <button class="btn btn-sm btn-secondary" onclick="dAddModRow()" style="margin-top:8px;">+ Adicionar módulo</button>
           </div>
@@ -518,7 +901,7 @@
         <div id="form-orcamento" style="display:none;">
           <div class="form-header">
             <button class="btn-back" onclick="voltarHub()">← Voltar</button>
-            <h1>Orçamento</h1>
+            <h1>> Orçamento</h1>
           </div>
           <div class="panel" style="max-width:100%;">
             <h2>Itens do Orçamento</h2>
@@ -527,7 +910,7 @@
           </div>
           <div class="panel">
             <h2>Resumo</h2>
-            <div id="orcamento-resumo" style="font-size:0.85rem;line-height:1.8;"><span style="color:#9a9898;">Adicione itens e selecione produtos/faixas</span></div>
+            <div id="orcamento-resumo" style="font-size:0.85rem;line-height:1.8;"><span style="color:#525252;">Adicione itens e selecione produtos/faixas</span></div>
             <div class="total-display" id="orcamento-total" style="margin-top:8px;"></div>
           </div>
           <div class="actions">
@@ -550,8 +933,8 @@
 
     <!-- CONFIG -->
     <div class="page" id="page-config">
-      <h1 style="font-size:1.5rem;">Configurações</h1>
-      <p style="color:#646262;margin-top:4px;margin-bottom:20px;">Altere sua senha e gerencie o sistema.</p>
+      <h1>> Configurações</h1>
+      <p>Altere sua senha e gerencie o sistema.</p>
 
       <div class="config-tabs" id="config-tabs">
         <button class="config-tab active" onclick="configTab('senha')" id="cfg-btn-senha">Minha Senha</button>
@@ -590,6 +973,7 @@
   </div>
 </div>
 </div>
+</div>
 
 <script>
 // === SUPABASE INIT ===
@@ -619,6 +1003,7 @@ async function checkSession() {
       if (data.permissao === 'admin') {
         document.getElementById('cfg-btn-produtos').style.display = 'block';
       }
+      initModo();
     }
   } catch (e) {}
 }
@@ -642,6 +1027,7 @@ async function fazerLogin() {
       if (data.permissao === 'admin') {
         document.getElementById('cfg-btn-produtos').style.display = 'block';
       }
+      initModo();
     } else {
       throw new Error('Invalid');
     }
@@ -673,6 +1059,56 @@ async function fazerLogout() {
   document.getElementById('login-pass').value = '';
 }
 
+// === MODO (CLASSIC / TERMINAL / DASHBOARD) ===
+function toggleModo() {
+  const body = document.body;
+  const btn = document.getElementById('mode-toggle-btn');
+  if (body.classList.contains('mode-classic')) {
+    body.classList.remove('mode-classic');
+    body.classList.add('mode-terminal');
+    btn.textContent = '[ ≡ Dashboard ]';
+    localStorage.setItem('songbird-modo', 'terminal');
+  } else if (body.classList.contains('mode-terminal')) {
+    body.classList.remove('mode-terminal');
+    body.classList.add('mode-dashboard');
+    btn.textContent = '[ ◉ Classic ]';
+    localStorage.setItem('songbird-modo', 'dashboard');
+  } else {
+    body.classList.remove('mode-dashboard');
+    body.classList.add('mode-classic');
+    btn.textContent = '[ >_ Terminal ]';
+    localStorage.setItem('songbird-modo', 'classic');
+  }
+  atualizarBreadcrumb();
+}
+
+function initModo() {
+  const saved = localStorage.getItem('songbird-modo') || 'dashboard';
+  const body = document.body;
+  body.classList.remove('mode-terminal', 'mode-dashboard', 'mode-classic');
+  const btn = document.getElementById('mode-toggle-btn');
+  if (saved === 'classic') {
+    body.classList.add('mode-classic');
+    btn.textContent = '[ >_ Terminal ]';
+  } else if (saved === 'terminal') {
+    body.classList.add('mode-terminal');
+    btn.textContent = '[ ≡ Dashboard ]';
+  } else {
+    body.classList.add('mode-dashboard');
+    btn.textContent = '[ ◉ Classic ]';
+  }
+  atualizarBreadcrumb();
+}
+
+function atualizarBreadcrumb() {
+  const breadcrumb = document.querySelector('.topbar .breadcrumb');
+  if (!breadcrumb) return;
+  const activePage = document.querySelector('.page.active');
+  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-config': 'config' };
+  const name = map[activePage?.id] || 'home';
+  breadcrumb.innerHTML = `<span>></span> ${name}`;
+}
+
 // === NAVEGAÇÃO ===
 function configTab(tab) {
   document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
@@ -685,11 +1121,13 @@ function configTab(tab) {
 function navegar(pagina) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pagina).classList.add('active');
-  const map = {home:'Home',vendas:'Vendas',config:'Configurações'};
+  const map = {home:'Home',vendas:'Vendas',config:'Config'};
   document.querySelectorAll('.sidebar-nav button').forEach(b => {
-    b.classList.toggle('active', b.textContent.includes(map[pagina]));
+    const txt = b.textContent.replace('>','').trim();
+    b.classList.toggle('active', txt.includes(map[pagina]));
   });
   if (pagina === 'vendas') { voltarHub(); carregarProdutos(); }
+  atualizarBreadcrumb();
 }
 
 // === CONFIG - SENHA ===
@@ -771,30 +1209,30 @@ async function carregarProdutosAdmin() {
 
     for (const [tipo, prods] of Object.entries(grupos)) {
       const nomesTipo = { 'alarme': '🔔 Moni Alarme' };
-      html += `<div style="margin:20px 0 6px 0;font-size:0.8rem;color:#9a9898;text-transform:uppercase;letter-spacing:0.5px;">${nomesTipo[tipo] || tipo}</div>`;
+      html += `<div style="margin:20px 0 6px 0;font-size:0.8rem;color:#525252;text-transform:uppercase;letter-spacing:0.5px;">${nomesTipo[tipo] || tipo}</div>`;
 
       for (const p of prods) {
         const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', p.id).order('ordem').order('id');
         const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', p.id).order('id');
-        html += `<div style="background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;margin-bottom:12px;">`;
+        html += `<div style="background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;margin-bottom:12px;">`;
         html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Faixas</strong> <button class="btn btn-sm btn-success" onclick="adicionarFaixa(${p.id},'${p.tipo}')" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:rgba(48,209,88,0.25);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const f of (faixas || [])) {
           const fdata = JSON.stringify({id:f.id,descricao:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,tipo:p.tipo,produto_id:p.id});
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">${f.descricao}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">${f.descricao}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Módulos</strong> <button class="btn btn-sm btn-success" onclick="adicionarModulo(${p.id})" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:rgba(15,0,0,0.12);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:rgba(48,209,88,0.25);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const m of (modulos || [])) {
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);">${m.nome}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(15,0,0,0.12);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">${m.nome}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table></div>`;
       }
@@ -1103,7 +1541,7 @@ async function carregarProdutos() {
     // Preencher módulos no Moni Alarme
     const container = document.getElementById('a-modulos-container');
     container.innerHTML = modulosAlarme.map(m =>
-      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div><div class="modulo-valor"><span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span><input type="text" class="a-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
     ).join('');
 
     // Preencher faixas no Módulo Adicional
@@ -1115,7 +1553,7 @@ async function carregarProdutos() {
     // Preencher módulos no Módulo Adicional
     const mContainer = document.getElementById('m-modulos');
     mContainer.innerHTML = modulosAlarme.map(m =>
-      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div><div class="modulo-valor"><span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
+      `<div class="modulo-card" data-modulo-id="${m.id}" onclick="mToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="mToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div><div class="modulo-valor"><span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span><input type="text" class="m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()"></div></div>`
     ).join('');
 
     // Preencher faixas no Verificar Desconto
@@ -1132,7 +1570,7 @@ async function carregarProdutos() {
 
     // Tabela do Verificar Desconto: apenas linha da faixa
     const tbody = document.getElementById('d-tabela-body');
-    tbody.innerHTML = `<tr id="d-row-faixa" style="background:#f8f7f7;"><td style="padding:8px;border-bottom:1px solid rgba(15,0,0,0.12);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(15,0,0,0.12);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
+    tbody.innerHTML = `<tr id="d-row-faixa" style="background:#1c1c1c;"><td style="padding:8px;border-bottom:1px solid rgba(48,209,88,0.25);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(48,209,88,0.25);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
   } catch (e) { console.error('carregarProdutos erro:', e); }
 }
 
@@ -1313,7 +1751,7 @@ function dAddModRow() {
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
   const modOptions = modulosAlarme.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid rgba(15,0,0,0.12);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:#ff3b30;font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid rgba(48,209,88,0.25);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:#ff3b30;font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
   tbody.appendChild(tr);
   tr.querySelector('.d-mod-select').focus();
 }
@@ -1338,7 +1776,7 @@ function dRemoveModRow(id) {
 function dAutoCalc() {
   const foot = document.getElementById('d-tabela-foot');
   if (!dFaixaData) {
-    foot.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#9a9898;">Selecione uma faixa para ver os resultados</td></tr>';
+    foot.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
     document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
     return;
   }
@@ -1390,7 +1828,7 @@ function dAutoCalc() {
   const perc = totalEsperado > 0 ? (dif / totalEsperado) * 100 : 0;
   dPercDesconto = perc;
   const f = v => 'R$ ' + v.toFixed(2).replace('.', ',');
-  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#201d1d;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#201d1d;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? '#30d158' : '#ff3b30'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
+  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? '#30d158' : '#ff3b30'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
   const linhas = [];
   linhas.push(`Faixa: ${dFaixaData.desc} — Valor base: ${f(dFaixaData.valor_base)} | Pago: ${f(document.querySelector('#d-row-faixa .d-pago') ? parseCurrency(document.querySelector('#d-row-faixa .d-pago').value) : 0)}`);
   document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
@@ -1471,7 +1909,7 @@ function dNovaFaixaChange() {
   const labelAtual = faixaPago > 0 ? 'Valor atual (pago)' : 'Valor atual';
   const modLabel = (pagoVal) => pagoVal > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;font-size:0.85rem;line-height:1.8;">
+  let html = `<div style="background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;font-size:0.85rem;line-height:1.8;">
     <strong style="color:#30d158;">Resumo da Mudança</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
     ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
@@ -1481,7 +1919,7 @@ function dNovaFaixaChange() {
   }
   html += `<br><strong>${labelAtual}:</strong> ${f(totalAtual)}<br>
     <strong>Total novo:</strong> ${f(totalNovo)}<br>
-    <strong style="color:#201d1d;">Diferença total: ${f(totalDif)}</strong>
+    <strong style="color:#e8e8e8;">Diferença total: ${f(totalDif)}</strong>
   </div>`;
   resultDiv.innerHTML = html;
 
@@ -1555,7 +1993,7 @@ function dAplicarDesconto() {
 
   const labelAtual = faixaPago > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;font-size:0.85rem;line-height:1.8;">
+  let html = `<div style="background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;font-size:0.85rem;line-height:1.8;">
     <strong style="color:#30d158;">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
     Valor ${labelAtual}: ${f(valorBaseAtual)} → cheio: ${f(novaFaixa.valor_base)} / c/ desc: ${f(novoBaseDesc)}<br>
@@ -1567,7 +2005,7 @@ function dAplicarDesconto() {
   }
   html += `<br><strong>Total ${labelAtual}:</strong> ${f(totalPagoAtual)}<br>
     <strong>Total novo cheio:</strong> ${f(totalNovoCheio)}<br>
-    <strong style="color:#201d1d;">Total novo c/ desconto: ${f(totalNovoDesc)}</strong><br>
+    <strong style="color:#e8e8e8;">Total novo c/ desconto: ${f(totalNovoDesc)}</strong><br>
     <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">${f(difCliente)}</span>
   </div>`;
   resultDiv.innerHTML = html;
@@ -1627,7 +2065,7 @@ function dLimpar() {
   var el = document.getElementById('d-desc-faixa');
   if (el) el.textContent = '—';
   var el = document.getElementById('d-tabela-foot');
-  if (el) el.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#9a9898;">Selecione uma faixa para ver os resultados</td></tr>';
+  if (el) el.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
   document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
   var el = document.getElementById('d-upgrade-panel');
   if (el) el.style.display = 'none';
@@ -1646,13 +2084,13 @@ function orcamentoAddItem() {
   const div = document.createElement('div');
   div.className = 'orcamento-item';
   div.dataset.id = id;
-  div.style.cssText = 'background:#f8f7f7;border:1px solid rgba(15,0,0,0.12);padding:12px;margin-bottom:12px;';
+  div.style.cssText = 'background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;margin-bottom:12px;';
 
   div.innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr 130px;gap:8px;margin-bottom:8px;">
-      <div class="field"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;background:#f8f7f7;"><option value="">Selecione</option></select></div>
-      <div class="field"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;background:#f8f7f7;"><option value="">Carregando...</option></select></div>
-      <div class="field"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+      <div class="field"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;background:#1c1c1c;"><option value="">Selecione</option></select></div>
+      <div class="field"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;background:#1c1c1c;"><option value="">Carregando...</option></select></div>
+      <div class="field"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;"></div>
     </div>
     <div class="modulo-grid o-modulos" style="margin-bottom:4px;"></div>
     <button class="btn btn-sm btn-danger" onclick="orcamentoRemoveItem(${id})">✕ Remover item</button>
@@ -1705,7 +2143,7 @@ async function orcamentoProdutoChange(el) {
           ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span>
         </div>
         <div class="modulo-valor">
-          <span style="font-size:0.85rem;color:#646262;margin-right:4px;">R$</span>
+          <span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span>
           <span class="o-mod-valor">0,00</span>
         </div>
       </div>`
@@ -1783,14 +2221,14 @@ function orcamentoAtualizarResumo() {
       const valStr = card.querySelector('.o-mod-valor').textContent;
       const val = parseFloat(valStr.replace(/\./g, '').replace(',', '.'));
       totalGeral += val;
-      html += `<div style="font-size:0.8rem;color:#646262;padding-left:16px;margin-bottom:2px;">+ ${nome} = R$ ${valStr}</div>`;
+      html += `<div style="font-size:0.8rem;color:#8a8a8a;padding-left:16px;margin-bottom:2px;">+ ${nome} = R$ ${valStr}</div>`;
     });
 
     totalGeral += subtotal;
   });
 
   if (!html) {
-    resumoDiv.innerHTML = '<span style="color:#9a9898;font-size:0.85rem;">Adicione itens e selecione produtos/faixas</span>';
+    resumoDiv.innerHTML = '<span style="color:#525252;font-size:0.85rem;">Adicione itens e selecione produtos/faixas</span>';
     totalDiv.textContent = '';
     return;
   }
@@ -1848,7 +2286,7 @@ function orcamentoGerar() {
 
 function orcamentoLimpar() {
   document.getElementById('orcamento-items').innerHTML = '';
-  document.getElementById('orcamento-resumo').innerHTML = '<span style="color:#9a9898;font-size:0.85rem;">Adicione itens e selecione produtos/faixas</span>';
+  document.getElementById('orcamento-resumo').innerHTML = '<span style="color:#525252;font-size:0.85rem;">Adicione itens e selecione produtos/faixas</span>';
   document.getElementById('orcamento-total').textContent = '';
   document.getElementById('orcamento-totalDisplay').textContent = '';
   document.getElementById('orcamento-output').textContent = 'Adicione itens e clique em "Gerar Texto"';
@@ -1876,6 +2314,7 @@ async function copiar(outputId, msgId) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  initModo();
   await checkSession();
 });
 
@@ -1908,14 +2347,14 @@ function executarConfirm() {
 
 </script>
 <!-- MODAL CONFIRMAÇÃO -->
-<div id="modal-confirm" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalConfirm()">
-  <div style="background:#fdfcfc;color:#201d1d;max-width:400px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
-      <span style="font-weight:700;" id="modal-confirm-titulo">Confirmar</span>
-      <span onclick="fecharModalConfirm()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+<div id="modal-confirm" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalConfirm()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);" id="modal-confirm-titulo">Confirmar</span>
+      <span onclick="fecharModalConfirm()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
-    <div style="padding:20px;">
-      <p style="font-size:0.9rem;line-height:1.6;margin-bottom:20px;" id="modal-confirm-msg"></p>
+    <div class="modal-body">
+      <p style="font-size:0.9rem;line-height:1.6;margin-bottom:20px;color:var(--text-primary);" id="modal-confirm-msg"></p>
       <div class="actions" style="margin-top:0;">
         <button class="btn btn-secondary" onclick="fecharModalConfirm()">Cancelar</button>
         <button class="btn btn-danger" onclick="executarConfirm()">Confirmar</button>
@@ -1925,13 +2364,13 @@ function executarConfirm() {
 </div>
 
 <!-- MODAL NOVA/EDITAR FAIXA -->
-<div id="modal-nova-faixa" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalFaixa()">
-  <div style="background:#fdfcfc;color:#201d1d;max-width:420px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
-      <span style="font-weight:700;" id="modal-faixa-titulo">Nova Faixa</span>
-      <span onclick="fecharModalFaixa()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+<div id="modal-nova-faixa" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalFaixa()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);" id="modal-faixa-titulo">Nova Faixa</span>
+      <span onclick="fecharModalFaixa()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
-    <div style="padding:20px;">
+    <div class="modal-body">
       <input type="hidden" id="modal-faixa-id" value="">
       <input type="hidden" id="modal-faixa-tipo" value="">
       <div class="field">
@@ -1955,13 +2394,13 @@ function executarConfirm() {
 </div>
 
 <!-- MODAL NOVO MÓDULO -->
-<div id="modal-novo-modulo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalModulo()">
-  <div style="background:#fdfcfc;color:#201d1d;max-width:400px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
-      <span style="font-weight:700;">[+] Novo Módulo</span>
-      <span onclick="fecharModalModulo()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+<div id="modal-novo-modulo" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalModulo()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);">[+] Novo Módulo</span>
+      <span onclick="fecharModalModulo()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
-    <div style="padding:20px;">
+    <div class="modal-body">
       <div class="field">
         <label>Nome do módulo</label>
         <input type="text" id="modal-modulo-nome" placeholder="Ex: Moni Notificações" onkeydown="if(event.key==='Enter')salvarModulo()">
@@ -1974,13 +2413,13 @@ function executarConfirm() {
   </div>
 </div>
 
-<div id="modal-novo-produto" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:2100;align-items:center;justify-content:center;" onclick="if(event.target===this)fecharModalProduto()">
-  <div style="background:#fdfcfc;color:#201d1d;max-width:400px;width:90%;margin:0 auto;border:1px solid rgba(15,0,0,0.12);">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(15,0,0,0.12);">
-      <span style="font-weight:700;">[+] Novo Produto</span>
-      <span onclick="fecharModalProduto()" style="cursor:pointer;color:#9a9898;">[x] fechar</span>
+<div id="modal-novo-produto" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalProduto()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);">[+] Novo Produto</span>
+      <span onclick="fecharModalProduto()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
-    <div style="padding:20px;">
+    <div class="modal-body">
       <div class="field">
         <label>Nome do produto</label>
         <input type="text" id="modal-produto-nome" placeholder="Ex: Moni Base" onkeydown="if(event.key==='Enter')document.getElementById('modal-produto-tipo').focus()">
