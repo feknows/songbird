@@ -686,7 +686,7 @@ function navegar(pagina) {
   document.querySelectorAll('.sidebar-nav button').forEach(b => {
     b.classList.toggle('active', b.textContent.includes(map[pagina]));
   });
-  if (pagina === 'vendas') voltarHub();
+  if (pagina === 'vendas') { voltarHub(); carregarProdutos(); }
 }
 
 // === CONFIG - SENHA ===
@@ -982,6 +982,7 @@ function abrirForm(tipo) {
   document.getElementById('hub').style.display = 'none';
   document.getElementById('form-container').style.display = 'block';
   document.getElementById('form-' + tipo).style.display = 'block';
+  carregarProdutos();
   if (tipo === 'orcamento') orcamentoAddItem();
 }
 
@@ -1074,7 +1075,7 @@ async function carregarProdutos() {
   try {
     const { data: produtos } = await supabase.from('produtos').select('*').order('id');
     const moniBase = (produtos || []).find(p => p.tipo === 'alarme');
-    if (!moniBase) return;
+    if (!moniBase) { console.warn('carregarProdutos: nenhum produto com tipo="alarme" encontrado'); return; }
 
     const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', moniBase.id).order('ordem').order('id');
     const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', moniBase.id).order('id');
@@ -1120,7 +1121,7 @@ async function carregarProdutos() {
     // Tabela do Verificar Desconto: apenas linha da faixa
     const tbody = document.getElementById('d-tabela-body');
     tbody.innerHTML = `<tr id="d-row-faixa" style="background:#f8f7f7;"><td style="padding:8px;border-bottom:1px solid rgba(15,0,0,0.12);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(15,0,0,0.12);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid rgba(15,0,0,0.12);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(15,0,0,0.12);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
-  } catch (e) {}
+  } catch (e) { console.error('carregarProdutos erro:', e); }
 }
 
 carregarProdutos();
