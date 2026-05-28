@@ -1069,31 +1069,20 @@ const SUPABASE_URL = 'https://wtnbbtnvadkpbdibnndu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bmJidG52YWRrcGJkaWJubmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NzQyMDIsImV4cCI6MjA5NTM1MDIwMn0.6WwEuiK87D-L3iuGxwXXJW0aIx949YkVjJElaZDradM';
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function sha256(str) {
-  const enc = new TextEncoder().encode(str);
-  const hash = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 // === SESSION ===
-let currentUser = null;
 
 async function checkSession() {
-  const userId = sessionStorage.getItem('songbird-user-id');
-  if (!userId) return;
-  try {
-    const { data } = await supabase.from('usuarios').select('*').eq('id', parseInt(userId)).single();
-    if (data) {
-      currentUser = data;
-      document.getElementById('sidebar-user').textContent = data.nome;
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      if (data.permissao === 'admin') {
-        document.getElementById('cfg-btn-produtos').style.display = 'block';
-      }
-      initModo();
-    }
-  } catch (e) {}
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) return;
+  const meta = session.user.user_metadata;
+  document.getElementById('sidebar-user').textContent = meta.nome;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  if (meta.permissao === 'admin') {
+    document.getElementById('cfg-btn-produtos').style.display = 'block';
+    document.getElementById('cfg-btn-equipamentos').style.display = 'block';
+  }
+  initModo();
 }
 
 async function fazerLogin() {
@@ -1102,34 +1091,25 @@ async function fazerLogin() {
   const btn = document.getElementById('login-btn');
   btn.disabled = true;
   try {
-    const hash = await sha256(senha);
-    const { data, error } = await supabase.from('usuarios').select('*').eq('nome', nome).eq('senha', hash).maybeSingle();
+    const email = nome + '@songbird.app';
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
     if (error) throw error;
-    if (data) {
-      currentUser = data;
-      sessionStorage.setItem('songbird-user-id', data.id);
-      document.getElementById('sidebar-user').textContent = data.nome;
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-      document.getElementById('login-error').style.display = 'none';
-      if (data.permissao === 'admin') {
-        document.getElementById('cfg-btn-produtos').style.display = 'block';
-        document.getElementById('cfg-btn-equipamentos').style.display = 'block';
-      }
-      initModo();
-    } else {
-      throw new Error('Invalid');
+    const meta = data.user.user_metadata;
+    document.getElementById('sidebar-user').textContent = meta.nome;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('login-error').style.display = 'none';
+    if (meta.permissao === 'admin') {
+      document.getElementById('cfg-btn-produtos').style.display = 'block';
+      document.getElementById('cfg-btn-equipamentos').style.display = 'block';
     }
+    initModo();
   } catch (e) {
     let msg;
-    if (e.message === 'Invalid') {
+    if (e?.message?.includes('Invalid login credentials')) {
       msg = 'Usuário ou senha inválidos';
     } else if (e?.message?.includes('Failed to fetch') || e?.message?.includes('NetworkError')) {
       msg = 'Erro de conexão com o servidor. Verifique sua internet.';
-    } else if (e?.code === '42501' || e?.message?.includes('permission denied')) {
-      msg = 'Erro de permissão no banco de dados.';
-    } else if (e?.code === 'PGRST116' || e?.message?.includes('does not exist')) {
-      msg = 'Banco de dados não configurado (tabelas ausentes).';
     } else {
       msg = 'Erro inesperado: ' + (e?.message || 'desconhecido');
     }
@@ -1140,8 +1120,7 @@ async function fazerLogin() {
 }
 
 async function fazerLogout() {
-  sessionStorage.removeItem('songbird-user-id');
-  currentUser = null;
+  await supabase.auth.signOut();
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-user').value = '';
@@ -1232,11 +1211,11 @@ async function alterarMinhaSenha() {
   if (!senhaAtual || !senhaNova || !confirm) { erro.textContent = 'Preencha todos os campos.'; erro.classList.add('show'); return; }
   if (senhaNova !== confirm) { erro.textContent = 'Senhas não conferem.'; erro.classList.add('show'); return; }
   try {
-    const hashAtual = await sha256(senhaAtual);
-    if (currentUser.senha !== hashAtual) { erro.textContent = 'Senha atual incorreta.'; erro.classList.add('show'); return; }
-    const hashNova = await sha256(senhaNova);
-    await supabase.from('usuarios').update({ senha: hashNova }).eq('id', currentUser.id);
-    currentUser.senha = hashNova;
+    const email = (await supabase.auth.getUser()).data.user.email;
+    const { error: reAuthError } = await supabase.auth.signInWithPassword({ email, password: senhaAtual });
+    if (reAuthError) { erro.textContent = 'Senha atual incorreta.'; erro.classList.add('show'); return; }
+    const { error } = await supabase.auth.updateUser({ password: senhaNova });
+    if (error) throw error;
     document.getElementById('cfg-senha-atual').value = '';
     document.getElementById('cfg-senha-nova').value = '';
     document.getElementById('cfg-senha-confirm').value = '';
@@ -2654,6 +2633,14 @@ async function copiar(outputId, msgId) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   initModo();
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') {
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+      document.getElementById('login-user').value = '';
+      document.getElementById('login-pass').value = '';
+    }
+  });
   await checkSession();
 });
 
