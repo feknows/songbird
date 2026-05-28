@@ -8,6 +8,10 @@ Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted
 
 **Leads scraper** was separated into its own project at `C:\Users\Felipe\SongBird-Leads` — see its own `AGENTS.md`.
 
+## Auto-review
+
+After every implementation (commit or group of related changes), the agent must perform a self-review evaluating whether the approach was optimal. If a better alternative exists, present it to the user with trade-offs so they can decide whether to keep, adjust, or revert. This applies to all changes regardless of perceived size.
+
 ## Supabase setup
 
 1. Create a Supabase project.
