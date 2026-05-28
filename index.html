@@ -2518,7 +2518,7 @@ async function carregarAdminEquipamentos() {
     for (const e of equipFiltrados) {
       const catNome = eqCategorias.find(c => c.id === e.categoria_id)?.nome || '';
       html += `<li>
-        <span><strong>${e.nome}</strong> <span style="color:var(--text-muted);font-size:0.75rem;">(${catNome})</span></span>
+        <span><strong>${e.nome}</strong> <span style="color:var(--text-muted);font-size:0.75rem;">(${catNome})</span> ${badgeStatus(e.status)}</span>
         <span>
           <button class="btn btn-sm btn-secondary" onclick="editarEquipamento(${e.id})" style="padding:2px 6px;font-size:0.7rem;margin-right:4px;">✎</button>
           <button class="btn btn-sm btn-danger" onclick="deletarEquipamento(${e.id},'${e.nome.replace(/'/g, "\\'")}')" style="padding:2px 6px;font-size:0.7rem;">✕</button>
