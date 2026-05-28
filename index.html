@@ -991,6 +991,8 @@
           <input type="text" id="eq-busca" placeholder="Nome do equipamento..." oninput="eqFiltrar()">
         </div>
         <div class="equip-count" id="eq-contagem"></div>
+        <button class="btn btn-sm btn-secondary" onclick="eqCopiarLista()" style="margin-left:auto;">📋 Copiar</button>
+        <span id="eq-copy-msg" style="font-size:0.75rem;color:var(--green);margin-left:8px;opacity:0;transition:opacity 0.3s;">Copiado!</span>
       </div>
 
       <div style="overflow-x:auto;">
@@ -2431,6 +2433,37 @@ function eqFiltrar() {
       <td style="color:var(--text-secondary);font-size:0.8rem;">${e.observacoes || '—'}</td>
     </tr>`;
   }).join('');
+}
+
+function eqCopiarLista() {
+  const catId = document.getElementById('eq-filtro-categoria').value;
+  const busca = document.getElementById('eq-busca').value.trim().toLowerCase();
+  let filtrados = eqEquipamentos;
+  if (catId) filtrados = filtrados.filter(e => e.categoria_id == catId);
+  if (busca) filtrados = filtrados.filter(e => e.nome.toLowerCase().includes(busca));
+  if (filtrados.length === 0) return;
+  const grupos = {};
+  for (const e of filtrados) {
+    const cat = e.equip_categorias?.nome || 'Sem categoria';
+    if (!grupos[cat]) grupos[cat] = [];
+    grupos[cat].push(e);
+  }
+  const statusLabel = { 'integrado':'Integrado', 'testes':'Testes', 'desenvolvimento':'Desenvolvimento', 'nao_integrado':'Não integrado' };
+  const linhas = ['═ EQUIPAMENTOS HOMOLOGADOS ═',''];
+  for (const [cat, equipamentos] of Object.entries(grupos)) {
+    linhas.push(`> ${cat}`);
+    for (const e of equipamentos) {
+      const sta = statusLabel[e.status] || e.status;
+      const ver = e.versao ? `v${e.versao}` : '';
+      linhas.push(`  ${e.nome}${ver ? `  ${ver}` : ''}  (${sta})`);
+    }
+    linhas.push('');
+  }
+  navigator.clipboard.writeText(linhas.join('\n')).then(() => {
+    const msg = document.getElementById('eq-copy-msg');
+    msg.style.opacity = '1';
+    setTimeout(() => msg.style.opacity = '0', 2000);
+  });
 }
 
 // === ADMIN EQUIPAMENTOS ===
