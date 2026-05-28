@@ -502,6 +502,45 @@
   .mode-classic .modal-overlay { background: rgba(0,0,0,0.7); }
   .mode-classic .modal-box { background: #fdfcfc; color: #201d1d; border: 1px solid rgba(15,0,0,0.12); }
   .mode-classic .modal-header { border-bottom: 1px solid rgba(15,0,0,0.12); }
+
+  /* ===== EQUIPAMENTOS ===== */
+  .equip-filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: end; flex-wrap: wrap; }
+  .equip-filters .field { min-width: 160px; flex: 0 1 auto; }
+  .equip-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .equip-table th {
+    text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--green-hairline);
+    color: var(--text-secondary); font-weight: 600; font-size: 0.8rem;
+  }
+  .equip-table td { padding: 10px 8px; border-bottom: 1px solid var(--green-hairline); color: var(--text-primary); }
+  .equip-table tr:hover td { background: var(--bg-raised); }
+  .equip-table .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .badge-integrado { background: rgba(48,209,88,0.2); color: var(--green); }
+  .badge-testes { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .badge-desenvolvimento { background: rgba(255,149,0,0.2); color: #ff9500; }
+  .badge-nao_integrado { background: rgba(255,59,48,0.2); color: var(--danger); }
+  .mode-classic .equip-table th { color: #646262; }
+  .mode-classic .equip-table td { border-bottom: 1px solid rgba(15,0,0,0.12); color: #201d1d; }
+  .mode-classic .equip-table tr:hover td { background: #f8f7f7; }
+  .equip-count { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
+  .equip-admin-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+  @media (max-width: 768px) { .equip-admin-grid { grid-template-columns: 1fr; } }
+  .equip-admin-section {
+    background: var(--bg-surface); padding: 16px; margin-bottom: 16px;
+    border: 1px solid var(--green-hairline);
+  }
+  .equip-admin-section h3 { font-size: 0.95rem; color: var(--green); margin-bottom: 12px; }
+  .equip-list-compact { list-style: none; font-size: 0.85rem; }
+  .equip-list-compact li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--green-hairline);
+  }
+  .equip-list-compact li:last-child { border-bottom: none; }
+  .mode-classic .equip-admin-section { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .equip-admin-section h3 { color: #646262; }
+  .mode-classic .equip-list-compact li { border-bottom: 1px solid rgba(15,0,0,0.12); }
 </style>
 </head>
 <body class="mode-dashboard">
@@ -546,6 +585,7 @@
     <div class="sidebar-nav">
       <button class="active" onclick="navegar('home')"><span class="nav-indicator">></span> Home</button>
       <button onclick="navegar('vendas')"><span class="nav-indicator">></span> Vendas</button>
+      <button onclick="navegar('equipamentos')"><span class="nav-indicator">></span> Equipamentos</button>
       <button onclick="navegar('config')"><span class="nav-indicator">></span> Config</button>
     </div>
     <div class="sidebar-footer">
@@ -932,6 +972,43 @@
       </div>
     </div>
 
+    <!-- EQUIPAMENTOS -->
+    <div class="page" id="page-equipamentos">
+      <h1><span>></span> Equipamentos Homologados</h1>
+      <p>Equipamentos homologados e suas versões de integração.</p>
+
+      <div class="equip-filters">
+        <div class="field">
+          <label>Categoria</label>
+          <select id="eq-filtro-categoria" onchange="eqFiltrar()">
+            <option value="">Todas as categorias</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Buscar</label>
+          <input type="text" id="eq-busca" placeholder="Nome do equipamento..." oninput="eqFiltrar()">
+        </div>
+        <div class="equip-count" id="eq-contagem"></div>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="equip-table" id="eq-tabela">
+          <thead>
+            <tr>
+              <th>Equipamento</th>
+              <th>Categoria</th>
+              <th>Status</th>
+              <th>Versão</th>
+              <th>Observações</th>
+            </tr>
+          </thead>
+          <tbody id="eq-tbody">
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">Carregando...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <!-- CONFIG -->
     <div class="page" id="page-config">
       <h1>> Configurações</h1>
@@ -940,6 +1017,7 @@
       <div class="config-tabs" id="config-tabs">
         <button class="config-tab active" onclick="configTab('senha')" id="cfg-btn-senha">Minha Senha</button>
         <button class="config-tab" onclick="configTab('produtos')" id="cfg-btn-produtos" style="display:none;">Produtos</button>
+        <button class="config-tab" onclick="configTab('equipamentos')" id="cfg-btn-equipamentos" style="display:none;">Equipamentos</button>
       </div>
 
       <div class="config-tab-content active" id="cfg-tab-senha">
@@ -967,6 +1045,13 @@
         <div class="config-section" style="max-width:100%;">
           <h2>Gerenciar Produtos</h2>
           <div id="admin-produtos"></div>
+        </div>
+      </div>
+
+      <div class="config-tab-content" id="cfg-tab-equipamentos">
+        <div class="config-section" style="max-width:100%;">
+          <h2>Gerenciar Equipamentos Homologados</h2>
+          <div id="admin-equipamentos"><span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span></div>
         </div>
       </div>
     </div>
@@ -1027,6 +1112,7 @@ async function fazerLogin() {
       document.getElementById('login-error').style.display = 'none';
       if (data.permissao === 'admin') {
         document.getElementById('cfg-btn-produtos').style.display = 'block';
+        document.getElementById('cfg-btn-equipamentos').style.display = 'block';
       }
       initModo();
     } else {
@@ -1105,7 +1191,7 @@ function atualizarBreadcrumb() {
   const breadcrumb = document.querySelector('.topbar .breadcrumb');
   if (!breadcrumb) return;
   const activePage = document.querySelector('.page.active');
-  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-config': 'config' };
+  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-equipamentos': 'equipamentos', 'page-config': 'config' };
   const name = map[activePage?.id] || 'home';
   breadcrumb.innerHTML = `<span>></span> ${name}`;
 }
@@ -1117,6 +1203,7 @@ function configTab(tab) {
   document.getElementById('cfg-btn-' + tab).classList.add('active');
   document.getElementById('cfg-tab-' + tab).classList.add('active');
   if (tab === 'produtos') carregarProdutosAdmin();
+  if (tab === 'equipamentos') carregarAdminEquipamentos();
 }
 
 function navegar(pagina) {
@@ -1128,6 +1215,7 @@ function navegar(pagina) {
     b.classList.toggle('active', txt.includes(map[pagina]));
   });
   if (pagina === 'vendas') { voltarHub(); carregarProdutos(); }
+  if (pagina === 'equipamentos') { eqCarregar(); }
   atualizarBreadcrumb();
 }
 
@@ -2294,6 +2382,254 @@ function orcamentoLimpar() {
   orcItemCount = 0;
 }
 
+// === EQUIPAMENTOS HOMOLOGADOS ===
+var eqCategorias = [];
+var eqEquipamentos = [];
+var eqEditandoId = null;
+
+function badgeStatus(status) {
+  const map = {
+    'integrado': '<span class="badge badge-integrado">Integrado</span>',
+    'testes': '<span class="badge badge-testes">Testes</span>',
+    'desenvolvimento': '<span class="badge badge-desenvolvimento">Em desenvolvimento</span>',
+    'nao_integrado': '<span class="badge badge-nao_integrado">Não integrado</span>',
+  };
+  return map[status] || status;
+}
+
+function versaoDisplay(v) {
+  return v ? 'v' + v : '—';
+}
+
+async function eqCarregar() {
+  try {
+    const [resCat, resEquip] = await Promise.all([
+      supabase.from('equip_categorias').select('*').order('ordem').order('id'),
+      supabase.from('equipamentos').select('*, equip_categorias(nome)').order('categoria_id').order('id')
+    ]);
+    eqCategorias = resCat.data || [];
+    eqEquipamentos = resEquip.data || [];
+
+    // Preencher filtro de categorias
+    const select = document.getElementById('eq-filtro-categoria');
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">Todas as categorias</option>' +
+      eqCategorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+    if (currentVal) select.value = currentVal;
+
+    eqFiltrar();
+  } catch (e) {
+    document.getElementById('eq-tbody').innerHTML =
+      `<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:40px;">Erro ao carregar: ${e.message}</td></tr>`;
+  }
+}
+
+function eqFiltrar() {
+  const catId = document.getElementById('eq-filtro-categoria').value;
+  const busca = document.getElementById('eq-busca').value.trim().toLowerCase();
+  let filtrados = eqEquipamentos;
+
+  if (catId) filtrados = filtrados.filter(e => e.categoria_id == catId);
+  if (busca) filtrados = filtrados.filter(e => e.nome.toLowerCase().includes(busca));
+
+  document.getElementById('eq-contagem').textContent = `${filtrados.length} equipamento${filtrados.length !== 1 ? 's' : ''}`;
+
+  const tbody = document.getElementById('eq-tbody');
+  if (filtrados.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:40px;">Nenhum equipamento encontrado.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtrados.map(e => {
+    const catNome = e.equip_categorias?.nome || '';
+    return `<tr>
+      <td>${e.nome}</td>
+      <td>${catNome}</td>
+      <td>${badgeStatus(e.status)}</td>
+      <td>${versaoDisplay(e.versao)}</td>
+      <td style="color:var(--text-secondary);font-size:0.8rem;">${e.observacoes || '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+// === ADMIN EQUIPAMENTOS ===
+function configTabEquipamentos() {
+  carregarAdminEquipamentos();
+}
+
+async function carregarAdminEquipamentos() {
+  const div = document.getElementById('admin-equipamentos');
+  try {
+    const [resCat, resEquip] = await Promise.all([
+      supabase.from('equip_categorias').select('*').order('ordem').order('id'),
+      supabase.from('equipamentos').select('*').order('categoria_id').order('id')
+    ]);
+    eqCategorias = resCat.data || [];
+    eqEquipamentos = resEquip.data || [];
+
+    let html = `<div class="equip-admin-grid">`;
+
+    // Coluna: Categorias
+    html += `<div class="equip-admin-section">
+      <h3>Categorias</h3>
+      <button class="btn btn-sm btn-success" onclick="criarCategoria()" style="margin-bottom:8px;">+ Nova Categoria</button>
+      <ul class="equip-list-compact" id="eq-admin-cat-list">`;
+
+    for (const cat of eqCategorias) {
+      const count = eqEquipamentos.filter(e => e.categoria_id === cat.id).length;
+      html += `<li><span>${cat.nome} <span style="color:var(--text-muted);font-size:0.75rem;">(${count})</span></span>
+        <button class="btn btn-sm btn-danger" onclick="deletarCategoria(${cat.id},'${cat.nome.replace(/'/g, "\\'")}')" style="padding:2px 6px;font-size:0.7rem;">✕</button></li>`;
+    }
+
+    html += `</ul></div>`;
+
+    // Coluna: Equipamentos
+    html += `<div>
+      <div class="equip-admin-section">
+        <h3>Equipamentos</h3>
+        <div class="field" style="margin-bottom:8px;">
+          <label>Filtrar por categoria</label>
+          <select id="eq-admin-filtro-cat" class="styled-select" onchange="carregarAdminEquipamentos()">
+            <option value="">Todas</option>
+            ${eqCategorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')}
+          </select>
+        </div>
+        <button class="btn btn-sm btn-success" onclick="criarEquipamento()" style="margin-bottom:8px;">+ Novo Equipamento</button>
+        <ul class="equip-list-compact" id="eq-admin-equip-list">`;
+
+    const filtroCat = document.getElementById('eq-admin-filtro-cat')?.value || '';
+    let equipFiltrados = eqEquipamentos;
+    if (filtroCat) equipFiltrados = equipFiltrados.filter(e => e.categoria_id == filtroCat);
+
+    for (const e of equipFiltrados) {
+      const catNome = eqCategorias.find(c => c.id === e.categoria_id)?.nome || '';
+      html += `<li>
+        <span><strong>${e.nome}</strong> <span style="color:var(--text-muted);font-size:0.75rem;">(${catNome})</span></span>
+        <span>
+          <button class="btn btn-sm btn-secondary" onclick="editarEquipamento(${e.id})" style="padding:2px 6px;font-size:0.7rem;margin-right:4px;">✎</button>
+          <button class="btn btn-sm btn-danger" onclick="deletarEquipamento(${e.id},'${e.nome.replace(/'/g, "\\'")}')" style="padding:2px 6px;font-size:0.7rem;">✕</button>
+        </span>
+      </li>`;
+    }
+
+    html += `</ul></div></div></div>`;
+    div.innerHTML = html;
+  } catch (e) {
+    div.innerHTML = `<span style="color:var(--danger);font-size:0.85rem;">Erro ao carregar: ${e.message}</span>`;
+  }
+}
+
+// === CRUD CATEGORIAS ===
+function criarCategoria() {
+  document.getElementById('modal-cat-nome').value = '';
+  document.getElementById('modal-nova-categoria').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-cat-nome').focus(), 100);
+}
+
+function fecharModalCategoria() {
+  document.getElementById('modal-nova-categoria').style.display = 'none';
+}
+
+async function salvarCategoria() {
+  const nome = document.getElementById('modal-cat-nome').value.trim();
+  if (!nome) { alert('Preencha o nome da categoria.'); return; }
+  try {
+    const { data: maxOrdem } = await supabase.from('equip_categorias').select('ordem').order('ordem', { ascending: false }).limit(1);
+    await supabase.from('equip_categorias').insert({ nome, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 });
+    fecharModalCategoria();
+    carregarAdminEquipamentos();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function deletarCategoria(id, nome) {
+  confirmarAcao('Remover Categoria', `Remover "${nome}" e TODOS os equipamentos desta categoria?`, async () => {
+    try {
+      await supabase.from('equip_categorias').delete().eq('id', id);
+      carregarAdminEquipamentos();
+    } catch (e) {
+      alert(e.message);
+    }
+  });
+}
+
+// === CRUD EQUIPAMENTOS ===
+async function criarEquipamento() {
+  eqEditandoId = null;
+  document.getElementById('modal-equip-titulo').textContent = '[+] Novo Equipamento';
+  document.getElementById('modal-equip-id').value = '';
+  document.getElementById('modal-equip-nome').value = '';
+  document.getElementById('modal-equip-versao').value = '';
+  document.getElementById('modal-equip-obs').value = '';
+  document.getElementById('modal-equip-status').value = 'integrado';
+
+  const catSelect = document.getElementById('modal-equip-cat');
+  catSelect.innerHTML = eqCategorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  if (eqCategorias.length > 0) catSelect.selectedIndex = 0;
+
+  document.getElementById('modal-equipamento').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-equip-nome').focus(), 100);
+}
+
+async function editarEquipamento(id) {
+  eqEditandoId = id;
+  const equip = eqEquipamentos.find(e => e.id === id);
+  if (!equip) return;
+
+  document.getElementById('modal-equip-titulo').textContent = '✎ Editar Equipamento';
+  document.getElementById('modal-equip-id').value = id;
+  document.getElementById('modal-equip-nome').value = equip.nome;
+  document.getElementById('modal-equip-versao').value = equip.versao || '';
+  document.getElementById('modal-equip-obs').value = equip.observacoes || '';
+  document.getElementById('modal-equip-status').value = equip.status;
+
+  const catSelect = document.getElementById('modal-equip-cat');
+  catSelect.innerHTML = eqCategorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+  catSelect.value = equip.categoria_id;
+
+  document.getElementById('modal-equipamento').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-equip-nome').focus(), 100);
+}
+
+function fecharModalEquipamento() {
+  document.getElementById('modal-equipamento').style.display = 'none';
+  eqEditandoId = null;
+}
+
+async function salvarEquipamento() {
+  const categoria_id = parseInt(document.getElementById('modal-equip-cat').value);
+  const nome = document.getElementById('modal-equip-nome').value.trim();
+  const status = document.getElementById('modal-equip-status').value;
+  const versao = document.getElementById('modal-equip-versao').value.trim();
+  const observacoes = document.getElementById('modal-equip-obs').value.trim();
+
+  if (!categoria_id || !nome) { alert('Preencha categoria e nome.'); return; }
+
+  try {
+    if (eqEditandoId) {
+      await supabase.from('equipamentos').update({ categoria_id, nome, status, versao, observacoes }).eq('id', eqEditandoId);
+    } else {
+      await supabase.from('equipamentos').insert({ categoria_id, nome, status, versao, observacoes });
+    }
+    fecharModalEquipamento();
+    carregarAdminEquipamentos();
+  } catch (e) {
+    alert(e.message);
+  }
+}
+
+function deletarEquipamento(id, nome) {
+  confirmarAcao('Remover Equipamento', `Remover "${nome}"?`, async () => {
+    try {
+      await supabase.from('equipamentos').delete().eq('id', id);
+      carregarAdminEquipamentos();
+    } catch (e) {
+      alert(e.message);
+    }
+  });
+}
+
 // === COPIAR ===
 async function copiar(outputId, msgId) {
   const output = document.getElementById(outputId);
@@ -2409,6 +2745,68 @@ function executarConfirm() {
       <div class="actions" style="margin-top:20px;">
         <button class="btn btn-secondary" onclick="fecharModalModulo()">Cancelar</button>
         <button class="btn btn-success" onclick="salvarModulo()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA CATEGORIA -->
+<div id="modal-nova-categoria" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalCategoria()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);">[+] Nova Categoria</span>
+      <span onclick="fecharModalCategoria()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Nome da categoria</label>
+        <input type="text" id="modal-cat-nome" placeholder="Ex: Leitores Faciais" onkeydown="if(event.key==='Enter')salvarCategoria()">
+      </div>
+      <div class="actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="fecharModalCategoria()">Cancelar</button>
+        <button class="btn btn-success" onclick="salvarCategoria()">Criar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR EQUIPAMENTO -->
+<div id="modal-equipamento" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalEquipamento()">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);" id="modal-equip-titulo">[+] Novo Equipamento</span>
+      <span onclick="fecharModalEquipamento()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="modal-equip-id" value="">
+      <div class="field">
+        <label>Categoria</label>
+        <select id="modal-equip-cat" class="styled-select"></select>
+      </div>
+      <div class="field">
+        <label>Nome do equipamento</label>
+        <input type="text" id="modal-equip-nome" placeholder="Ex: ControliD iDFace" onkeydown="if(event.key==='Enter')document.getElementById('modal-equip-status').focus()">
+      </div>
+      <div class="field">
+        <label>Status</label>
+        <select id="modal-equip-status" class="styled-select" onkeydown="if(event.key==='Enter')document.getElementById('modal-equip-versao').focus()">
+          <option value="integrado">Integrado</option>
+          <option value="testes">Testes internos</option>
+          <option value="desenvolvimento">Em desenvolvimento</option>
+          <option value="nao_integrado">Não integrado</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Versão de integração</label>
+        <input type="text" id="modal-equip-versao" placeholder="Ex: 12.1" onkeydown="if(event.key==='Enter')document.getElementById('modal-equip-obs').focus()">
+      </div>
+      <div class="field">
+        <label>Observações</label>
+        <textarea id="modal-equip-obs" placeholder="Informações adicionais..." rows="3" style="resize:vertical;"></textarea>
+      </div>
+      <div class="actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="fecharModalEquipamento()">Cancelar</button>
+        <button class="btn btn-success" onclick="salvarEquipamento()">Salvar</button>
       </div>
     </div>
   </div>
