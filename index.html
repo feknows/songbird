@@ -1270,8 +1270,7 @@ function deletarProduto(id, nome) {
 async function carregarProdutosAdmin() {
   const div = document.getElementById('admin-produtos');
   try {
-    const { data: produtos, error: errProd } = await supabase.from('produtos').select('*').order('ordem').order('id');
-    if (errProd) console.error('carregarProdutosAdmin error:', errProd);
+    const { data: produtos } = await supabase.from('produtos').select('*').order('ordem').order('id');
     let html = `<button class="btn btn-sm btn-success" onclick="criarProduto()" style="margin-bottom:12px;">+ Novo Produto</button>`;
 
     const grupos = {};
@@ -1596,8 +1595,7 @@ const iconesModulos = {
 
 async function carregarProdutos() {
   try {
-    const { data: produtos, error: errProd } = await supabase.from('produtos').select('*').order('id');
-    if (errProd) console.error('carregarProdutos error:', errProd);
+    const { data: produtos } = await supabase.from('produtos').select('*').order('id');
     const moniBase = (produtos || []).find(p => p.tipo === 'alarme');
     if (!moniBase) { console.warn('carregarProdutos: nenhum produto com tipo="alarme" encontrado'); return; }
 
