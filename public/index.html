@@ -2159,7 +2159,7 @@ function orcamentoAddItem() {
   div.style.cssText = 'background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;margin-bottom:12px;';
 
   div.innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr 130px;gap:8px;margin-bottom:8px;">
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(100px,130px);gap:8px;margin-bottom:8px;">
       <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;background:#1c1c1c;"><option value="">Selecione</option></select></div>
       <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;background:#1c1c1c;"><option value="">Carregando...</option></select></div>
       <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;"></div>
