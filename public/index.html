@@ -3154,6 +3154,7 @@ async function distribModalCarregar() {
   ).join('');
 
   const { data: avulsos } = await supabase.from('produtos').select('*').eq('tipo', 'Licen\u00e7as unit\u00e1rias').order('id');
+  console.log('Avulsos retornados:', avulsos);
   const avulsosDiv = document.getElementById('distrib-avulsos');
   if (!avulsos || !avulsos.length) {
     avulsosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum produto avulso cadastrado.</span>';
