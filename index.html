@@ -3153,19 +3153,24 @@ async function distribModalCarregar() {
     '<option value="' + p.id + '">' + p.nome + '</option>'
   ).join('');
 
-  const { data: avulsos } = await supabase.from('produtos').select('*').eq('tipo', 'Licen\u00e7as unit\u00e1rias').order('id');
-  console.log('Avulsos retornados:', avulsos);
   const avulsosDiv = document.getElementById('distrib-avulsos');
-  if (!avulsos || !avulsos.length) {
+  const { data: avulsoProd } = await supabase.from('produtos').select('id').eq('tipo', 'Licen\u00e7as unit\u00e1rias').maybeSingle();
+  if (!avulsoProd) {
     avulsosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum produto avulso cadastrado.</span>';
   } else {
-    avulsosDiv.innerHTML = avulsos.map(a =>
-      '<label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.9rem;">' +
-        '<input type="checkbox" class="avulso-check" data-nome="' + a.nome.replace(/"/g, '&quot;') + '" onchange="this.parentElement.querySelector(\'.avulso-qtd\').disabled=!this.checked">' +
-        '<span>' + a.nome + '</span>' +
-        '<input type="number" class="avulso-qtd" value="1" min="1" style="width:50px;padding:2px 4px;font-size:0.85rem;" disabled>' +
-      '</label>'
-    ).join('');
+    const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', avulsoProd.id).order('ordem').order('id');
+    if (!faixas || !faixas.length) {
+      avulsosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum avulso cadastrado.</span>';
+    } else {
+      avulsosDiv.innerHTML = faixas.map(f =>
+        '<label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.9rem;">' +
+          '<input type="checkbox" class="avulso-check" data-nome="' + f.descricao.replace(/"/g, '&quot;') + '" onchange="this.parentElement.querySelector(\'.avulso-qtd\').disabled=!this.checked">' +
+          '<span>' + f.descricao + '</span>' +
+          '<span style="color:var(--text-muted);font-size:0.8rem;margin-left:4px;">(R$ ' + f.valor_base.toFixed(2).replace('.', ',') + ')</span>' +
+          '<input type="number" class="avulso-qtd" value="1" min="1" style="width:50px;padding:2px 4px;font-size:0.85rem;" disabled>' +
+        '</label>'
+      ).join('');
+    }
   }
 
   document.getElementById('distrib-faixa').innerHTML = '<option value="">Selecione um produto primeiro</option>';
