@@ -541,6 +541,50 @@
   .mode-classic .equip-admin-section { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
   .mode-classic .equip-admin-section h3 { color: #646262; }
   .mode-classic .equip-list-compact li { border-bottom: 1px solid rgba(15,0,0,0.12); }
+
+  /* ===== DISTRIBUICAO ===== */
+  .distrib-widget {
+    margin-top: 24px; padding: 20px 24px;
+    background: var(--bg-surface); border: 1px solid var(--green-hairline);
+  }
+  .distrib-widget h3 {
+    font-size: 0.9rem; color: var(--green); margin-bottom: 16px;
+  }
+  .distrib-linha {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .distrib-vendedor {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border: 1px solid var(--green-hairline);
+    border-radius: 4px; font-size: 0.85rem; color: var(--text-secondary);
+    background: var(--bg-raised);
+  }
+  .distrib-vendedor.ativo {
+    border-color: var(--green); color: var(--green);
+    background: var(--green-dim); font-weight: 600;
+  }
+  .distrib-vendedor .cnt {
+    font-size: 0.7rem; color: var(--text-muted); margin-left: 4px;
+  }
+  .distrib-vendedor.ativo .cnt { color: var(--green); }
+  .distrib-seta {
+    color: var(--text-muted); font-size: 1rem;
+  }
+  .distrib-btn {
+    padding: 8px 20px; font-size: 0.85rem;
+  }
+  .distrib-stats {
+    margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap;
+    font-size: 0.8rem; color: var(--text-secondary);
+  }
+  .distrib-stats span { white-space: nowrap; }
+  .distrib-stats .total {
+    color: var(--green); font-weight: 600;
+  }
+  .distrib-msg {
+    font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;
+    min-height: 1.2em;
+  }
 </style>
 </head>
 <body class="mode-dashboard">
@@ -666,6 +710,16 @@
           <li onclick="abrirForm('desconto')"><span class="idx">[4]</span> Verificar Desconto / Mudança de Faixa<span class="desc">Calcule descontos e simule upgrades de faixa</span></li>
           <li onclick="abrirForm('orcamento')"><span class="idx">[5]</span> Orçamento<span class="desc">Crie orçamentos combinando múltiplos produtos</span></li>
         </ul>
+      </div>
+
+      <!-- DISTRIBUICAO -->
+      <div class="distrib-widget" id="distrib-widget" style="display:none;">
+        <h3>Distribuição de Vendas</h3>
+        <div class="distrib-linha" id="distrib-info">
+          <span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span>
+        </div>
+        <div class="distrib-stats" id="distrib-stats"></div>
+        <div class="distrib-msg" id="distrib-msg"></div>
       </div>
 
       <!-- FORM CONTAINER -->
@@ -1195,7 +1249,7 @@ function navegar(pagina) {
     const txt = b.textContent.replace('>','').trim();
     b.classList.toggle('active', txt.includes(map[pagina]));
   });
-  if (pagina === 'vendas') { voltarHub(); carregarProdutos(); }
+  if (pagina === 'vendas') { voltarHub(); carregarProdutos(); distribCarregar(); }
   if (pagina === 'equipamentos') { eqCarregar(); }
   atualizarBreadcrumb();
 }
@@ -2854,6 +2908,89 @@ function executarConfirm() {
     </div>
   </div>
 </div>
+
+<!-- === DISTRIBUICAO === -->
+<script>
+const DISTRIB_VENDEDORES = ['Denis', 'Marcelo', 'Ricardo', 'Roni'];
+
+async function distribCarregar() {
+  const widget = document.getElementById('distrib-widget');
+  if (!widget) return;
+  try {
+    const { data: rows, error } = await supabase
+      .from('distribuicao')
+      .select('vendedor')
+      .order('id', { ascending: false });
+    if (error) throw error;
+
+    widget.style.display = 'block';
+
+    const stats = {};
+    DISTRIB_VENDEDORES.forEach(v => stats[v] = 0);
+    let ultimo = null;
+    if (rows && rows.length > 0) {
+      ultimo = rows[0].vendedor;
+      rows.forEach(r => { if (stats[r.vendedor] !== undefined) stats[r.vendedor]++; });
+    }
+
+    const proximo = distribProximo(ultimo);
+    distribRenderizar(proximo, stats, rows ? rows.length : 0);
+  } catch (e) {
+    console.warn('distribCarregar erro:', e);
+    widget.style.display = 'none';
+  }
+}
+
+function distribProximo(ultimo) {
+  if (!ultimo) return DISTRIB_VENDEDORES[0];
+  const idx = DISTRIB_VENDEDORES.indexOf(ultimo);
+  if (idx === -1) return DISTRIB_VENDEDORES[0];
+  return DISTRIB_VENDEDORES[(idx + 1) % DISTRIB_VENDEDORES.length];
+}
+
+function distribRenderizar(proximo, stats, total) {
+  const info = document.getElementById('distrib-info');
+  const statsEl = document.getElementById('distrib-stats');
+  if (!info || !statsEl) return;
+
+  const vendedoresHtml = DISTRIB_VENDEDORES.map(v => {
+    const ativo = v === proximo ? ' ativo' : '';
+    const cnt = stats[v] || 0;
+    return '<div class="distrib-vendedor' + ativo + '">' + v + ' <span class="cnt">(' + cnt + ')</span></div>';
+  }).join('<span class="distrib-seta">→</span>');
+
+  info.innerHTML = vendedoresHtml + '<button class="btn btn-success btn-sm distrib-btn" onclick="distribAvancar()">\u2713 Distribuir para ' + proximo + '</button>';
+
+  statsEl.innerHTML = '<span class="total">Total distribu\u00eddo: ' + total + '</span>';
+}
+
+function distribMensagem(texto) {
+  const el = document.getElementById('distrib-msg');
+  if (el) el.textContent = texto;
+}
+
+async function distribAvancar() {
+  const info = document.getElementById('distrib-info');
+  if (!info) return;
+  const btn = info.querySelector('.distrib-btn');
+  if (btn) btn.disabled = true;
+
+  try {
+    const ativo = info.querySelector('.distrib-vendedor.ativo');
+    if (!ativo) { distribMensagem('Erro: nenhum vendedor ativo'); if (btn) btn.disabled = false; return; }
+    const vendedor = ativo.textContent.trim().split(' ')[0];
+
+    const { error } = await supabase.from('distribuicao').insert({ vendedor });
+    if (error) throw error;
+    distribMensagem('\u2713 Distribu\u00eddo para ' + vendedor);
+    await distribCarregar();
+  } catch (e) {
+    console.warn('distribAvancar erro:', e);
+    distribMensagem('Erro ao registrar distribui\u00e7\u00e3o');
+    if (btn) btn.disabled = false;
+  }
+}
+</script>
 
 </body>
 </html>
