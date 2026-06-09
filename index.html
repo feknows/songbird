@@ -2956,15 +2956,9 @@ function executarConfirm() {
         <span id="distrib-crm-error" style="color:var(--red);font-size:0.75rem;display:none;"></span>
       </div>
       <div class="field">
-        <label>Produto <span style="color:var(--red);">*</span></label>
-        <select id="distrib-produto" onchange="distribProdutoChange()">
-          <option value="">Selecione</option>
-        </select>
-      </div>
-      <div class="field">
         <label>Faixa de contas <span style="color:var(--red);">*</span></label>
         <select id="distrib-faixa" onchange="distribFaixaChange()">
-          <option value="">Selecione um produto primeiro</option>
+          <option value="">Carregando...</option>
         </select>
       </div>
       <div class="field">
@@ -2997,6 +2991,7 @@ const DISTRIB_VENDEDORES = ['Denis', 'Marcelo', 'Ricardo', 'Roni'];
 let DISTRIB_produtosCache = [];
 let DISTRIB_faixasCache = [];
 let distribVendedorAlvo = null;
+let distribProdutoAlarmeId = null;
 
 async function distribCarregar() {
   const widget = document.getElementById('distrib-widget');
@@ -3150,11 +3145,37 @@ async function distribModalCarregar() {
   document.getElementById('distrib-crm-error').style.display = 'none';
   document.getElementById('distrib-modal-msg').style.display = 'none';
 
-  const { data: produtos } = await supabase.from('produtos').select('id, nome').eq('tipo', 'alarme').order('id');
-  const prodSelect = document.getElementById('distrib-produto');
-  prodSelect.innerHTML = '<option value="">Selecione</option>' + (produtos || []).map(p =>
-    '<option value="' + p.id + '">' + p.nome + '</option>'
+  const { data: prodAlarme } = await supabase.from('produtos').select('id').eq('tipo', 'alarme').maybeSingle();
+  if (!prodAlarme) {
+    distribModalMsg('Nenhum produto do tipo alarme encontrado');
+    return;
+  }
+  distribProdutoAlarmeId = prodAlarme.id;
+
+  const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', distribProdutoAlarmeId).order('ordem').order('id');
+  const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', distribProdutoAlarmeId).order('id');
+
+  const faixaSelect = document.getElementById('distrib-faixa');
+  faixaSelect.innerHTML = '<option value="">Selecione</option>' + (faixas || []).map(f =>
+    '<option value="' + encodeURIComponent(JSON.stringify({ id: f.id, desc: f.descricao, valor_modulo: f.valor_modulo })) + '">' + f.descricao + '</option>'
   ).join('');
+
+  const modulosDiv = document.getElementById('distrib-modulos');
+  if (!modulos || !modulos.length) {
+    modulosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum m\u00f3dulo dispon\u00edvel.</span>';
+  } else {
+    modulosDiv.innerHTML = modulos.map(m =>
+      '<div class="modulo-card" data-modulo-id="' + m.id + '" data-modulo-nome="' + m.nome.replace(/"/g, '&quot;') + '" onclick="distribToggleModulo(this)">' +
+        '<div class="modulo-nome">' +
+          '<input type="checkbox" onclick="event.stopPropagation()" onchange="distribToggleModulo(this.parentElement.parentElement)"> ' + m.nome +
+        '</div>' +
+        '<div class="modulo-valor">' +
+          '<span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span>' +
+          '<input type="text" class="distrib-m-valor" placeholder="0,00" oninput="formatCurrency(this);distribAtualizarTotal()" onclick="event.stopPropagation()">' +
+        '</div>' +
+      '</div>'
+    ).join('');
+  }
 
   const avulsosDiv = document.getElementById('distrib-avulsos');
   const { data: avulsoProd } = await supabase.from('produtos').select('id').eq('tipo', 'Licen\u00e7as unit\u00e1rias').maybeSingle();
@@ -3180,43 +3201,7 @@ async function distribModalCarregar() {
     }
   }
 
-  document.getElementById('distrib-faixa').innerHTML = '<option value="">Selecione um produto primeiro</option>';
-  document.getElementById('distrib-modulos').innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Selecione um produto primeiro</span>';
   distribAtualizarTotal();
-}
-
-async function distribProdutoChange() {
-  const prodId = parseInt(document.getElementById('distrib-produto').value);
-  if (!prodId) {
-    document.getElementById('distrib-faixa').innerHTML = '<option value="">Selecione um produto primeiro</option>';
-    document.getElementById('distrib-modulos').innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Selecione um produto primeiro</span>';
-    return;
-  }
-
-  const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', prodId).order('ordem').order('id');
-  const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', prodId).order('id');
-
-  const faixaSelect = document.getElementById('distrib-faixa');
-  faixaSelect.innerHTML = '<option value="">Selecione</option>' + (faixas || []).map(f =>
-    '<option value="' + encodeURIComponent(JSON.stringify({ id: f.id, desc: f.descricao, valor_modulo: f.valor_modulo })) + '">' + f.descricao + '</option>'
-  ).join('');
-
-  const modulosDiv = document.getElementById('distrib-modulos');
-  if (!modulos || !modulos.length) {
-    modulosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum m\u00f3dulo dispon\u00edvel.</span>';
-  } else {
-    modulosDiv.innerHTML = modulos.map(m =>
-      '<div class="modulo-card" data-modulo-id="' + m.id + '" data-modulo-nome="' + m.nome.replace(/"/g, '&quot;') + '" onclick="distribToggleModulo(this)">' +
-        '<div class="modulo-nome">' +
-          '<input type="checkbox" onclick="event.stopPropagation()" onchange="distribToggleModulo(this.parentElement.parentElement)"> ' + m.nome +
-        '</div>' +
-        '<div class="modulo-valor">' +
-          '<span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span>' +
-          '<input type="text" class="distrib-m-valor" placeholder="0,00" oninput="formatCurrency(this);distribAtualizarTotal()" onclick="event.stopPropagation()">' +
-        '</div>' +
-      '</div>'
-    ).join('');
-  }
 }
 
 function distribFaixaChange() {
@@ -3287,9 +3272,8 @@ async function distribModalConfirmar() {
   }
   errorEl.style.display = 'none';
 
-  const prodSelect = document.getElementById('distrib-produto');
-  const produtoId = parseInt(prodSelect.value);
-  if (!produtoId) { distribModalMsg('Selecione um produto'); return; }
+  const produtoId = distribProdutoAlarmeId;
+  if (!produtoId) { distribModalMsg('Erro: produto n\u00e3o identificado'); return; }
 
   const faixaSelect = document.getElementById('distrib-faixa');
   if (!faixaSelect.value) { distribModalMsg('Selecione uma faixa'); return; }
