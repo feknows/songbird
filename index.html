@@ -3157,7 +3157,7 @@ async function distribModalCarregar() {
 
   const faixaSelect = document.getElementById('distrib-faixa');
   faixaSelect.innerHTML = '<option value="">Selecione</option>' + (faixas || []).map(f =>
-    '<option value="' + encodeURIComponent(JSON.stringify({ id: f.id, desc: f.descricao, valor_modulo: f.valor_modulo })) + '">' + f.descricao + '</option>'
+    '<option value="' + encodeURIComponent(JSON.stringify({ id: f.id, desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo })) + '">' + f.descricao + '</option>'
   ).join('');
 
   const modulosDiv = document.getElementById('distrib-modulos');
@@ -3247,6 +3247,11 @@ function distribToggleAvulso(el) {
 
 function distribAtualizarTotal() {
   let total = 0;
+  const faixaSelect = document.getElementById('distrib-faixa');
+  if (faixaSelect.value) {
+    const faixa = JSON.parse(decodeURIComponent(faixaSelect.value));
+    total += faixa.valor_base || 0;
+  }
   document.querySelectorAll('#distrib-modulos .modulo-card.selected').forEach(c => {
     const valorStr = c.querySelector('.distrib-m-valor').value;
     total += parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
@@ -3322,6 +3327,7 @@ function distribModalFechar() {
   document.getElementById('modal-distribuir').style.display = 'none';
   document.getElementById('distrib-crm-error').style.display = 'none';
   document.getElementById('distrib-modal-msg').style.display = 'none';
+  document.getElementById('distrib-faixa').value = '';
 }
 </script>
 
