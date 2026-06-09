@@ -1044,13 +1044,14 @@
           <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
             <thead>
               <tr style="background:var(--bg-raised);">
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">#</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);width:40px;">#</th>
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Vendedor</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">CRM ID</th>
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Data</th>
               </tr>
             </thead>
             <tbody id="distrib-historico">
-              <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>
+              <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>
             </tbody>
           </table>
         </div>
@@ -2941,9 +2942,58 @@ function executarConfirm() {
   </div>
 </div>
 
+<!-- === MODAL DISTRIBUIR === -->
+<div id="modal-distribuir" class="modal-overlay" style="display:none;" onclick="if(event.target===this)distribModalFechar()">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);">◆ Distribuir para <span id="distrib-modal-vendedor">—</span></span>
+      <span onclick="distribModalFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>CRM ID <span style="color:var(--red);">*</span></label>
+        <input type="text" id="distrib-crm-id" maxlength="6" placeholder="Ex: A1B23" style="text-transform:uppercase;width:160px;" onkeydown="if(event.key==='Enter')distribModalConfirmar()">
+        <span id="distrib-crm-error" style="color:var(--red);font-size:0.75rem;display:none;"></span>
+      </div>
+      <div class="field">
+        <label>Produto <span style="color:var(--red);">*</span></label>
+        <select id="distrib-produto" onchange="distribProdutoChange()">
+          <option value="">Selecione</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Faixa de contas <span style="color:var(--red);">*</span></label>
+        <select id="distrib-faixa" onchange="distribFaixaChange()">
+          <option value="">Selecione um produto primeiro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Módulos Adicionais</label>
+        <div id="distrib-modulos" class="modulo-grid" style="margin-top:4px;">
+          <span style="color:var(--text-muted);font-size:0.85rem;">Selecione um produto primeiro</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Licenças Unitárias</label>
+        <div id="distrib-avulsos" style="margin-top:4px;">
+          <span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span>
+        </div>
+      </div>
+      <span id="distrib-modal-msg" style="color:var(--red);font-size:0.85rem;display:none;"></span>
+      <div class="actions" style="margin-top:20px;">
+        <button class="btn btn-secondary" onclick="distribModalFechar()">Cancelar</button>
+        <button class="btn btn-success" onclick="distribModalConfirmar()">✓ Confirmar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- === DISTRIBUICAO === -->
 <script>
 const DISTRIB_VENDEDORES = ['Denis', 'Marcelo', 'Ricardo', 'Roni'];
+let DISTRIB_produtosCache = [];
+let DISTRIB_faixasCache = [];
+let distribVendedorAlvo = null;
 
 async function distribCarregar() {
   const widget = document.getElementById('distrib-widget');
@@ -2951,7 +3001,7 @@ async function distribCarregar() {
   try {
     const { data: rows, error } = await supabase
       .from('distribuicao')
-      .select('vendedor, criado_em')
+      .select('vendedor, criado_em, crm_id, produto_id, faixa_id, modulos, avulsos')
       .order('id', { ascending: false });
     if (error) throw error;
 
@@ -2965,6 +3015,8 @@ async function distribCarregar() {
       rows.forEach(r => { if (stats[r.vendedor] !== undefined) stats[r.vendedor]++; });
     }
 
+    await distribCarregarCache();
+
     const proximo = distribProximo(ultimo);
     distribRenderizar(proximo, stats, rows ? rows.length : 0);
     distribRenderizarHistorico(rows || []);
@@ -2973,6 +3025,24 @@ async function distribCarregar() {
     console.warn('distribCarregar erro:', e);
     widget.style.display = 'none';
   }
+}
+
+async function distribCarregarCache() {
+  if (DISTRIB_produtosCache.length) return;
+  const { data: prods } = await supabase.from('produtos').select('id, nome').order('id');
+  const { data: faixas } = await supabase.from('faixas').select('id, descricao').order('id');
+  DISTRIB_produtosCache = prods || [];
+  DISTRIB_faixasCache = faixas || [];
+}
+
+function distribNomeProduto(id) {
+  const p = DISTRIB_produtosCache.find(x => x.id === id);
+  return p ? p.nome : '\u2014';
+}
+
+function distribNomeFaixa(id) {
+  const f = DISTRIB_faixasCache.find(x => x.id === id);
+  return f ? f.descricao : '\u2014';
 }
 
 async function distribCarregarBadge() {
@@ -3004,7 +3074,7 @@ function distribRenderizar(proximo, stats, total) {
     const ativo = v === proximo ? ' ativo' : '';
     const cnt = stats[v] || 0;
     return '<div class="distrib-vendedor' + ativo + '">' + v + ' <span class="cnt">(' + cnt + ')</span></div>';
-  }).join('<span class="distrib-seta">→</span>');
+  }).join('<span class="distrib-seta">\u2192</span>');
 
   info.innerHTML = vendedoresHtml + '<button class="btn btn-success btn-sm distrib-btn" onclick="distribAvancar()">\u2713 Distribuir para ' + proximo + '</button>';
 
@@ -3023,17 +3093,37 @@ function distribRenderizarHistorico(rows) {
   const tbody = document.getElementById('distrib-historico');
   if (!tbody) return;
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribui\u00e7\u00e3o ainda.</td></tr>';
     return;
   }
   tbody.innerHTML = rows.slice(0, 20).map((r, i) => {
-    const data = r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '—';
-    return '<tr>' +
+    const data = r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '\u2014';
+    const modulosHtml = (r.modulos && r.modulos.length)
+      ? r.modulos.map(m => m.nome).join(', ') : '\u2014';
+    const avulsosHtml = (r.avulsos && r.avulsos.length)
+      ? r.avulsos.map(a => a.nome + (a.quantidade > 1 ? ' (\u00d7' + a.quantidade + ')' : '')).join(', ')
+      : '\u2014';
+    const detalhes = '<strong>Produto:</strong> ' + distribNomeProduto(r.produto_id) +
+      ' \u00b7 <strong>Faixa:</strong> ' + distribNomeFaixa(r.faixa_id) +
+      '<br><strong>M\u00f3dulos:</strong> ' + modulosHtml +
+      '<br><strong>Avulsos:</strong> ' + avulsosHtml;
+    return '<tr class="distrib-row" onclick="distribToggleDetalhes(this)" style="cursor:pointer;">' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);">' + r.vendedor + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '\u2014') + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">' + data + '</td>' +
+      '</tr>' +
+      '<tr class="distrib-detalhes" style="display:none;">' +
+      '<td colspan="4" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--green-hairline);line-height:1.6;">' + detalhes + '</td>' +
       '</tr>';
   }).join('');
+}
+
+function distribToggleDetalhes(tr) {
+  const next = tr.nextElementSibling;
+  if (next && next.classList.contains('distrib-detalhes')) {
+    next.style.display = next.style.display === 'none' ? 'table-row' : 'none';
+  }
 }
 
 function distribMensagem(texto) {
@@ -3044,23 +3134,171 @@ function distribMensagem(texto) {
 async function distribAvancar() {
   const info = document.getElementById('distrib-info');
   if (!info) return;
-  const btn = info.querySelector('.distrib-btn');
-  if (btn) btn.disabled = true;
+  const ativo = info.querySelector('.distrib-vendedor.ativo');
+  if (!ativo) { distribMensagem('Erro: nenhum vendedor ativo'); return; }
+  distribVendedorAlvo = ativo.textContent.trim().split(' ')[0];
+  document.getElementById('distrib-modal-vendedor').textContent = distribVendedorAlvo;
+  document.getElementById('modal-distribuir').style.display = 'flex';
+  await distribModalCarregar();
+}
+
+async function distribModalCarregar() {
+  document.getElementById('distrib-crm-id').value = '';
+  document.getElementById('distrib-crm-error').style.display = 'none';
+  document.getElementById('distrib-modal-msg').style.display = 'none';
+
+  const { data: produtos } = await supabase.from('produtos').select('id, nome').eq('tipo', 'alarme').order('id');
+  const prodSelect = document.getElementById('distrib-produto');
+  prodSelect.innerHTML = '<option value="">Selecione</option>' + (produtos || []).map(p =>
+    '<option value="' + p.id + '">' + p.nome + '</option>'
+  ).join('');
+
+  const { data: avulsos } = await supabase.from('produtos').select('*').eq('tipo', 'Licen\u00e7as unit\u00e1rias').order('id');
+  const avulsosDiv = document.getElementById('distrib-avulsos');
+  if (!avulsos || !avulsos.length) {
+    avulsosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum produto avulso cadastrado.</span>';
+  } else {
+    avulsosDiv.innerHTML = avulsos.map(a =>
+      '<label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.9rem;">' +
+        '<input type="checkbox" class="avulso-check" data-nome="' + a.nome.replace(/"/g, '&quot;') + '" onchange="this.parentElement.querySelector(\'.avulso-qtd\').disabled=!this.checked">' +
+        '<span>' + a.nome + '</span>' +
+        '<input type="number" class="avulso-qtd" value="1" min="1" style="width:50px;padding:2px 4px;font-size:0.85rem;" disabled>' +
+      '</label>'
+    ).join('');
+  }
+
+  document.getElementById('distrib-faixa').innerHTML = '<option value="">Selecione um produto primeiro</option>';
+  document.getElementById('distrib-modulos').innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Selecione um produto primeiro</span>';
+}
+
+async function distribProdutoChange() {
+  const prodId = parseInt(document.getElementById('distrib-produto').value);
+  if (!prodId) {
+    document.getElementById('distrib-faixa').innerHTML = '<option value="">Selecione um produto primeiro</option>';
+    document.getElementById('distrib-modulos').innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Selecione um produto primeiro</span>';
+    return;
+  }
+
+  const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', prodId).order('ordem').order('id');
+  const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', prodId).order('id');
+
+  const faixaSelect = document.getElementById('distrib-faixa');
+  faixaSelect.innerHTML = '<option value="">Selecione</option>' + (faixas || []).map(f =>
+    '<option value="' + encodeURIComponent(JSON.stringify({ id: f.id, desc: f.descricao, valor_modulo: f.valor_modulo })) + '">' + f.descricao + '</option>'
+  ).join('');
+
+  const modulosDiv = document.getElementById('distrib-modulos');
+  if (!modulos || !modulos.length) {
+    modulosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum m\u00f3dulo dispon\u00edvel.</span>';
+  } else {
+    modulosDiv.innerHTML = modulos.map(m =>
+      '<div class="modulo-card" data-modulo-id="' + m.id + '" data-modulo-nome="' + m.nome.replace(/"/g, '&quot;') + '" onclick="distribToggleModulo(this)">' +
+        '<div class="modulo-nome">' +
+          '<input type="checkbox" onclick="event.stopPropagation()" onchange="distribToggleModulo(this.parentElement.parentElement)"> ' + m.nome +
+        '</div>' +
+        '<div class="modulo-valor">' +
+          '<span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span>' +
+          '<input type="text" class="distrib-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()">' +
+        '</div>' +
+      '</div>'
+    ).join('');
+  }
+}
+
+function distribFaixaChange() {
+  const select = document.getElementById('distrib-faixa');
+  if (!select.value) return;
+  const faixa = JSON.parse(decodeURIComponent(select.value));
+  const valor = faixa.valor_modulo || 0;
+  document.querySelectorAll('#distrib-modulos .modulo-card').forEach(c => {
+    const el = c.querySelector('.distrib-m-valor');
+    if (el) el.value = valor > 0
+      ? Math.floor(valor).toLocaleString('pt-BR') + ',' + String(Math.round((valor - Math.floor(valor)) * 100)).padStart(2, '0')
+      : '';
+  });
+}
+
+function distribToggleModulo(el) {
+  const checkbox = el.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+  el.classList.toggle('selected', checkbox.checked);
+  if (checkbox.checked) {
+    const select = document.getElementById('distrib-faixa');
+    if (select.value) {
+      const faixa = JSON.parse(decodeURIComponent(select.value));
+      if (faixa.valor_modulo > 0) {
+        const valorInput = el.querySelector('.distrib-m-valor');
+        const reais = Math.floor(faixa.valor_modulo);
+        const centavos = Math.round((faixa.valor_modulo - reais) * 100);
+        valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+      }
+    }
+  }
+}
+
+async function distribModalConfirmar() {
+  const crmId = document.getElementById('distrib-crm-id').value.trim().toUpperCase();
+  const errorEl = document.getElementById('distrib-crm-error');
+
+  if (!/^[A-Z0-9]{4,6}$/.test(crmId)) {
+    errorEl.textContent = 'CRM ID deve ter 4 a 6 letras ou n\u00fameros';
+    errorEl.style.display = 'block';
+    document.getElementById('distrib-crm-id').focus();
+    return;
+  }
+  errorEl.style.display = 'none';
+
+  const prodSelect = document.getElementById('distrib-produto');
+  const produtoId = parseInt(prodSelect.value);
+  if (!produtoId) { distribModalMsg('Selecione um produto'); return; }
+
+  const faixaSelect = document.getElementById('distrib-faixa');
+  if (!faixaSelect.value) { distribModalMsg('Selecione uma faixa'); return; }
+  const faixa = JSON.parse(decodeURIComponent(faixaSelect.value));
+
+  const modulos = [];
+  document.querySelectorAll('#distrib-modulos .modulo-card.selected').forEach(c => {
+    const id = parseInt(c.dataset.moduloId);
+    const nome = c.dataset.moduloNome;
+    const valorStr = c.querySelector('.distrib-m-valor').value;
+    const valor = parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
+    modulos.push({ id, nome, valor });
+  });
+
+  const avulsos = [];
+  document.querySelectorAll('#distrib-avulsos .avulso-check:checked').forEach(cb => {
+    const nome = cb.dataset.nome;
+    const qtd = parseInt(cb.parentElement.querySelector('.avulso-qtd').value) || 1;
+    avulsos.push({ nome, quantidade: qtd });
+  });
 
   try {
-    const ativo = info.querySelector('.distrib-vendedor.ativo');
-    if (!ativo) { distribMensagem('Erro: nenhum vendedor ativo'); if (btn) btn.disabled = false; return; }
-    const vendedor = ativo.textContent.trim().split(' ')[0];
-
-    const { error } = await supabase.from('distribuicao').insert({ vendedor });
+    const { error } = await supabase.from('distribuicao').insert({
+      vendedor: distribVendedorAlvo,
+      crm_id: crmId,
+      produto_id: produtoId,
+      faixa_id: faixa.id,
+      modulos: modulos,
+      avulsos: avulsos
+    });
     if (error) throw error;
-    distribMensagem('\u2713 Distribu\u00eddo para ' + vendedor);
+    distribModalFechar();
     await distribCarregar();
   } catch (e) {
-    console.warn('distribAvancar erro:', e);
-    distribMensagem('Erro ao registrar distribui\u00e7\u00e3o');
-    if (btn) btn.disabled = false;
+    console.warn('distribModalConfirmar erro:', e);
+    distribModalMsg('Erro ao registrar distribui\u00e7\u00e3o');
   }
+}
+
+function distribModalMsg(texto) {
+  const el = document.getElementById('distrib-modal-msg');
+  if (el) { el.textContent = texto; el.style.display = 'block'; }
+}
+
+function distribModalFechar() {
+  document.getElementById('modal-distribuir').style.display = 'none';
+  document.getElementById('distrib-crm-error').style.display = 'none';
+  document.getElementById('distrib-modal-msg').style.display = 'none';
 }
 </script>
 
