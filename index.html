@@ -557,11 +557,17 @@
     display: flex; align-items: center; gap: 8px;
     padding: 8px 14px; border: 1px solid var(--green-hairline);
     border-radius: 4px; font-size: 0.85rem; color: var(--text-secondary);
-    background: var(--bg-raised);
+    background: var(--bg-raised); cursor: pointer; transition: background 0.15s;
+  }
+  .distrib-vendedor:hover {
+    background: var(--bg-elevated);
   }
   .distrib-vendedor.ativo {
     border-color: var(--green); color: var(--green);
     background: var(--green-dim); font-weight: 600;
+  }
+  .distrib-vendedor.ativo:hover {
+    background: #1a3a2a;
   }
   .distrib-vendedor .cnt {
     font-size: 0.7rem; color: var(--text-muted); margin-left: 4px;
@@ -3072,7 +3078,7 @@ function distribRenderizar(proximo, stats, total) {
   const vendedoresHtml = DISTRIB_VENDEDORES.map(v => {
     const ativo = v === proximo ? ' ativo' : '';
     const cnt = stats[v] || 0;
-    return '<div class="distrib-vendedor' + ativo + '">' + v + ' <span class="cnt">(' + cnt + ')</span></div>';
+    return '<div class="distrib-vendedor' + ativo + '" onclick="distribAvancar(\'' + v + '\')">' + v + ' <span class="cnt">(' + cnt + ')</span></div>';
   }).join('<span class="distrib-seta">\u2192</span>');
 
   info.innerHTML = vendedoresHtml + '<button class="btn btn-success btn-sm distrib-btn" onclick="distribAvancar()">\u2713 Distribuir para ' + proximo + '</button>';
@@ -3136,12 +3142,15 @@ function distribMensagem(texto) {
   if (el) el.textContent = texto;
 }
 
-async function distribAvancar() {
+async function distribAvancar(vendedor) {
   const info = document.getElementById('distrib-info');
   if (!info) return;
-  const ativo = info.querySelector('.distrib-vendedor.ativo');
-  if (!ativo) { distribMensagem('Erro: nenhum vendedor ativo'); return; }
-  distribVendedorAlvo = ativo.textContent.trim().split(' ')[0];
+  if (!vendedor) {
+    const ativo = info.querySelector('.distrib-vendedor.ativo');
+    if (!ativo) { distribMensagem('Erro: nenhum vendedor ativo'); return; }
+    vendedor = ativo.textContent.trim().split(' ')[0];
+  }
+  distribVendedorAlvo = vendedor;
   distribEditandoId = null;
   document.getElementById('distrib-modal-titulo').innerHTML = '◆ Distribuir para <span id="distrib-modal-vendedor">' + distribVendedorAlvo + '</span>';
   document.getElementById('modal-distribuir').style.display = 'flex';
