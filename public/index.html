@@ -2979,6 +2979,9 @@ function executarConfirm() {
           <span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span>
         </div>
       </div>
+      <div style="padding:12px 0;border-top:1px solid var(--green-hairline);margin-top:12px;text-align:right;font-size:1rem;">
+        <strong>Total: </strong><span id="distrib-modal-total">R$ 0,00</span>
+      </div>
       <span id="distrib-modal-msg" style="color:var(--red);font-size:0.85rem;display:none;"></span>
       <div class="actions" style="margin-top:20px;">
         <button class="btn btn-secondary" onclick="distribModalFechar()">Cancelar</button>
@@ -3163,18 +3166,23 @@ async function distribModalCarregar() {
       avulsosDiv.innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Nenhum avulso cadastrado.</span>';
     } else {
       avulsosDiv.innerHTML = faixas.map(f =>
-        '<label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:0.9rem;">' +
-          '<input type="checkbox" class="avulso-check" data-nome="' + f.descricao.replace(/"/g, '&quot;') + '" onchange="this.parentElement.querySelector(\'.avulso-qtd\').disabled=!this.checked">' +
-          '<span>' + f.descricao + '</span>' +
-          '<span style="color:var(--text-muted);font-size:0.8rem;margin-left:4px;">(R$ ' + f.valor_base.toFixed(2).replace('.', ',') + ')</span>' +
-          '<input type="number" class="avulso-qtd" value="1" min="1" style="width:50px;padding:2px 4px;font-size:0.85rem;" disabled>' +
-        '</label>'
+        '<div class="modulo-card avulso-card" data-nome="' + f.descricao.replace(/"/g, '&quot;') + '" data-valor="' + f.valor_base + '" onclick="distribToggleAvulso(this)">' +
+          '<div class="modulo-nome">' +
+            '<input type="checkbox" class="avulso-check" onclick="event.stopPropagation()" onchange="distribToggleAvulso(this.parentElement.parentElement)"> ' + f.descricao +
+            '<span style="color:var(--text-muted);font-size:0.8rem;margin-left:6px;">(R$ ' + f.valor_base.toFixed(2).replace('.', ',') + ')</span>' +
+          '</div>' +
+          '<div class="modulo-valor" style="gap:4px;">' +
+            '<span style="font-size:0.85rem;color:var(--text-muted);">Qtd:</span>' +
+            '<input type="number" class="avulso-qtd" value="1" min="1" style="width:50px;padding:2px 4px;font-size:0.85rem;" disabled onchange="distribAtualizarTotal()">' +
+          '</div>' +
+        '</div>'
       ).join('');
     }
   }
 
   document.getElementById('distrib-faixa').innerHTML = '<option value="">Selecione um produto primeiro</option>';
   document.getElementById('distrib-modulos').innerHTML = '<span style="color:var(--text-muted);font-size:0.85rem;">Selecione um produto primeiro</span>';
+  distribAtualizarTotal();
 }
 
 async function distribProdutoChange() {
@@ -3204,7 +3212,7 @@ async function distribProdutoChange() {
         '</div>' +
         '<div class="modulo-valor">' +
           '<span style="font-size:0.85rem;color:#8a8a8a;margin-right:4px;">R$</span>' +
-          '<input type="text" class="distrib-m-valor" placeholder="0,00" oninput="formatCurrency(this)" onclick="event.stopPropagation()">' +
+          '<input type="text" class="distrib-m-valor" placeholder="0,00" oninput="formatCurrency(this);distribAtualizarTotal()" onclick="event.stopPropagation()">' +
         '</div>' +
       '</div>'
     ).join('');
@@ -3222,6 +3230,7 @@ function distribFaixaChange() {
       ? Math.floor(valor).toLocaleString('pt-BR') + ',' + String(Math.round((valor - Math.floor(valor)) * 100)).padStart(2, '0')
       : '';
   });
+  distribAtualizarTotal();
 }
 
 function distribToggleModulo(el) {
@@ -3240,6 +3249,30 @@ function distribToggleModulo(el) {
       }
     }
   }
+  distribAtualizarTotal();
+}
+
+function distribToggleAvulso(el) {
+  const checkbox = el.querySelector('.avulso-check');
+  checkbox.checked = !checkbox.checked;
+  el.classList.toggle('selected', checkbox.checked);
+  el.querySelector('.avulso-qtd').disabled = !checkbox.checked;
+  distribAtualizarTotal();
+}
+
+function distribAtualizarTotal() {
+  let total = 0;
+  document.querySelectorAll('#distrib-modulos .modulo-card.selected').forEach(c => {
+    const valorStr = c.querySelector('.distrib-m-valor').value;
+    total += parseFloat(valorStr.replace(/\./g, '').replace(',', '.')) || 0;
+  });
+  document.querySelectorAll('#distrib-avulsos .avulso-card.selected').forEach(c => {
+    const valor = parseFloat(c.dataset.valor) || 0;
+    const qtd = parseInt(c.querySelector('.avulso-qtd').value) || 1;
+    total += valor * qtd;
+  });
+  const el = document.getElementById('distrib-modal-total');
+  if (el) el.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
 }
 
 async function distribModalConfirmar() {
@@ -3272,9 +3305,9 @@ async function distribModalConfirmar() {
   });
 
   const avulsos = [];
-  document.querySelectorAll('#distrib-avulsos .avulso-check:checked').forEach(cb => {
-    const nome = cb.dataset.nome;
-    const qtd = parseInt(cb.parentElement.querySelector('.avulso-qtd').value) || 1;
+  document.querySelectorAll('#distrib-avulsos .avulso-card.selected').forEach(c => {
+    const nome = c.dataset.nome;
+    const qtd = parseInt(c.querySelector('.avulso-qtd').value) || 1;
     avulsos.push({ nome, quantidade: qtd });
   });
 
