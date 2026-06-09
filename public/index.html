@@ -1054,10 +1054,11 @@
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Vendedor</th>
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Código</th>
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Data</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Valor</th>
               </tr>
             </thead>
             <tbody id="distrib-historico">
-              <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>
             </tbody>
           </table>
         </div>
@@ -3098,7 +3099,7 @@ function distribRenderizarHistorico(rows) {
   const tbody = document.getElementById('distrib-historico');
   if (!tbody) return;
   if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribui\u00e7\u00e3o ainda.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribui\u00e7\u00e3o ainda.</td></tr>';
     return;
   }
   tbody.innerHTML = rows.slice(0, 20).map((r, i) => {
@@ -3108,6 +3109,13 @@ function distribRenderizarHistorico(rows) {
     const avulsosHtml = (r.avulsos && r.avulsos.length)
       ? r.avulsos.map(a => a.nome + (a.quantidade > 1 ? ' (\u00d7' + a.quantidade + ')' : '')).join(', ')
       : '\u2014';
+    const totalFaixa = (DISTRIB_faixasCache.find(f => f.id === r.faixa_id)?.valor_base || 0);
+    const totalModulos = (r.modulos || []).reduce((s, m) => s + (m.valor || 0), 0);
+    const totalAvulsos = (r.avulsos || []).reduce((s, a) => {
+      const v = DISTRIB_faixasCache.find(f => f.descricao === a.nome)?.valor_base || 0;
+      return s + v * (a.quantidade || 1);
+    }, 0);
+    const total = totalFaixa + totalModulos + totalAvulsos;
     const detalhes = '<strong>Produto:</strong> ' + distribNomeProduto(r.produto_id) +
       ' \u00b7 <strong>Faixa:</strong> ' + distribNomeFaixa(r.faixa_id) +
       '<br><strong>M\u00f3dulos:</strong> ' + modulosHtml +
@@ -3117,9 +3125,10 @@ function distribRenderizarHistorico(rows) {
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);">' + r.vendedor + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '\u2014') + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">' + data + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-family:monospace;font-size:0.8rem;text-align:right;">R$ ' + total.toFixed(2).replace('.', ',') + '</td>' +
       '</tr>' +
       '<tr class="distrib-detalhes" style="display:none;">' +
-      '<td colspan="4" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--green-hairline);line-height:1.6;">' +
+      '<td colspan="5" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--green-hairline);line-height:1.6;">' +
         detalhes +
         '<div style="margin-top:8px;display:flex;gap:6px;">' +
           '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();distribEditar(' + r.id + ')">\u270E Editar</button>' +
