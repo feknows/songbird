@@ -3000,7 +3000,7 @@ async function distribCarregar() {
   try {
     const { data: rows, error } = await supabase
       .from('distribuicao')
-      .select('vendedor, criado_em, crm_id, produto_id, faixa_id, modulos, avulsos')
+      .select('id, vendedor, criado_em, crm_id, produto_id, faixa_id, modulos, avulsos')
       .order('id', { ascending: false });
     if (error) throw error;
 
@@ -3238,7 +3238,7 @@ async function distribModalCarregar(editData) {
 
       if (editData && editData.avulsos && editData.avulsos.length) {
         editData.avulsos.forEach(a => {
-          const card = avulsosDiv.querySelector('.avulso-card[data-nome="' + a.nome.replace(/"/g, '&quot;') + '"]');
+          const card = avulsosDiv.querySelector('.avulso-card[data-nome="' + a.nome + '"]');
           if (card) {
             card.querySelector('.avulso-check').checked = true;
             card.classList.add('selected');
