@@ -3,3 +3,5 @@ dados.db
 .env
 *.sql
 .opencode/
+.opencode_backup/
+.superpowers/
