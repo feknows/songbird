@@ -631,6 +631,7 @@
     <div class="sidebar-nav">
       <button class="active" onclick="navegar('home')"><span class="nav-indicator">></span> Home</button>
       <button onclick="navegar('vendas')"><span class="nav-indicator">></span> Vendas</button>
+      <button onclick="navegar('distribuicao')"><span class="nav-indicator">></span> Distribuição</button>
       <button onclick="navegar('equipamentos')"><span class="nav-indicator">></span> Equipamentos</button>
       <button onclick="navegar('config')"><span class="nav-indicator">></span> Config</button>
     </div>
@@ -712,14 +713,12 @@
         </ul>
       </div>
 
-      <!-- DISTRIBUICAO -->
-      <div class="distrib-widget" id="distrib-widget" style="display:none;">
-        <h3>Distribuição de Vendas</h3>
-        <div class="distrib-linha" id="distrib-info">
-          <span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span>
-        </div>
-        <div class="distrib-stats" id="distrib-stats"></div>
-        <div class="distrib-msg" id="distrib-msg"></div>
+      <!-- BADGE DISTRIBUICAO -->
+      <div id="distrib-badge" style="display:none;margin-bottom:20px;padding:10px 16px;background:var(--bg-surface);border:1px solid var(--green-hairline);border-radius:4px;">
+        <span style="font-size:0.8rem;color:var(--text-secondary);">Próximo vendedor:</span>
+        <span id="distrib-badge-nome" style="font-size:0.85rem;font-weight:600;color:var(--green);margin-left:4px;">—</span>
+        <span style="margin:0 8px;color:var(--text-muted);">·</span>
+        <a href="#" onclick="navegar('distribuicao');return false;" style="font-size:0.75rem;color:var(--text-muted);">Ir para Distribuição →</a>
       </div>
 
       <!-- FORM CONTAINER -->
@@ -1026,6 +1025,38 @@
       </div>
     </div>
 
+    <!-- DISTRIBUICAO -->
+    <div class="page" id="page-distribuicao">
+      <h1><span>></span> Distribuição de Vendas</h1>
+      <p>Acompanhe o rodízio e distribua novas negociações.</p>
+
+      <div class="distrib-widget" id="distrib-widget" style="display:none;">
+        <div class="distrib-linha" id="distrib-info">
+          <span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span>
+        </div>
+        <div class="distrib-stats" id="distrib-stats"></div>
+        <div class="distrib-msg" id="distrib-msg"></div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h2>Últimas distribuições</h2>
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+            <thead>
+              <tr style="background:var(--bg-raised);">
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">#</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Vendedor</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Data</th>
+              </tr>
+            </thead>
+            <tbody id="distrib-historico">
+              <tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
     <!-- EQUIPAMENTOS -->
     <div class="page" id="page-equipamentos">
       <h1><span>></span> Equipamentos Homologados</h1>
@@ -1226,7 +1257,7 @@ function atualizarBreadcrumb() {
   const breadcrumb = document.querySelector('.topbar .breadcrumb');
   if (!breadcrumb) return;
   const activePage = document.querySelector('.page.active');
-  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-equipamentos': 'equipamentos', 'page-config': 'config' };
+  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-distribuicao': 'distribuição', 'page-equipamentos': 'equipamentos', 'page-config': 'config' };
   const name = map[activePage?.id] || 'home';
   breadcrumb.innerHTML = `<span>></span> ${name}`;
 }
@@ -1244,12 +1275,13 @@ function configTab(tab) {
 function navegar(pagina) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pagina).classList.add('active');
-  const map = {home:'Home',vendas:'Vendas',config:'Config'};
+  const map = {home:'Home',vendas:'Vendas',distribuicao:'Distribuição',config:'Config'};
   document.querySelectorAll('.sidebar-nav button').forEach(b => {
     const txt = b.textContent.replace('>','').trim();
     b.classList.toggle('active', txt.includes(map[pagina]));
   });
-  if (pagina === 'vendas') { voltarHub(); carregarProdutos(); distribCarregar(); }
+  if (pagina === 'vendas') { voltarHub(); carregarProdutos(); distribCarregarBadge(); }
+  if (pagina === 'distribuicao') { distribCarregar(); }
   if (pagina === 'equipamentos') { eqCarregar(); }
   atualizarBreadcrumb();
 }
@@ -2919,7 +2951,7 @@ async function distribCarregar() {
   try {
     const { data: rows, error } = await supabase
       .from('distribuicao')
-      .select('vendedor')
+      .select('vendedor, criado_em')
       .order('id', { ascending: false });
     if (error) throw error;
 
@@ -2935,10 +2967,25 @@ async function distribCarregar() {
 
     const proximo = distribProximo(ultimo);
     distribRenderizar(proximo, stats, rows ? rows.length : 0);
+    distribRenderizarHistorico(rows || []);
+    distribRenderizarBadge(proximo);
   } catch (e) {
     console.warn('distribCarregar erro:', e);
     widget.style.display = 'none';
   }
+}
+
+async function distribCarregarBadge() {
+  try {
+    const { data: rows, error } = await supabase
+      .from('distribuicao')
+      .select('vendedor')
+      .order('id', { ascending: false });
+    if (error) throw error;
+    const ultimo = rows && rows.length > 0 ? rows[0].vendedor : null;
+    const proximo = distribProximo(ultimo);
+    distribRenderizarBadge(proximo);
+  } catch (_) {}
 }
 
 function distribProximo(ultimo) {
@@ -2962,6 +3009,31 @@ function distribRenderizar(proximo, stats, total) {
   info.innerHTML = vendedoresHtml + '<button class="btn btn-success btn-sm distrib-btn" onclick="distribAvancar()">\u2713 Distribuir para ' + proximo + '</button>';
 
   statsEl.innerHTML = '<span class="total">Total distribu\u00eddo: ' + total + '</span>';
+}
+
+function distribRenderizarBadge(proximo) {
+  const badge = document.getElementById('distrib-badge');
+  const nome = document.getElementById('distrib-badge-nome');
+  if (!badge || !nome) return;
+  badge.style.display = 'block';
+  nome.textContent = proximo;
+}
+
+function distribRenderizarHistorico(rows) {
+  const tbody = document.getElementById('distrib-historico');
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma distribuição ainda.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.slice(0, 20).map((r, i) => {
+    const data = r.criado_em ? new Date(r.criado_em).toLocaleString('pt-BR') : '—';
+    return '<tr>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);">' + r.vendedor + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">' + data + '</td>' +
+      '</tr>';
+  }).join('');
 }
 
 function distribMensagem(texto) {
