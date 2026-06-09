@@ -1046,7 +1046,7 @@
               <tr style="background:var(--bg-raised);">
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);width:40px;">#</th>
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Vendedor</th>
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">CRM ID</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Código</th>
                 <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Data</th>
               </tr>
             </thead>
@@ -2951,7 +2951,7 @@ function executarConfirm() {
     </div>
     <div class="modal-body">
       <div class="field">
-        <label>CRM ID <span style="color:var(--red);">*</span></label>
+        <label>Código <span style="color:var(--red);">*</span></label>
         <input type="text" id="distrib-crm-id" maxlength="6" placeholder="Ex: A1B23" style="text-transform:uppercase;width:160px;" onkeydown="if(event.key==='Enter')distribModalConfirmar()">
         <span id="distrib-crm-error" style="color:var(--red);font-size:0.75rem;display:none;"></span>
       </div>
@@ -3280,7 +3280,7 @@ async function distribModalConfirmar() {
   const errorEl = document.getElementById('distrib-crm-error');
 
   if (!/^[A-Z0-9]{4,6}$/.test(crmId)) {
-    errorEl.textContent = 'CRM ID deve ter 4 a 6 letras ou n\u00fameros';
+    errorEl.textContent = 'Código deve ter 4 a 6 letras ou n\u00fameros';
     errorEl.style.display = 'block';
     document.getElementById('distrib-crm-id').focus();
     return;
