@@ -2946,7 +2946,7 @@ function executarConfirm() {
 <div id="modal-distribuir" class="modal-overlay" style="display:none;" onclick="if(event.target===this)distribModalFechar()">
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);">◆ Distribuir para <span id="distrib-modal-vendedor">—</span></span>
+      <span id="distrib-modal-titulo" style="font-weight:700;color:var(--green);">◆ Distribuir para <span id="distrib-modal-vendedor">—</span></span>
       <span onclick="distribModalFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -2992,6 +2992,7 @@ let DISTRIB_produtosCache = [];
 let DISTRIB_faixasCache = [];
 let distribVendedorAlvo = null;
 let distribProdutoAlarmeId = null;
+let distribEditandoId = null;
 
 async function distribCarregar() {
   const widget = document.getElementById('distrib-widget');
@@ -3105,14 +3106,20 @@ function distribRenderizarHistorico(rows) {
       ' \u00b7 <strong>Faixa:</strong> ' + distribNomeFaixa(r.faixa_id) +
       '<br><strong>M\u00f3dulos:</strong> ' + modulosHtml +
       '<br><strong>Avulsos:</strong> ' + avulsosHtml;
-    return '<tr class="distrib-row" onclick="distribToggleDetalhes(this)" style="cursor:pointer;">' +
+    return '<tr class="distrib-row" onclick="distribToggleDetalhes(this)" style="cursor:pointer;" data-id="' + r.id + '">' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);">' + r.vendedor + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '\u2014') + '</td>' +
       '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">' + data + '</td>' +
       '</tr>' +
       '<tr class="distrib-detalhes" style="display:none;">' +
-      '<td colspan="4" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--green-hairline);line-height:1.6;">' + detalhes + '</td>' +
+      '<td colspan="4" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--green-hairline);line-height:1.6;">' +
+        detalhes +
+        '<div style="margin-top:8px;display:flex;gap:6px;">' +
+          '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();distribEditar(' + r.id + ')">\u270E Editar</button>' +
+          '<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();distribDeletar(' + r.id + ')">\u2715 Excluir</button>' +
+        '</div>' +
+      '</td>' +
       '</tr>';
   }).join('');
 }
@@ -3135,12 +3142,13 @@ async function distribAvancar() {
   const ativo = info.querySelector('.distrib-vendedor.ativo');
   if (!ativo) { distribMensagem('Erro: nenhum vendedor ativo'); return; }
   distribVendedorAlvo = ativo.textContent.trim().split(' ')[0];
-  document.getElementById('distrib-modal-vendedor').textContent = distribVendedorAlvo;
+  distribEditandoId = null;
+  document.getElementById('distrib-modal-titulo').innerHTML = '◆ Distribuir para <span id="distrib-modal-vendedor">' + distribVendedorAlvo + '</span>';
   document.getElementById('modal-distribuir').style.display = 'flex';
   await distribModalCarregar();
 }
 
-async function distribModalCarregar() {
+async function distribModalCarregar(editData) {
   document.getElementById('distrib-crm-id').value = '';
   document.getElementById('distrib-crm-error').style.display = 'none';
   document.getElementById('distrib-modal-msg').style.display = 'none';
@@ -3177,6 +3185,35 @@ async function distribModalCarregar() {
     ).join('');
   }
 
+  if (editData && editData.crm_id) {
+    document.getElementById('distrib-crm-id').value = editData.crm_id;
+  }
+
+  if (editData && editData.faixa_id && faixas) {
+    const match = faixas.find(f => f.id === editData.faixa_id);
+    if (match) {
+      const encoded = encodeURIComponent(JSON.stringify({ id: match.id, desc: match.descricao, valor_base: match.valor_base, valor_modulo: match.valor_modulo }));
+      faixaSelect.value = encoded;
+      distribFaixaChange();
+    }
+  }
+
+  if (editData && editData.modulos && editData.modulos.length) {
+    editData.modulos.forEach(m => {
+      const card = modulosDiv.querySelector('.modulo-card[data-modulo-id="' + m.id + '"]');
+      if (card) {
+        card.querySelector('input[type="checkbox"]').checked = true;
+        card.classList.add('selected');
+        const valorInput = card.querySelector('.distrib-m-valor');
+        if (valorInput && m.valor > 0) {
+          const reais = Math.floor(m.valor);
+          const centavos = Math.round((m.valor - reais) * 100);
+          valorInput.value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+        }
+      }
+    });
+  }
+
   const avulsosDiv = document.getElementById('distrib-avulsos');
   const { data: avulsoProd } = await supabase.from('produtos').select('id').eq('tipo', 'Licen\u00e7as unit\u00e1rias').maybeSingle();
   if (!avulsoProd) {
@@ -3198,6 +3235,19 @@ async function distribModalCarregar() {
           '</div>' +
         '</div>'
       ).join('');
+
+      if (editData && editData.avulsos && editData.avulsos.length) {
+        editData.avulsos.forEach(a => {
+          const card = avulsosDiv.querySelector('.avulso-card[data-nome="' + a.nome.replace(/"/g, '&quot;') + '"]');
+          if (card) {
+            card.querySelector('.avulso-check').checked = true;
+            card.classList.add('selected');
+            const qtdInput = card.querySelector('.avulso-qtd');
+            qtdInput.disabled = false;
+            if (a.quantidade > 1) qtdInput.value = a.quantidade;
+          }
+        });
+      }
     }
   }
 
@@ -3301,20 +3351,53 @@ async function distribModalConfirmar() {
   });
 
   try {
-    const { error } = await supabase.from('distribuicao').insert({
-      vendedor: distribVendedorAlvo,
-      crm_id: crmId,
-      produto_id: produtoId,
-      faixa_id: faixa.id,
-      modulos: modulos,
-      avulsos: avulsos
-    });
-    if (error) throw error;
+    if (distribEditandoId) {
+      const { error } = await supabase.from('distribuicao').update({
+        crm_id: crmId,
+        produto_id: produtoId,
+        faixa_id: faixa.id,
+        modulos: modulos,
+        avulsos: avulsos
+      }).eq('id', distribEditandoId);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.from('distribuicao').insert({
+        vendedor: distribVendedorAlvo,
+        crm_id: crmId,
+        produto_id: produtoId,
+        faixa_id: faixa.id,
+        modulos: modulos,
+        avulsos: avulsos
+      });
+      if (error) throw error;
+    }
     distribModalFechar();
     await distribCarregar();
   } catch (e) {
     console.warn('distribModalConfirmar erro:', e);
     distribModalMsg('Erro ao registrar distribui\u00e7\u00e3o');
+  }
+}
+
+async function distribEditar(id) {
+  const { data, error } = await supabase.from('distribuicao').select('*').eq('id', id).single();
+  if (error || !data) { distribMensagem('Erro ao carregar registro'); return; }
+  distribEditandoId = id;
+  distribVendedorAlvo = data.vendedor;
+  document.getElementById('distrib-modal-titulo').innerHTML = '◆ Editar distribui\u00e7\u00e3o de <span id="distrib-modal-vendedor">' + data.vendedor + '</span>';
+  document.getElementById('modal-distribuir').style.display = 'flex';
+  await distribModalCarregar(data);
+}
+
+async function distribDeletar(id) {
+  if (!confirm('Tem certeza que deseja excluir esta distribui\u00e7\u00e3o?')) return;
+  try {
+    const { error } = await supabase.from('distribuicao').delete().eq('id', id);
+    if (error) throw error;
+    await distribCarregar();
+  } catch (e) {
+    console.warn('distribDeletar erro:', e);
+    distribMensagem('Erro ao excluir distribui\u00e7\u00e3o');
   }
 }
 
@@ -3324,10 +3407,18 @@ function distribModalMsg(texto) {
 }
 
 function distribModalFechar() {
+  distribEditandoId = null;
   document.getElementById('modal-distribuir').style.display = 'none';
   document.getElementById('distrib-crm-error').style.display = 'none';
   document.getElementById('distrib-modal-msg').style.display = 'none';
   document.getElementById('distrib-faixa').value = '';
+  document.querySelectorAll('#distrib-modulos .modulo-card.selected, #distrib-avulsos .avulso-card.selected').forEach(c => {
+    const checkbox = c.querySelector('input[type="checkbox"], .avulso-check');
+    if (checkbox) checkbox.checked = false;
+    c.classList.remove('selected');
+    const qtd = c.querySelector('.avulso-qtd');
+    if (qtd) { qtd.disabled = true; qtd.value = 1; }
+  });
 }
 </script>
 
