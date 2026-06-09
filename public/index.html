@@ -303,7 +303,7 @@
   }
   .copied-msg.show { opacity: 1; }
   .total-display {
-    margin-top: 12px; font-size: 0.95rem; font-weight: 600; color: var(--green);
+    margin-top: 20px; font-size: 0.95rem; font-weight: 600; color: var(--green);
   }
   .inline-radio-group { display: flex; gap: 16px; margin-top: 4px; }
   .inline-radio-group label {
@@ -842,9 +842,7 @@
           <div class="panel">
             <h2>Módulos Adicionais</h2>
             <p style="font-size:0.85rem;color:#8a8a8a;margin-bottom:12px;">Selecione e informe o valor, se houver.</p>
-              <div class="modulo-grid" id="a-modulos-container">
-                <div class="modulo-card" onclick="aMToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="aMToggle(this.parentElement.parentElement)"> Carregando...</div></div>
-              </div>
+              <div class="modulo-grid" id="a-modulos-container"></div>
           </div>
           <div class="actions">
             <button class="btn btn-success" onclick="aGerar()">Gerar texto</button>
