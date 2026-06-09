@@ -3036,7 +3036,7 @@ async function distribCarregar() {
 async function distribCarregarCache() {
   if (DISTRIB_produtosCache.length) return;
   const { data: prods } = await supabase.from('produtos').select('id, nome').order('id');
-  const { data: faixas } = await supabase.from('faixas').select('id, descricao').order('id');
+  const { data: faixas } = await supabase.from('faixas').select('id, descricao, valor_base').order('id');
   DISTRIB_produtosCache = prods || [];
   DISTRIB_faixasCache = faixas || [];
 }
