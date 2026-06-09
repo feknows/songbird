@@ -150,10 +150,11 @@ After every implementation (commit or group of related changes), the agent must 
     ALTER TABLE distribuicao ENABLE ROW LEVEL SECURITY;
     DROP POLICY IF EXISTS "distribuicao_select" ON distribuicao;
     DROP POLICY IF EXISTS "distribuicao_insert" ON distribuicao;
-    CREATE POLICY "distribuicao_select" ON distribuicao FOR SELECT
-      USING (auth.role() = 'authenticated' OR auth.role() = 'service_role');
+    CREATE POLICY "distribuicao_select" ON distribuicao FOR SELECT USING (true);
     CREATE POLICY "distribuicao_insert" ON distribuicao FOR INSERT
       WITH CHECK (auth.role() = 'authenticated' OR auth.role() = 'service_role');
+    GRANT SELECT, INSERT ON public.distribuicao TO anon;
+    GRANT SELECT, INSERT ON public.distribuicao TO authenticated;
     -- (faixas, modulos, leads, equip_categorias, equipamentos seguem o mesmo padrão)
    ```
 5. Enable **Email/Password** provider in **Authentication > Providers > Email**.
@@ -190,6 +191,7 @@ After every implementation (commit or group of related changes), the agent must 
 ## Important gotchas
 
 - `public/index.html:1068-1069` has hardcoded Supabase credentials that must be replaced with real ones before the app works.
+- Toda **nova tabela** criada manualmente no Supabase precisa de `GRANT SELECT, INSERT, UPDATE, DELETE ON public.<tabela> TO anon;` (e/ou `authenticated`) antes que a REST API funcione. As tabelas do setup inicial já incluem isso, mas tabelas adicionadas depois não — o Postgres não concede permissões automaticamente.
 - `DESIGN.md` is for the OpenCode marketing site design system, unrelated to this project.
 - `migrate-supabase.js` is a one-shot script for migrating legacy SQLite data.
 - Password is SHA-256, **not bcrypt**. Both client-side login (and server-side migration) use it.
