@@ -12,6 +12,8 @@ Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted
 
 After every implementation (commit or group of related changes), the agent must perform a self-review evaluating whether the approach was optimal. If a better alternative exists, present it to the user with trade-offs so they can decide whether to keep, adjust, or revert. This applies to all changes regardless of perceived size.
 
+After every implementation, also ensure `git add` → `git commit` → `git push` was executed.
+
 ## Supabase setup
 
 1. Create a Supabase project.
