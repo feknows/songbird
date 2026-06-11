@@ -1336,6 +1336,7 @@
           <table>
             <thead>
               <tr>
+                <th>Código</th>
                 <th>Tarefa</th>
                 <th>Ação</th>
                 <th>De</th>
@@ -3370,12 +3371,12 @@ async function tarefasCarregarHistorico() {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) return;
     const { data: historico } = await supabase.from('tarefas_historico')
-      .select('*, tarefas!inner(titulo)')
+      .select('*, tarefas!inner(titulo, codigo_cliente)')
       .eq('user_id', user.id)
       .order('alterado_em', { ascending: false })
       .limit(50);
     if (!historico || historico.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma movimentação ainda.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma movimentação ainda.</td></tr>';
       return;
     }
     const acoesLabel = { criada: 'Criada', movida: 'Movida', editada: 'Editada', concluida: 'Concluída' };
@@ -3384,7 +3385,9 @@ async function tarefasCarregarHistorico() {
       const acaoLabel = acoesLabel[acao] || acao;
       const data = h.alterado_em ? new Date(h.alterado_em).toLocaleString('pt-BR') : '—';
       const titulo = h.tarefas?.titulo || '(removida)';
+      const codigo = h.tarefas?.codigo_cliente || '—';
       return `<tr>
+        <td style="color:var(--text-muted);">${codigo}</td>
         <td>${titulo}</td>
         <td><span class="badge-historico badge-${acao}">${acaoLabel}</span></td>
         <td style="color:var(--text-muted);">${h.de_status || '—'}</td>
@@ -3393,7 +3396,7 @@ async function tarefasCarregarHistorico() {
       </tr>`;
     }).join('');
   } catch (e) {
-    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:20px;">Erro: ${e.message}</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--danger);padding:20px;">Erro: ${e.message}</td></tr>`;
   }
 }
 
