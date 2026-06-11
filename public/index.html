@@ -606,6 +606,14 @@
   .kanban-toolbar .filter-label {
     font-size: 0.8rem; color: var(--text-secondary); margin-right: 4px;
   }
+  .kanban-filtros { display: flex; gap: 4px; }
+  .kanban-filtro {
+    padding: 3px 10px; font-size: 0.78rem; cursor: pointer; border-radius: 3px;
+    color: var(--text-muted); border: 1px solid var(--green-hairline); user-select: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .kanban-filtro:hover { color: var(--green); border-color: var(--green); }
+  .kanban-filtro.ativo { background: var(--green-dim); color: var(--green); border-color: var(--green); }
   .kanban-board {
     display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
     min-height: 300px; align-items: flex-start;
@@ -739,6 +747,9 @@
   .mode-classic .kanban-historico td { color: #201d1d; border-bottom: 1px solid rgba(15,0,0,0.12); }
   .mode-classic .kanban-toolbar { border-bottom: 1px solid rgba(15,0,0,0.12); }
   .mode-classic .kanban-toolbar .filter-label { color: #646262; }
+  .mode-classic .kanban-filtro { color: #9a9898; border-color: rgba(15,0,0,0.12); }
+  .mode-classic .kanban-filtro:hover { color: #201d1d; border-color: #201d1d; }
+  .mode-classic .kanban-filtro.ativo { background: #201d1d; color: #fdfcfc; border-color: #201d1d; }
 </style>
 </head>
 <body class="mode-dashboard">
@@ -1310,10 +1321,11 @@
         <button class="btn btn-secondary" onclick="tarefaModalColunas()">⚙ Colunas</button>
         <span class="spacer"></span>
         <span class="filter-label">Exibir:</span>
-        <select id="kanban-filtro" onchange="tarefasCarregar()" class="styled-select" style="width:auto;padding:4px 24px 4px 8px;font-size:0.8rem;">
-          <option value="ativas">Apenas ativas</option>
-          <option value="todas">Todas (inclusive concluídas)</option>
-        </select>
+        <span class="kanban-filtros">
+          <span class="kanban-filtro ativo" data-filtro="ativas" onclick="tarefasFiltrar('ativas',this)">Ativas</span>
+          <span class="kanban-filtro" data-filtro="inativas" onclick="tarefasFiltrar('inativas',this)">Inativas</span>
+          <span class="kanban-filtro" data-filtro="todas" onclick="tarefasFiltrar('todas',this)">Todas</span>
+        </span>
       </div>
 
       <div class="kanban-board" id="kanban-board"></div>
@@ -2992,17 +3004,27 @@ var tarefaEditandoId = null;
 var kanbanSortables = [];
 var COLUNAS_PADRAO = ['A Fazer', 'Fazendo', 'Feito'];
 
+var kanbanFiltroAtual = 'ativas';
+
+function tarefasFiltrar(filtro, el) {
+  kanbanFiltroAtual = filtro;
+  document.querySelectorAll('.kanban-filtro').forEach(s => s.classList.remove('ativo'));
+  if (el) el.classList.add('ativo');
+  tarefasCarregar();
+}
+
 async function tarefasCarregar() {
   const board = document.getElementById('kanban-board');
   if (!board) return;
   try {
     const user = (await supabase.auth.getUser()).data.user;
     if (!user) return;
-    const filtro = document.getElementById('kanban-filtro').value;
 
     let query = supabase.from('tarefas').select('*').eq('user_id', user.id).order('ordem');
-    if (filtro === 'ativas') {
+    if (kanbanFiltroAtual === 'ativas') {
       query = query.neq('status', 'Feito');
+    } else if (kanbanFiltroAtual === 'inativas') {
+      query = query.eq('status', 'Feito');
     }
     const { data: tarefas, error: errT } = await query;
     if (errT) throw errT;
