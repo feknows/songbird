@@ -243,6 +243,14 @@ After every implementation, also ensure `git add` → `git commit` → `git push
 |---------|---------|
 | `node migrate-supabase.js` | Migrate from legacy SQLite `dados.db` to Supabase. Requires `npm install @supabase/supabase-js sql.js`. Uses `SUPABASE_SERVICE_ROLE_KEY` do `.env`. |
 
+## Versioning
+
+- Version number is stored in `public/index.html` (`const SONGBIRD_VERSION`) and `package.json`.
+- On each deploy (after significant changes or grouped commits):
+  1. Increment version in both files (semver: major.minor.patch)
+  2. Add entry to `CHANGELOG.md` describing what changed
+  3. The version is displayed in the app sidebar footer and terminal logo
+
 ## Authentication
 
 - Uses **Supabase Auth** (Email/Password) — not SHA-256.
