@@ -3291,7 +3291,8 @@ function colunasRenderizarLista() {
   }
   div.innerHTML = html;
   if (typeof Sortable !== 'undefined') {
-    new Sortable(div, {
+    if (div._sortable) div._sortable.destroy();
+    div._sortable = new Sortable(div, {
       animation: 150,
       handle: '.coluna-edit-row',
       onEnd: function(evt) {
