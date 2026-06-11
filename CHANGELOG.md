@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.0.0] — 2026-06-11
+## [1.1.0] — 2026-06-11
 
 ### Adicionado
 - Kanban de tarefas diárias com drag-and-drop (SortableJS)
