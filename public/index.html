@@ -2975,17 +2975,21 @@ pAddItem();
 
 // === MODAL CONFIRMAÇÃO ===
 let confirmCallback = null;
+let confirmCancelCallback = null;
 
-function confirmarAcao(titulo, msg, callback) {
+function confirmarAcao(titulo, msg, callback, cancelCallback) {
   document.getElementById('modal-confirm-titulo').textContent = titulo;
   document.getElementById('modal-confirm-msg').innerHTML = msg;
   confirmCallback = callback;
+  confirmCancelCallback = cancelCallback || null;
   document.getElementById('modal-confirm').style.display = 'flex';
 }
 
 function fecharModalConfirm() {
   document.getElementById('modal-confirm').style.display = 'none';
+  if (confirmCancelCallback) confirmCancelCallback();
   confirmCallback = null;
+  confirmCancelCallback = null;
 }
 
 function executarConfirm() {
@@ -2993,6 +2997,7 @@ function executarConfirm() {
   if (confirmCallback) {
     const cb = confirmCallback;
     confirmCallback = null;
+    confirmCancelCallback = null;
     cb();
   }
 }
@@ -3249,14 +3254,19 @@ async function tarefaModalSalvar() {
 
 async function tarefaExcluir() {
   if (!tarefaEditandoId) return;
+  const id = tarefaEditandoId;
+  const modal = document.getElementById('modal-tarefa');
+  modal.style.display = 'none';
   confirmarAcao('Excluir Tarefa', 'Tem certeza que deseja excluir esta tarefa?', async () => {
     try {
-      await supabase.from('tarefas').delete().eq('id', tarefaEditandoId);
+      await supabase.from('tarefas').delete().eq('id', id);
       tarefaModalFechar();
       tarefasCarregar();
     } catch (e) {
       alert('Erro ao excluir: ' + e.message);
     }
+  }, () => {
+    modal.style.display = 'flex';
   });
 }
 
