@@ -6,6 +6,7 @@
 <title>SongBird</title>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; img-src 'self' data:;">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <style>
   :root {
     --bg-canvas: #0a0a0a;
@@ -591,6 +592,153 @@
     font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;
     min-height: 1.2em;
   }
+
+  /* ===== KANBAN ===== */
+  #page-tarefas h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  #page-tarefas h1 span { color: var(--green); }
+  #page-tarefas > p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px; }
+  .kanban-toolbar {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 16px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--green-hairline);
+  }
+  .kanban-toolbar .spacer { flex: 1; }
+  .kanban-toolbar .filter-label {
+    font-size: 0.8rem; color: var(--text-secondary); margin-right: 4px;
+  }
+  .kanban-board {
+    display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+    min-height: 300px; align-items: flex-start;
+  }
+  .kanban-col {
+    flex: 0 0 280px; min-width: 260px; max-width: 320px;
+    background: var(--bg-surface); border: 1px solid var(--green-hairline);
+    border-top: 3px solid var(--green); display: flex; flex-direction: column;
+    max-height: calc(100vh - 260px);
+  }
+  .kanban-col-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 12px; border-bottom: 1px solid var(--green-hairline);
+    flex-shrink: 0;
+  }
+  .kanban-col-header .col-nome {
+    font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+    flex: 1; cursor: pointer;
+  }
+  .kanban-col-header .col-count {
+    font-size: 0.75rem; color: var(--text-muted); background: var(--bg-raised);
+    padding: 1px 8px; border-radius: 10px;
+  }
+  .kanban-col-header .col-actions {
+    display: flex; gap: 2px;
+  }
+  .kanban-col-header .col-actions button {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 0.8rem; padding: 2px 4px;
+  }
+  .kanban-col-header .col-actions button:hover { color: var(--green); }
+  .kanban-col-body {
+    flex: 1; overflow-y: auto; padding: 8px; min-height: 80px;
+  }
+  .kanban-col-body.empty {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .kanban-col-body.empty::after {
+    content: 'Arraste cart\u00f5es para c\u00e1'; color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+  .kanban-card {
+    background: var(--bg-raised); border: 1px solid var(--green-hairline);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+    cursor: grab; position: relative; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .kanban-card:hover {
+    border-color: var(--green); box-shadow: 0 0 6px var(--green-glow);
+  }
+  .kanban-card:active { cursor: grabbing; }
+  .kanban-card.sortable-chosen { border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+  .kanban-card.sortable-ghost { opacity: 0.3; }
+  .kanban-card .card-top {
+    display: flex; justify-content: space-between; align-items: start; gap: 6px;
+  }
+  .kanban-card .card-titulo {
+    font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .kanban-card .card-prioridade {
+    font-size: 0.65rem; padding: 1px 6px; border-radius: 3px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .prioridade-alta { background: rgba(255,59,48,0.2); color: #ff3b30; }
+  .prioridade-media { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .prioridade-baixa { background: rgba(48,209,88,0.2); color: var(--green); }
+  .kanban-card .card-info {
+    font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;
+    line-height: 1.5;
+  }
+  .kanban-card .card-info .cliente { display: block; }
+  .kanban-card .card-info .vencimento { display: block; color: var(--text-muted); }
+  .kanban-card .card-info .vencimento.atrasado { color: var(--danger); }
+  .kanban-card .card-footer {
+    display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+  }
+  .kanban-card .card-resumo {
+    font-size: 0.72rem; color: var(--text-muted); font-style: italic;
+    margin-top: 4px; line-height: 1.3;
+  }
+  .kanban-add-card {
+    display: block; width: 100%; padding: 8px; margin-top: 4px;
+    background: none; border: 1px dashed var(--green-hairline); border-radius: 4px;
+    color: var(--text-muted); font-size: 0.8rem; cursor: pointer;
+    text-align: center; font-family: var(--font-mono); transition: border-color 0.15s;
+  }
+  .kanban-add-card:hover { border-color: var(--green); color: var(--green); }
+
+  /* Hist\u00f3rico */
+  .kanban-historico {
+    margin-top: 32px; border-top: 1px solid var(--green-hairline);
+    padding-top: 20px;
+  }
+  .kanban-historico h2 { font-size: 1rem; color: var(--green); margin-bottom: 12px; }
+  .kanban-historico table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .kanban-historico th {
+    text-align: left; padding: 8px; border-bottom: 1px solid var(--green-hairline);
+    color: var(--text-secondary); font-weight: 600;
+  }
+  .kanban-historico td {
+    padding: 8px; border-bottom: 1px solid var(--green-hairline);
+    color: var(--text-primary);
+  }
+  .kanban-historico td .badge-historico {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 0.7rem; font-weight: 600;
+  }
+  .badge-criada { background: rgba(48,209,88,0.2); color: var(--green); }
+  .badge-movida { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .badge-editada { background: rgba(0,122,255,0.2); color: #007aff; }
+  .badge-concluida { background: rgba(48,209,88,0.2); color: var(--green); }
+
+  /* Classic mode overrides for Kanban */
+  .mode-classic .kanban-col {
+    background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12);
+  }
+  .mode-classic .kanban-col-header { border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-col-header .col-nome { color: #201d1d; }
+  .mode-classic .kanban-col-header .col-count { color: #646262; background: #f8f7f7; }
+  .mode-classic .kanban-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-card:hover { border-color: #201d1d; }
+  .mode-classic .kanban-card .card-titulo { color: #201d1d; }
+  .mode-classic .kanban-card .card-info { color: #646262; }
+  .mode-classic .kanban-card .card-info .vencimento { color: #9a9898; }
+  .mode-classic .kanban-card .card-resumo { color: #9a9898; }
+  .mode-classic .kanban-add-card { border-color: rgba(15,0,0,0.12); color: #646262; }
+  .mode-classic .kanban-add-card:hover { border-color: #201d1d; color: #201d1d; }
+  .mode-classic .kanban-historico { border-top: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-historico h2 { color: #646262; }
+  .mode-classic .kanban-historico th { color: #646262; border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-historico td { color: #201d1d; border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-toolbar { border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-toolbar .filter-label { color: #646262; }
 </style>
 </head>
 <body class="mode-dashboard">
@@ -639,6 +787,7 @@
       <button onclick="navegar('vendas')"><span class="nav-indicator">></span> Vendas</button>
       <button onclick="navegar('distribuicao')"><span class="nav-indicator">></span> Distribuição</button>
       <button onclick="navegar('equipamentos')"><span class="nav-indicator">></span> Equipamentos</button>
+      <button onclick="navegar('tarefas')"><span class="nav-indicator">></span> Tarefas</button>
       <button onclick="navegar('config')"><span class="nav-indicator">></span> Config</button>
     </div>
     <div class="sidebar-footer">
@@ -1151,6 +1300,45 @@
       </div>
     </div>
 
+    <!-- TAREFAS (KANBAN) -->
+    <div class="page" id="page-tarefas">
+      <h1><span>></span> Tarefas</h1>
+      <p>Quadro Kanban de tarefas do dia a dia.</p>
+
+      <div class="kanban-toolbar">
+        <button class="btn btn-success" onclick="tarefaModalAbrir()">+ Nova Tarefa</button>
+        <button class="btn btn-secondary" onclick="tarefaModalColunas()">⚙ Colunas</button>
+        <span class="spacer"></span>
+        <span class="filter-label">Exibir:</span>
+        <select id="kanban-filtro" onchange="tarefasCarregar()" class="styled-select" style="width:auto;padding:4px 24px 4px 8px;font-size:0.8rem;">
+          <option value="ativas">Apenas ativas</option>
+          <option value="todas">Todas (inclusive concluídas)</option>
+        </select>
+      </div>
+
+      <div class="kanban-board" id="kanban-board"></div>
+
+      <div class="kanban-historico" id="kanban-historico">
+        <h2>Histórico de movimentações</h2>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Tarefa</th>
+                <th>Ação</th>
+                <th>De</th>
+                <th>Para</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody id="kanban-historico-body">
+              <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma movimentação ainda.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 </div>
@@ -1265,7 +1453,7 @@ function atualizarBreadcrumb() {
   const breadcrumb = document.querySelector('.topbar .breadcrumb');
   if (!breadcrumb) return;
   const activePage = document.querySelector('.page.active');
-  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-distribuicao': 'distribuição', 'page-equipamentos': 'equipamentos', 'page-config': 'config' };
+  const map = { 'page-home': 'home', 'page-vendas': 'vendas', 'page-distribuicao': 'distribuição', 'page-equipamentos': 'equipamentos', 'page-tarefas': 'tarefas', 'page-config': 'config' };
   const name = map[activePage?.id] || 'home';
   breadcrumb.innerHTML = `<span>></span> ${name}`;
 }
@@ -1283,7 +1471,7 @@ function configTab(tab) {
 function navegar(pagina) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pagina).classList.add('active');
-  const map = {home:'Home',vendas:'Vendas',distribuicao:'Distribuição',config:'Config'};
+  const map = {home:'Home',vendas:'Vendas',distribuicao:'Distribuição',tarefas:'Tarefas',config:'Config'};
   document.querySelectorAll('.sidebar-nav button').forEach(b => {
     const txt = b.textContent.replace('>','').trim();
     b.classList.toggle('active', txt.includes(map[pagina]));
@@ -1291,6 +1479,7 @@ function navegar(pagina) {
   if (pagina === 'vendas') { voltarHub(); carregarProdutos(); distribCarregarBadge(); }
   if (pagina === 'distribuicao') { distribCarregar(); }
   if (pagina === 'equipamentos') { eqCarregar(); }
+  if (pagina === 'tarefas') { tarefasCarregar(); }
   atualizarBreadcrumb();
 }
 
@@ -2796,6 +2985,369 @@ function executarConfirm() {
   }
 }
 
+// === KANBAN / TAREFAS ===
+var tarefasData = [];
+var colunasData = [];
+var tarefaEditandoId = null;
+var kanbanSortables = [];
+var COLUNAS_PADRAO = ['A Fazer', 'Fazendo', 'Feito'];
+
+async function tarefasCarregar() {
+  const board = document.getElementById('kanban-board');
+  if (!board) return;
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+    const filtro = document.getElementById('kanban-filtro').value;
+
+    let query = supabase.from('tarefas').select('*').eq('user_id', user.id).order('ordem');
+    if (filtro === 'ativas') {
+      query = query.neq('status', 'Feito');
+    }
+    const { data: tarefas, error: errT } = await query;
+    if (errT) throw errT;
+    tarefasData = tarefas || [];
+
+    const { data: cols, error: errC } = await supabase.from('colunas')
+      .select('*').eq('user_id', user.id).order('ordem').order('id');
+    if (errC) throw errC;
+
+    if (!cols || cols.length === 0) {
+      colunasData = COLUNAS_PADRAO.map((n, i) => ({ id: null, nome: n, ordem: i, cor: '#30d158', user_id: user.id, _nova: true }));
+    } else {
+      colunasData = cols;
+    }
+
+    tarefasRenderizar(board);
+    tarefasCarregarHistorico();
+  } catch (e) {
+    board.innerHTML = `<span style="color:var(--danger);font-size:0.85rem;">Erro ao carregar tarefas: ${e.message}</span>`;
+  }
+}
+
+function tarefasRenderizar(board) {
+  kanbanSortables.forEach(s => s.destroy());
+  kanbanSortables = [];
+
+  let html = '';
+  for (const col of colunasData) {
+    const colNome = col.nome;
+    const tarefasCol = tarefasData.filter(t => t.status === colNome)
+      .sort((a, b) => a.ordem - b.ordem);
+    const count = tarefasCol.length;
+
+    html += `<div class="kanban-col" style="border-top-color:${col.cor || '#30d158'}">`;
+    html += `<div class="kanban-col-header">`;
+    html += `<span class="col-nome">${colNome}</span>`;
+    html += `<span class="col-count">${count}</span>`;
+    html += `<div class="col-actions">`;
+    html += `<button title="Nova tarefa aqui" onclick="tarefaModalAbrir('${colNome.replace(/'/g, "\\'")}')">+</button>`;
+    html += `</div></div>`;
+    html += `<div class="kanban-col-body" data-coluna="${colNome.replace(/"/g, '&quot;')}" id="kanban-body-${colNome.replace(/\s+/g, '-')}">`;
+    for (const t of tarefasCol) {
+      html += tarefaCardHtml(t);
+    }
+    html += `</div></div>`;
+  }
+  board.innerHTML = html;
+
+  // Init Sortable on each column
+  for (const col of colunasData) {
+    const colNome = col.nome;
+    const el = document.getElementById('kanban-body-' + colNome.replace(/\s+/g, '-'));
+    if (!el) continue;
+    const s = new Sortable(el, {
+      group: 'tarefas',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd: async function(evt) {
+        const tarefaId = parseInt(evt.item.dataset.tarefaId);
+        const novoStatus = evt.to.dataset.coluna;
+        const novaOrdem = evt.newIndex;
+        if (!tarefaId) return;
+        try {
+          const tarefa = tarefasData.find(t => t.id === tarefaId);
+          const statusAntigo = tarefa ? tarefa.status : '';
+          await supabase.from('tarefas').update({ status: novoStatus, ordem: novaOrdem }).eq('id', tarefaId);
+          if (tarefa) tarefa.status = novoStatus;
+          if (tarefa) tarefa.ordem = novaOrdem;
+          if (statusAntigo !== novoStatus) {
+            const acao = novoStatus === 'Feito' ? 'concluida' : 'movida';
+            await supabase.from('tarefas_historico').insert({
+              tarefa_id: tarefaId, acao: acao,
+              de_status: statusAntigo, para_status: novoStatus,
+              user_id: (await supabase.auth.getUser()).data.user?.id
+            });
+            tarefasCarregarHistorico();
+          }
+          tarefasRenderizar(board);
+        } catch (e) {
+          console.warn('Erro ao mover tarefa:', e);
+        }
+      }
+    });
+    kanbanSortables.push(s);
+  }
+}
+
+function tarefaCardHtml(t) {
+  const prioClass = 'prioridade-' + (t.prioridade || 'media');
+  const prioLabel = { alta: 'Alta', media: 'Média', baixa: 'Baixa' }[t.prioridade || 'media'];
+  const venc = t.data_vencimento ? new Date(t.data_vencimento + 'T00:00:00') : null;
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  const atrasado = venc && venc < hoje;
+  const vencStr = venc ? venc.toLocaleDateString('pt-BR') : '';
+  const clienteStr = [t.nome_cliente, t.codigo_cliente].filter(Boolean).join(' · ');
+  const dados = JSON.stringify(t).replace(/'/g, '&#39;');
+  return `<div class="kanban-card" data-tarefa-id="${t.id}" onclick="tarefaModalAbrirEdicao(${t.id})">
+    <div class="card-top">
+      <span class="card-titulo">${t.titulo || '(sem título)'}</span>
+      <span class="card-prioridade ${prioClass}">${prioLabel}</span>
+    </div>
+    ${clienteStr ? `<div class="card-info"><span class="cliente">${clienteStr}</span></div>` : ''}
+    ${t.telefone ? `<div class="card-info" style="margin-top:2px;">📞 ${t.telefone}</div>` : ''}
+    ${vencStr ? `<div class="card-info"><span class="vencimento${atrasado ? ' atrasado' : ''}">📅 ${vencStr}${atrasado ? ' (atrasado)' : ''}</span></div>` : ''}
+    ${t.resumo ? `<div class="card-resumo">${t.resumo}</div>` : ''}
+  </div>`;
+}
+
+function tarefaModalAbrir(statusPrefill) {
+  tarefaEditandoId = null;
+  document.getElementById('modal-tarefa-titulo').textContent = '+ Nova Tarefa';
+  document.getElementById('tarefa-id').value = '';
+  document.getElementById('tarefa-titulo').value = '';
+  document.getElementById('tarefa-prioridade').value = 'media';
+  document.getElementById('tarefa-cliente').value = '';
+  document.getElementById('tarefa-codigo').value = '';
+  document.getElementById('tarefa-telefone').value = '';
+  document.getElementById('tarefa-vencimento').value = '';
+  document.getElementById('tarefa-descricao').value = '';
+  document.getElementById('tarefa-resumo').value = '';
+  document.getElementById('tarefa-anotacoes').value = '';
+  document.getElementById('tarefa-btn-excluir').style.display = 'none';
+
+  const statusSelect = document.getElementById('tarefa-status');
+  statusSelect.innerHTML = colunasData.map(c =>
+    `<option value="${c.nome}">${c.nome}</option>`
+  ).join('');
+  if (statusPrefill) statusSelect.value = statusPrefill;
+
+  document.getElementById('modal-tarefa').style.display = 'flex';
+  setTimeout(() => document.getElementById('tarefa-titulo').focus(), 100);
+}
+
+async function tarefaModalAbrirEdicao(id) {
+  const t = tarefasData.find(x => x.id === id);
+  if (!t) return;
+  tarefaEditandoId = id;
+  document.getElementById('modal-tarefa-titulo').textContent = '✎ Editar Tarefa';
+  document.getElementById('tarefa-id').value = id;
+  document.getElementById('tarefa-titulo').value = t.titulo || '';
+  document.getElementById('tarefa-prioridade').value = t.prioridade || 'media';
+  document.getElementById('tarefa-cliente').value = t.nome_cliente || '';
+  document.getElementById('tarefa-codigo').value = t.codigo_cliente || '';
+  document.getElementById('tarefa-telefone').value = t.telefone || '';
+  document.getElementById('tarefa-vencimento').value = t.data_vencimento || '';
+  document.getElementById('tarefa-descricao').value = t.descricao || '';
+  document.getElementById('tarefa-resumo').value = t.resumo || '';
+  document.getElementById('tarefa-anotacoes').value = t.anotacoes || '';
+  document.getElementById('tarefa-btn-excluir').style.display = 'inline-block';
+
+  const statusSelect = document.getElementById('tarefa-status');
+  statusSelect.innerHTML = colunasData.map(c =>
+    `<option value="${c.nome}">${c.nome}</option>`
+  ).join('');
+  statusSelect.value = t.status || '';
+
+  document.getElementById('modal-tarefa').style.display = 'flex';
+  setTimeout(() => document.getElementById('tarefa-titulo').focus(), 100);
+}
+
+function tarefaModalFechar() {
+  document.getElementById('modal-tarefa').style.display = 'none';
+  tarefaEditandoId = null;
+}
+
+async function tarefaModalSalvar() {
+  const titulo = document.getElementById('tarefa-titulo').value.trim();
+  if (!titulo) { alert('Preencha o título da tarefa.'); return; }
+
+  const dados = {
+    titulo: titulo,
+    prioridade: document.getElementById('tarefa-prioridade').value,
+    status: document.getElementById('tarefa-status').value,
+    nome_cliente: document.getElementById('tarefa-cliente').value.trim(),
+    codigo_cliente: document.getElementById('tarefa-codigo').value.trim(),
+    telefone: document.getElementById('tarefa-telefone').value.trim(),
+    data_vencimento: document.getElementById('tarefa-vencimento').value || null,
+    descricao: document.getElementById('tarefa-descricao').value.trim(),
+    resumo: document.getElementById('tarefa-resumo').value.trim(),
+    anotacoes: document.getElementById('tarefa-anotacoes').value.trim(),
+  };
+
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    if (tarefaEditandoId) {
+      const t = tarefasData.find(x => x.id === tarefaEditandoId);
+      const statusAntigo = t ? t.status : '';
+      await supabase.from('tarefas').update(dados).eq('id', tarefaEditandoId).eq('user_id', user.id);
+      if (statusAntigo !== dados.status) {
+        await supabase.from('tarefas_historico').insert({
+          tarefa_id: tarefaEditandoId, acao: dados.status === 'Feito' ? 'concluida' : 'movida',
+          de_status: statusAntigo, para_status: dados.status,
+          user_id: user.id
+        });
+      } else {
+        await supabase.from('tarefas_historico').insert({
+          tarefa_id: tarefaEditandoId, acao: 'editada', user_id: user.id
+        });
+      }
+    } else {
+      const { data: maxOrdem } = await supabase.from('tarefas')
+        .select('ordem').eq('status', dados.status).order('ordem', { ascending: false }).limit(1);
+      dados.ordem = (maxOrdem?.[0]?.ordem ?? -1) + 1;
+      dados.user_id = user.id;
+      const { data: inserted } = await supabase.from('tarefas').insert(dados).select('id').single();
+      if (inserted) {
+        await supabase.from('tarefas_historico').insert({
+          tarefa_id: inserted.id, acao: 'criada', para_status: dados.status, user_id: user.id
+        });
+      }
+    }
+
+    tarefaModalFechar();
+    tarefasCarregar();
+  } catch (e) {
+    alert('Erro ao salvar tarefa: ' + e.message);
+  }
+}
+
+async function tarefaExcluir() {
+  if (!tarefaEditandoId) return;
+  confirmarAcao('Excluir Tarefa', 'Tem certeza que deseja excluir esta tarefa?', async () => {
+    try {
+      await supabase.from('tarefas').delete().eq('id', tarefaEditandoId);
+      tarefaModalFechar();
+      tarefasCarregar();
+    } catch (e) {
+      alert('Erro ao excluir: ' + e.message);
+    }
+  });
+}
+
+// === COLUNAS ===
+var colunasEditando = [];
+
+function tarefaModalColunas() {
+  colunasEditando = colunasData.map(c => ({ ...c }));
+  document.getElementById('colunas-lista').innerHTML = '';
+  const msg = document.getElementById('colunas-msg');
+  if (msg) msg.classList.remove('show');
+  colunasRenderizarLista();
+  document.getElementById('modal-colunas').style.display = 'flex';
+}
+
+function tarefaModalColunasFechar() {
+  document.getElementById('modal-colunas').style.display = 'none';
+  colunasEditando = [];
+}
+
+function colunasRenderizarLista() {
+  const div = document.getElementById('colunas-lista');
+  let html = '';
+  for (let i = 0; i < colunasEditando.length; i++) {
+    const c = colunasEditando[i];
+    html += `<div class="coluna-edit-row" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--bg-raised);border:1px solid var(--green-hairline);border-radius:4px;">
+      <span style="color:var(--text-muted);font-size:0.8rem;cursor:move;" title="Arrastar">⠿</span>
+      <input type="color" class="col-cor" value="${c.cor || '#30d158'}" onchange="colunasEditando[${i}].cor=this.value" style="width:30px;height:30px;border:none;cursor:pointer;background:none;padding:0;">
+      <input type="text" class="col-nome-input" value="${c.nome}" oninput="colunasEditando[${i}].nome=this.value" style="flex:1;padding:6px 8px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);">
+      <button class="btn btn-sm btn-danger" onclick="colunaRemover(${i})" style="padding:2px 6px;font-size:0.7rem;">✕</button>
+    </div>`;
+  }
+  div.innerHTML = html;
+}
+
+function colunaAdicionar() {
+  colunasEditando.push({ id: null, nome: 'Nova coluna', cor: '#30d158', ordem: colunasEditando.length, _nova: true });
+  colunasRenderizarLista();
+}
+
+function colunaRemover(idx) {
+  if (colunasEditando.length <= 1) { alert('Deve haver pelo menos uma coluna.'); return; }
+  colunasEditando.splice(idx, 1);
+  colunasRenderizarLista();
+}
+
+async function tarefaModalColunasSalvar() {
+  const nomes = colunasEditando.map(c => c.nome.trim()).filter(Boolean);
+  if (nomes.length === 0) { alert('Adicione pelo menos uma coluna com nome.'); return; }
+  if (new Set(nomes).size !== nomes.length) { alert('Nomes de colunas duplicados.'); return; }
+
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+
+    // Delete existing columns for this user
+    await supabase.from('colunas').delete().eq('user_id', user.id);
+
+    // Insert new ones
+    for (let i = 0; i < colunasEditando.length; i++) {
+      const c = colunasEditando[i];
+      await supabase.from('colunas').insert({
+        nome: c.nome.trim(),
+        cor: c.cor || '#30d158',
+        ordem: i,
+        user_id: user.id
+      });
+    }
+
+    const msg = document.getElementById('colunas-msg');
+    if (msg) { msg.textContent = 'Colunas salvas com sucesso!'; msg.classList.add('show'); }
+    tarefaModalColunasFechar();
+    tarefasCarregar();
+  } catch (e) {
+    alert('Erro ao salvar colunas: ' + e.message);
+  }
+}
+
+// === HISTÓRICO ===
+async function tarefasCarregarHistorico() {
+  const tbody = document.getElementById('kanban-historico-body');
+  if (!tbody) return;
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return;
+    const { data: historico } = await supabase.from('tarefas_historico')
+      .select('*, tarefas!inner(titulo)')
+      .eq('user_id', user.id)
+      .order('alterado_em', { ascending: false })
+      .limit(50);
+    if (!historico || historico.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:20px;">Nenhuma movimentação ainda.</td></tr>';
+      return;
+    }
+    const acoesLabel = { criada: 'Criada', movida: 'Movida', editada: 'Editada', concluida: 'Concluída' };
+    tbody.innerHTML = historico.map(h => {
+      const acao = h.acao || '';
+      const acaoLabel = acoesLabel[acao] || acao;
+      const data = h.alterado_em ? new Date(h.alterado_em).toLocaleString('pt-BR') : '—';
+      const titulo = h.tarefas?.titulo || '(removida)';
+      return `<tr>
+        <td>${titulo}</td>
+        <td><span class="badge-historico badge-${acao}">${acaoLabel}</span></td>
+        <td style="color:var(--text-muted);">${h.de_status || '—'}</td>
+        <td style="color:var(--text-muted);">${h.para_status || '—'}</td>
+        <td style="color:var(--text-muted);">${data}</td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--danger);padding:20px;">Erro: ${e.message}</td></tr>`;
+  }
+}
+
 </script>
 <!-- MODAL CONFIRMAÇÃO -->
 <div id="modal-confirm" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalConfirm()">
@@ -3439,6 +3991,97 @@ function distribModalFechar() {
   });
 }
 </script>
+
+<!-- MODAL TAREFA (CRIAR/EDITAR) -->
+<div id="modal-tarefa" class="modal-overlay" style="display:none;" onclick="if(event.target===this)tarefaModalFechar()">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header">
+      <span id="modal-tarefa-titulo" style="font-weight:700;color:var(--green);">+ Nova Tarefa</span>
+      <span onclick="tarefaModalFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="tarefa-id" value="">
+      <div class="row">
+        <div class="field" style="flex:2;">
+          <label>Título <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="tarefa-titulo" placeholder="Ex: Renovar contrato" onkeydown="if(event.key==='Enter')document.getElementById('tarefa-prioridade').focus()">
+        </div>
+        <div class="field" style="flex:1;">
+          <label>Prioridade</label>
+          <select id="tarefa-prioridade" class="styled-select">
+            <option value="alta">🔴 Alta</option>
+            <option value="media" selected>🟡 Média</option>
+            <option value="baixa">🟢 Baixa</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Status (coluna)</label>
+          <select id="tarefa-status" class="styled-select"></select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Nome do cliente</label>
+          <input type="text" id="tarefa-cliente" placeholder="Ex: João Silva" onkeydown="if(event.key==='Enter')document.getElementById('tarefa-codigo').focus()">
+        </div>
+        <div class="field">
+          <label>Código do cliente</label>
+          <input type="text" id="tarefa-codigo" placeholder="Ex: JS-001" onkeydown="if(event.key==='Enter')document.getElementById('tarefa-telefone').focus()">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Telefone</label>
+          <input type="text" id="tarefa-telefone" placeholder="(11) 99999-8888" onkeydown="if(event.key==='Enter')document.getElementById('tarefa-vencimento').focus()">
+        </div>
+        <div class="field">
+          <label>Data de vencimento</label>
+          <input type="date" id="tarefa-vencimento">
+        </div>
+      </div>
+      <div class="field">
+        <label>Descrição</label>
+        <textarea id="tarefa-descricao" rows="2" placeholder="Descrição da tarefa..." style="resize:vertical;width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);"></textarea>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Resumo</label>
+          <input type="text" id="tarefa-resumo" placeholder="Resumo curto da tarefa">
+        </div>
+      </div>
+      <div class="field">
+        <label>Anotações</label>
+        <textarea id="tarefa-anotacoes" rows="2" placeholder="Anotações livres..." style="resize:vertical;width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);"></textarea>
+      </div>
+      <div class="actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" onclick="tarefaModalFechar()">Cancelar</button>
+        <button class="btn btn-danger" id="tarefa-btn-excluir" style="display:none;" onclick="tarefaExcluir()">Excluir</button>
+        <button class="btn btn-success" onclick="tarefaModalSalvar()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GERENCIAR COLUNAS -->
+<div id="modal-colunas" class="modal-overlay" style="display:none;" onclick="if(event.target===this)tarefaModalColunasFechar()">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <span style="font-weight:700;color:var(--green);">⚙ Gerenciar Colunas</span>
+      <span onclick="tarefaModalColunasFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
+    </div>
+    <div class="modal-body">
+      <div id="colunas-lista"></div>
+      <button class="btn btn-sm btn-success" onclick="colunaAdicionar()" style="margin-top:8px;">+ Adicionar coluna</button>
+      <div class="actions" style="margin-top:16px;">
+        <button class="btn btn-secondary" onclick="tarefaModalColunasFechar()">Cancelar</button>
+        <button class="btn btn-success" onclick="tarefaModalColunasSalvar()">Salvar colunas</button>
+      </div>
+      <div id="colunas-msg" class="success-msg" style="margin-top:8px;"></div>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
