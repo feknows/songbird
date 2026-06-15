@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.2.0] — 2026-06-15
+
+### Adicionado
+- Novo tema Bulma (claro + escuro) inspirado no Bulma CSS Framework
+- Top nav horizontal (layout moderno, sidebar oculta no modo Bulma)
+- Ciclo de 5 modos: Dashboard → Classic → Terminal → Bulma Light → Bulma Dark
+- Suporte responsivo com hamburger menu no modo Bulma
+- Novas variáveis CSS: `--accent` (teal), `--radius`, `--shadow`, `--font-body`
+
 ## [1.1.0] — 2026-06-11
 
 ### Adicionado
