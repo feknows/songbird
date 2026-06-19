@@ -24,11 +24,11 @@
     --danger: #ff3b30;
     --danger-hover: #d70015;
     --font-mono: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
-    --accent: #00d1b2;
-    --accent-bright: #00e6c3;
-    --accent-dim: rgba(0, 209, 178, 0.12);
-    --accent-hairline: rgba(0, 209, 178, 0.25);
-    --accent-glow: rgba(0, 209, 178, 0.4);
+    --accent: #30d158;
+    --accent-bright: #4cd964;
+    --accent-dim: rgba(48, 209, 88, 0.12);
+    --accent-hairline: rgba(48, 209, 88, 0.25);
+    --accent-glow: rgba(48, 209, 88, 0.4);
     --radius: 6px;
     --shadow: 0 0.5em 1em -0.125em rgba(10,10,10,0.1);
     --font-body: 'Nunito', 'Inter', system-ui, sans-serif;
@@ -49,7 +49,7 @@
   }
   .login-box { padding: 40px 36px; width: 380px; }
   .login-ascii {
-    font-size: 0.7rem; line-height: 1.3; color: var(--green);
+    font-size: 0.7rem; line-height: 1.3; color: var(--accent);
     text-align: center; margin-bottom: 24px; white-space: pre;
   }
   .login-box .prompt { margin-bottom: 16px; }
@@ -59,25 +59,25 @@
   .login-box .prompt input {
     width: 100%; padding: 10px 12px;
     background: var(--bg-raised); color: var(--text-primary);
-    border: 1px solid var(--green-hairline); border-radius: 4px;
+    border: 1px solid var(--accent-hairline); border-radius: 4px;
     font-size: 0.9rem; outline: none; font-family: var(--font-mono);
   }
   .login-box .prompt input:focus {
-    border-color: var(--green); box-shadow: 0 0 8px var(--green-glow);
+    border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow);
   }
   .login-box .login-error {
     color: var(--danger); font-size: 0.8rem; margin-top: 8px; display: none;
   }
   .login-box .btn-login {
     width: 100%; padding: 10px; margin-top: 8px;
-    background: transparent; color: var(--green);
-    border: 1px solid var(--green); border-radius: 4px;
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 4px;
     font-size: 0.9rem; font-weight: 500; cursor: pointer;
     font-family: var(--font-mono); text-transform: uppercase;
     letter-spacing: 1px;
   }
   .login-box .btn-login:hover {
-    background: var(--green-dim); box-shadow: 0 0 12px var(--green-glow);
+    background: var(--accent-dim); box-shadow: 0 0 12px var(--accent-glow);
   }
   .login-box .btn-login:disabled {
     opacity: 0.4; cursor: not-allowed; box-shadow: none;
@@ -90,27 +90,27 @@
   /* Topbar (Dashboard) */
   .topbar {
     display: none; height: 44px; flex-shrink: 0;
-    background: var(--bg-surface); border-bottom: 1px solid var(--green-hairline);
+    background: var(--bg-surface); border-bottom: 1px solid var(--accent-hairline);
     align-items: center; padding: 0 20px;
   }
   .topbar .breadcrumb { font-size: 0.8rem; color: var(--text-secondary); }
-  .topbar .breadcrumb span { color: var(--green); }
+  .topbar .breadcrumb span { color: var(--accent); }
 
   /* Sidebar */
   .sidebar {
     width: 200px; flex-shrink: 0; background: var(--bg-surface);
-    border-right: 1px solid var(--green-hairline);
+    border-right: 1px solid var(--accent-hairline);
     display: flex; flex-direction: column; transition: width 0.3s;
   }
   .sidebar-header {
-    padding: 18px 16px; border-bottom: 1px solid var(--green-hairline);
+    padding: 18px 16px; border-bottom: 1px solid var(--accent-hairline);
   }
   .sidebar-header .logo-terminal {
-    font-size: 0.85rem; color: var(--green); text-align: center;
+    font-size: 0.85rem; color: var(--accent); text-align: center;
   }
   .sidebar-header .logo-terminal .prompt { color: var(--text-secondary); }
   .sidebar-header .logo-dashboard {
-    display: none; font-size: 1.1rem; font-weight: 700; color: var(--green);
+    display: none; font-size: 1.1rem; font-weight: 700; color: var(--accent);
   }
   .sidebar-header .logo-dashboard span { color: var(--text-secondary); font-weight: 400; }
   .sidebar-nav { flex: 1; padding: 8px 0; }
@@ -121,22 +121,22 @@
     text-align: left; cursor: pointer; font-family: var(--font-mono);
   }
   .sidebar-nav button:hover { background: var(--bg-raised); color: var(--text-primary); }
-  .sidebar-nav button.active { background: var(--green-dim); color: var(--green); }
-  .sidebar-nav .nav-indicator { color: var(--green); display: none; }
+  .sidebar-nav button.active { background: var(--accent-dim); color: var(--accent); }
+  .sidebar-nav .nav-indicator { color: var(--accent); display: none; }
   .sidebar-nav button.active .nav-indicator { display: inline; }
   .sidebar-footer {
     display: flex; align-items: center; gap: 8px;
-    padding: 10px 16px; border-top: 1px solid var(--green-hairline);
+    padding: 10px 16px; border-top: 1px solid var(--accent-hairline);
     font-size: 0.75rem; color: var(--text-muted);
   }
-  .sidebar-footer .user { margin-right: auto; color: var(--green); }
+  .sidebar-footer .user { margin-right: auto; color: var(--accent); }
   .sidebar-footer .sb-version-label { font-size: 0.65rem; color: var(--text-muted); }
   .sidebar-footer button {
     background: none; border: none; color: var(--text-muted);
     cursor: pointer; font-size: 0.75rem; font-family: var(--font-mono);
     padding: 4px 8px;
   }
-  .sidebar-footer button:hover { color: var(--green); }
+  .sidebar-footer button:hover { color: var(--accent); }
 
   .wrap-sidebar-content {
     display: flex; flex-direction: column;
@@ -151,12 +151,12 @@
   /* ===== TOGGLE ===== */
   .mode-toggle {
     display: inline-flex; align-items: center; gap: 6px;
-    background: none; border: 1px solid var(--green-hairline);
+    background: none; border: 1px solid var(--accent-hairline);
     color: var(--text-secondary); font-size: 0.75rem;
     padding: 4px 10px; border-radius: 4px; cursor: pointer;
     font-family: var(--font-mono);
   }
-  .mode-toggle:hover { border-color: var(--green); color: var(--green); }
+  .mode-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
   /* ===== MODE: DASHBOARD ===== */
   .mode-dashboard .topbar { display: flex; }
@@ -165,7 +165,7 @@
   .mode-dashboard .logo-dashboard { display: block; }
   .mode-dashboard .nav-indicator { display: none; }
   .mode-dashboard .sidebar-nav button.active .nav-indicator { display: inline; }
-  .mode-dashboard .sidebar-nav button.active { background: var(--green-dim); }
+  .mode-dashboard .sidebar-nav button.active { background: var(--accent-dim); }
 
   /* ===== MODE: TERMINAL ===== */
   .mode-terminal .topbar { display: none; }
@@ -175,43 +175,43 @@
   .mode-terminal .nav-indicator { display: none; }
   .mode-terminal .sidebar-nav button { padding: 8px 16px; }
   .mode-terminal .sidebar-nav button .nav-indicator { display: inline; color: var(--text-muted); }
-  .mode-terminal .sidebar-nav button.active .nav-indicator { color: var(--green); }
+  .mode-terminal .sidebar-nav button.active .nav-indicator { color: var(--accent); }
   .mode-terminal .sidebar-nav button.active { background: transparent; }
   .mode-terminal .sidebar-footer { flex-direction: column; align-items: stretch; }
 
   /* ===== HOME ===== */
   #page-home h1 { font-size: 1.5rem; color: var(--text-primary); margin-bottom: 4px; }
-  #page-home h1 span { color: var(--green); }
+  #page-home h1 span { color: var(--accent); }
   #page-home p { color: var(--text-secondary); font-size: 0.85rem; }
   .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
   .home-card {
     background: var(--bg-surface); padding: 24px;
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
-  .home-card:hover { border-color: var(--green); }
+  .home-card:hover { border-color: var(--accent); }
   .home-card h3 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
-  .home-card .value { font-size: 1.5rem; font-weight: 700; color: var(--green); }
+  .home-card .value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
   .home-card p { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
-  .home-card a { color: var(--green); }
+  .home-card a { color: var(--accent); }
 
   .terminal-output {
-    background: var(--bg-canvas); color: var(--green);
+    background: var(--bg-canvas); color: var(--accent);
     padding: 16px; font-size: 0.85rem; line-height: 1.8;
-    border-left: 2px solid var(--green);
+    border-left: 2px solid var(--accent);
   }
   .terminal-output .tree { color: var(--text-secondary); }
-  .terminal-output .highlight { color: var(--green); font-weight: 700; }
-  .terminal-output .link { color: var(--green); cursor: pointer; text-decoration: underline; }
+  .terminal-output .highlight { color: var(--accent); font-weight: 700; }
+  .terminal-output .link { color: var(--accent); cursor: pointer; text-decoration: underline; }
 
   /* ===== VENDAS HUB ===== */
   #hub h1 { font-size: 1.3rem; margin-bottom: 20px; color: var(--text-primary); }
-  #hub h1 span { color: var(--green); }
+  #hub h1 span { color: var(--accent); }
   .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
   .hub-card {
     background: var(--bg-surface); padding: 28px 24px; cursor: pointer;
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
-  .hub-card:hover { border-color: var(--green); box-shadow: 0 0 8px var(--green-glow); }
+  .hub-card:hover { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
   .hub-card .icon { font-size: 2rem; margin-bottom: 12px; }
   .hub-card h3 { font-size: 1.05rem; margin-bottom: 6px; color: var(--text-primary); }
   .hub-card p { font-size: 0.85rem; color: var(--text-secondary); }
@@ -219,11 +219,11 @@
   .terminal-menu { list-style: none; }
   .terminal-menu li {
     padding: 12px 16px; cursor: pointer;
-    border-bottom: 1px solid var(--green-hairline);
+    border-bottom: 1px solid var(--accent-hairline);
     color: var(--text-primary); font-size: 0.9rem;
   }
-  .terminal-menu li:hover { background: var(--green-dim); }
-  .terminal-menu li .idx { color: var(--green); margin-right: 12px; }
+  .terminal-menu li:hover { background: var(--accent-dim); }
+  .terminal-menu li .idx { color: var(--accent); margin-right: 12px; }
   .terminal-menu li .desc { color: var(--text-secondary); font-size: 0.8rem; display: block; margin-left: 28px; }
   .terminal-menu li:last-child { border-bottom: none; }
 
@@ -234,16 +234,16 @@
   }
   .form-header h1 { font-size: 1.3rem; color: var(--text-primary); }
   .btn-back {
-    background: transparent; border: 1px solid var(--green-hairline);
-    color: var(--green); font-size: 0.85rem; cursor: pointer;
+    background: transparent; border: 1px solid var(--accent-hairline);
+    color: var(--accent); font-size: 0.85rem; cursor: pointer;
     padding: 6px 12px; font-family: var(--font-mono);
   }
-  .btn-back:hover { background: var(--green-dim); }
+  .btn-back:hover { background: var(--accent-dim); }
   .panel {
     background: var(--bg-surface); padding: 24px; margin-bottom: 20px;
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
-  .panel h2 { font-size: 1rem; margin-bottom: 16px; color: var(--green); }
+  .panel h2 { font-size: 1rem; margin-bottom: 16px; color: var(--accent); }
   .row { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
   .field { flex: 1; min-width: 150px; }
   .field label {
@@ -252,20 +252,20 @@
   }
   .field input, .field textarea, .field select {
     width: 100%; padding: 8px 10px;
-    border: 1px solid var(--green-hairline); border-radius: 4px;
+    border: 1px solid var(--accent-hairline); border-radius: 4px;
     font-size: 0.9rem; outline: none; font-family: var(--font-mono);
     background: var(--bg-raised); color: var(--text-primary);
   }
   .field input:focus, .field textarea:focus, .field select:focus {
-    border-color: var(--green); background: var(--bg-surface);
-    box-shadow: 0 0 6px var(--green-glow);
+    border-color: var(--accent); background: var(--bg-surface);
+    box-shadow: 0 0 6px var(--accent-glow);
   }
   .field select, .styled-select {
     appearance: none; -webkit-appearance: none; -moz-appearance: none;
     background: var(--bg-raised) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2330d158' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 10px center;
     padding-right: 30px; cursor: pointer;
   }
-  .field select:hover, .styled-select:hover { border-color: var(--green); }
+  .field select:hover, .styled-select:hover { border-color: var(--accent); }
   .field select option, .styled-select option {
     padding: 8px; background: var(--bg-elevated); color: var(--text-primary);
   }
@@ -278,56 +278,56 @@
     font-family: var(--font-mono);
   }
   .btn-primary {
-    background: transparent; color: var(--green);
-    border: 1px solid var(--green);
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent);
   }
-  .btn-primary:hover { background: var(--green-dim); }
+  .btn-primary:hover { background: var(--accent-dim); }
   .btn-success {
-    background: var(--green); color: #0a0a0a;
+    background: var(--accent); color: #0a0a0a;
   }
-  .btn-success:hover { background: var(--green-bright); }
+  .btn-success:hover { background: var(--accent-bright); }
   .btn-danger { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
   .btn-danger:hover { background: rgba(255, 59, 48, 0.15); }
   .btn-secondary {
     background: transparent; color: var(--text-secondary);
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
   .btn-secondary:hover { background: var(--bg-raised); color: var(--text-primary); }
   .btn-sm { padding: 4px 10px; font-size: 0.75rem; }
   .actions { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
   .output-panel {
-    background: #000; color: var(--green);
+    background: #000; color: var(--accent);
     padding: 20px; white-space: pre-wrap;
     font-family: var(--font-mono); font-size: 0.85rem;
     line-height: 1.6; min-height: 200px; margin-bottom: 12px;
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
   .output-panel .header {
-    color: var(--text-muted); border-bottom: 1px solid var(--green-hairline);
+    color: var(--text-muted); border-bottom: 1px solid var(--accent-hairline);
     padding-bottom: 8px; margin-bottom: 8px; display: block;
   }
   .output-actions { display: flex; gap: 8px; }
   .copied-msg {
-    color: var(--green); font-size: 0.85rem; font-weight: 500;
+    color: var(--accent); font-size: 0.85rem; font-weight: 500;
     opacity: 0; transition: opacity 0.3s;
   }
   .copied-msg.show { opacity: 1; }
   .total-display {
-    margin-top: 20px; font-size: 0.95rem; font-weight: 600; color: var(--green);
+    margin-top: 20px; font-size: 0.95rem; font-weight: 600; color: var(--accent);
   }
   .inline-radio-group { display: flex; gap: 16px; margin-top: 4px; }
   .inline-radio-group label {
     font-size: 0.85rem; font-weight: 400; color: var(--text-primary);
     display: flex; align-items: center; gap: 6px; cursor: pointer;
   }
-  .inline-radio-group input[type="radio"] { accent-color: var(--green); width: auto; }
+  .inline-radio-group input[type="radio"] { accent-color: var(--accent); width: auto; }
   .modulo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
   .modulo-card {
-    background: var(--bg-raised); border: 1px solid var(--green-hairline);
+    background: var(--bg-raised); border: 1px solid var(--accent-hairline);
     padding: 12px 14px; cursor: pointer; user-select: none;
   }
-  .modulo-card:hover { border-color: var(--green); }
-  .modulo-card.selected { border-color: var(--green); background: var(--green-dim); }
+  .modulo-card:hover { border-color: var(--accent); }
+  .modulo-card.selected { border-color: var(--accent); background: var(--accent-dim); }
   .modulo-card .modulo-nome {
     font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
     display: flex; align-items: center; gap: 8px;
@@ -338,23 +338,23 @@
   .modulo-card.selected .modulo-valor { display: block; }
   .modulo-card .modulo-valor input {
     width: 100%; padding: 8px 10px;
-    border: 1px solid var(--green-hairline); border-radius: 4px;
+    border: 1px solid var(--accent-hairline); border-radius: 4px;
     font-size: 0.9rem; font-family: var(--font-mono); outline: none;
     background: var(--bg-surface); color: var(--text-primary);
   }
-  .modulo-card .modulo-valor input:focus { border-color: var(--green); }
+  .modulo-card .modulo-valor input:focus { border-color: var(--accent); }
 
   /* ===== CONFIG ===== */
   #page-config h1 { font-size: 1.3rem; color: var(--text-primary); margin-bottom: 4px; }
   #page-config p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px; }
   .config-section {
     background: var(--bg-surface); padding: 24px; margin-bottom: 20px;
-    border: 1px solid var(--green-hairline); max-width: 500px;
+    border: 1px solid var(--accent-hairline); max-width: 500px;
   }
-  .config-section h2 { font-size: 1rem; margin-bottom: 16px; color: var(--green); }
+  .config-section h2 { font-size: 1rem; margin-bottom: 16px; color: var(--accent); }
   .config-section .field { margin-bottom: 12px; }
   .config-section .success-msg {
-    color: var(--green); font-size: 0.8rem; font-weight: 500;
+    color: var(--accent); font-size: 0.8rem; font-weight: 500;
     display: none; margin-top: 8px;
   }
   .config-section .success-msg.show { display: block; }
@@ -365,15 +365,15 @@
   .config-section .error-msg.show { display: block; }
   .config-tabs {
     display: flex; gap: 0; margin-bottom: 20px; max-width: 500px;
-    border-bottom: 1px solid var(--green-hairline);
+    border-bottom: 1px solid var(--accent-hairline);
   }
   .config-tab {
     flex: 1; padding: 8px 16px; border: none; background: transparent;
     font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
     cursor: pointer; font-family: var(--font-mono);
   }
-  .config-tab:hover { color: var(--green); }
-  .config-tab.active { color: var(--green); border-bottom: 2px solid var(--green); }
+  .config-tab:hover { color: var(--accent); }
+  .config-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
   .config-tab-content { display: none; }
   .config-tab-content.active { display: block; }
   .config-tab-content .config-section { max-width: 500px; }
@@ -382,7 +382,7 @@
   .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
   .user-table th, .user-table td {
     text-align: left; padding: 10px 8px;
-    border-bottom: 1px solid var(--green-hairline); font-size: 0.85rem;
+    border-bottom: 1px solid var(--accent-hairline); font-size: 0.85rem;
     color: var(--text-primary);
   }
   .user-table th { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; }
@@ -410,11 +410,11 @@
   .modal-box {
     background: var(--bg-surface); color: var(--text-primary);
     max-width: 420px; width: 90%; margin: 0 auto;
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
   .modal-header {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 20px; border-bottom: 1px solid var(--green-hairline);
+    padding: 16px 20px; border-bottom: 1px solid var(--accent-hairline);
   }
   .modal-body { padding: 20px; }
 
@@ -519,16 +519,16 @@
   .equip-filters .field { min-width: 160px; flex: 0 1 auto; }
   .equip-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
   .equip-table th {
-    text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--green-hairline);
+    text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--accent-hairline);
     color: var(--text-secondary); font-weight: 600; font-size: 0.8rem;
   }
-  .equip-table td { padding: 10px 8px; border-bottom: 1px solid var(--green-hairline); color: var(--text-primary); }
+  .equip-table td { padding: 10px 8px; border-bottom: 1px solid var(--accent-hairline); color: var(--text-primary); }
   .equip-table tr:hover td { background: var(--bg-raised); }
   .equip-table .badge {
     display: inline-block; padding: 2px 8px; border-radius: 3px;
     font-size: 0.75rem; font-weight: 600;
   }
-  .badge-integrado { background: var(--green-dim); color: var(--green); }
+  .badge-integrado { background: var(--accent-dim); color: var(--accent); }
   .badge-testes { background: rgba(255,204,0,0.2); color: #ffcc00; }
   .badge-desenvolvimento { background: rgba(255,149,0,0.2); color: #ff9500; }
   .badge-nao_integrado { background: rgba(255,59,48,0.2); color: var(--danger); }
@@ -540,13 +540,13 @@
   @media (max-width: 768px) { .equip-admin-grid { grid-template-columns: 1fr; } }
   .equip-admin-section {
     background: var(--bg-surface); padding: 16px; margin-bottom: 16px;
-    border: 1px solid var(--green-hairline);
+    border: 1px solid var(--accent-hairline);
   }
-  .equip-admin-section h3 { font-size: 0.95rem; color: var(--green); margin-bottom: 12px; }
+  .equip-admin-section h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 12px; }
   .equip-list-compact { list-style: none; font-size: 0.85rem; }
   .equip-list-compact li {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 6px 0; border-bottom: 1px solid var(--green-hairline);
+    padding: 6px 0; border-bottom: 1px solid var(--accent-hairline);
   }
   .equip-list-compact li:last-child { border-bottom: none; }
   .mode-classic .equip-admin-section { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
@@ -556,17 +556,17 @@
   /* ===== DISTRIBUICAO ===== */
   .distrib-widget {
     margin-top: 24px; padding: 20px 24px;
-    background: var(--bg-surface); border: 1px solid var(--green-hairline);
+    background: var(--bg-surface); border: 1px solid var(--accent-hairline);
   }
   .distrib-widget h3 {
-    font-size: 0.9rem; color: var(--green); margin-bottom: 16px;
+    font-size: 0.9rem; color: var(--accent); margin-bottom: 16px;
   }
   .distrib-linha {
     display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
   .distrib-vendedor {
     display: flex; align-items: center; gap: 8px;
-    padding: 8px 14px; border: 1px solid var(--green-hairline);
+    padding: 8px 14px; border: 1px solid var(--accent-hairline);
     border-radius: 4px; font-size: 0.85rem; color: var(--text-secondary);
     background: var(--bg-raised); cursor: pointer; transition: background 0.15s;
   }
@@ -574,8 +574,8 @@
     background: var(--bg-elevated);
   }
   .distrib-vendedor.ativo {
-    border-color: var(--green); color: var(--green);
-    background: var(--green-dim); font-weight: 600;
+    border-color: var(--accent); color: var(--accent);
+    background: var(--accent-dim); font-weight: 600;
   }
   .distrib-vendedor.ativo:hover {
     background: #1a3a2a;
@@ -583,7 +583,7 @@
   .distrib-vendedor .cnt {
     font-size: 0.7rem; color: var(--text-muted); margin-left: 4px;
   }
-  .distrib-vendedor.ativo .cnt { color: var(--green); }
+  .distrib-vendedor.ativo .cnt { color: var(--accent); }
   .distrib-seta {
     color: var(--text-muted); font-size: 1rem;
   }
@@ -596,7 +596,7 @@
   }
   .distrib-stats span { white-space: nowrap; }
   .distrib-stats .total {
-    color: var(--green); font-weight: 600;
+    color: var(--accent); font-weight: 600;
   }
   .distrib-msg {
     font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;
@@ -605,12 +605,12 @@
 
   /* ===== KANBAN ===== */
   #page-tarefas h1 { font-size: 1.3rem; margin-bottom: 4px; }
-  #page-tarefas h1 span { color: var(--green); }
+  #page-tarefas h1 span { color: var(--accent); }
   #page-tarefas > p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px; }
   .kanban-toolbar {
     display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
     margin-bottom: 16px; padding-bottom: 16px;
-    border-bottom: 1px solid var(--green-hairline);
+    border-bottom: 1px solid var(--accent-hairline);
   }
   .kanban-toolbar .spacer { flex: 1; }
   .kanban-toolbar .filter-label {
@@ -619,24 +619,24 @@
   .kanban-filtros { display: flex; gap: 4px; }
   .kanban-filtro {
     padding: 3px 10px; font-size: 0.78rem; cursor: pointer; border-radius: 3px;
-    color: var(--text-muted); border: 1px solid var(--green-hairline); user-select: none;
+    color: var(--text-muted); border: 1px solid var(--accent-hairline); user-select: none;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .kanban-filtro:hover { color: var(--green); border-color: var(--green); }
-  .kanban-filtro.ativo { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+  .kanban-filtro:hover { color: var(--accent); border-color: var(--accent); }
+  .kanban-filtro.ativo { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
   .kanban-board {
     display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
     min-height: 300px; align-items: flex-start;
   }
   .kanban-col {
     flex: 0 0 280px; min-width: 260px; max-width: 320px;
-    background: var(--bg-surface); border: 1px solid var(--green-hairline);
-    border-top: 3px solid var(--green); display: flex; flex-direction: column;
+    background: var(--bg-surface); border: 1px solid var(--accent-hairline);
+    border-top: 3px solid var(--accent); display: flex; flex-direction: column;
     max-height: calc(100vh - 260px);
   }
   .kanban-col-header {
     display: flex; align-items: center; gap: 6px;
-    padding: 10px 12px; border-bottom: 1px solid var(--green-hairline);
+    padding: 10px 12px; border-bottom: 1px solid var(--accent-hairline);
     flex-shrink: 0;
   }
   .kanban-col-header .col-nome {
@@ -654,7 +654,7 @@
     background: none; border: none; color: var(--text-muted);
     cursor: pointer; font-size: 0.8rem; padding: 2px 4px;
   }
-  .kanban-col-header .col-actions button:hover { color: var(--green); }
+  .kanban-col-header .col-actions button:hover { color: var(--accent); }
   .kanban-col-body {
     flex: 1; overflow-y: auto; padding: 8px; min-height: 80px;
   }
@@ -666,15 +666,15 @@
     font-size: 0.75rem;
   }
   .kanban-card {
-    background: var(--bg-raised); border: 1px solid var(--green-hairline);
+    background: var(--bg-raised); border: 1px solid var(--accent-hairline);
     border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
     cursor: grab; position: relative; transition: border-color 0.15s, box-shadow 0.15s;
   }
   .kanban-card:hover {
-    border-color: var(--green); box-shadow: 0 0 6px var(--green-glow);
+    border-color: var(--accent); box-shadow: 0 0 6px var(--accent-glow);
   }
   .kanban-card:active { cursor: grabbing; }
-  .kanban-card.sortable-chosen { border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+  .kanban-card.sortable-chosen { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
   .kanban-card.sortable-ghost { opacity: 0.3; }
   .kanban-card .card-top {
     display: flex; justify-content: space-between; align-items: start; gap: 6px;
@@ -689,7 +689,7 @@
   }
   .prioridade-alta { background: rgba(255,59,48,0.2); color: var(--danger); }
   .prioridade-media { background: rgba(255,204,0,0.2); color: #ffcc00; }
-  .prioridade-baixa { background: var(--green-dim); color: var(--green); }
+  .prioridade-baixa { background: var(--accent-dim); color: var(--accent); }
   .kanban-card .card-info {
     font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;
     line-height: 1.5;
@@ -706,35 +706,35 @@
   }
   .kanban-add-card {
     display: block; width: 100%; padding: 8px; margin-top: 4px;
-    background: none; border: 1px dashed var(--green-hairline); border-radius: 4px;
+    background: none; border: 1px dashed var(--accent-hairline); border-radius: 4px;
     color: var(--text-muted); font-size: 0.8rem; cursor: pointer;
     text-align: center; font-family: var(--font-mono); transition: border-color 0.15s;
   }
-  .kanban-add-card:hover { border-color: var(--green); color: var(--green); }
+  .kanban-add-card:hover { border-color: var(--accent); color: var(--accent); }
 
   /* Hist\u00f3rico */
   .kanban-historico {
-    margin-top: 32px; border-top: 1px solid var(--green-hairline);
+    margin-top: 32px; border-top: 1px solid var(--accent-hairline);
     padding-top: 20px;
   }
-  .kanban-historico h2 { font-size: 1rem; color: var(--green); margin-bottom: 12px; }
+  .kanban-historico h2 { font-size: 1rem; color: var(--accent); margin-bottom: 12px; }
   .kanban-historico table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
   .kanban-historico th {
-    text-align: left; padding: 8px; border-bottom: 1px solid var(--green-hairline);
+    text-align: left; padding: 8px; border-bottom: 1px solid var(--accent-hairline);
     color: var(--text-secondary); font-weight: 600;
   }
   .kanban-historico td {
-    padding: 8px; border-bottom: 1px solid var(--green-hairline);
+    padding: 8px; border-bottom: 1px solid var(--accent-hairline);
     color: var(--text-primary);
   }
   .kanban-historico td .badge-historico {
     display: inline-block; padding: 1px 6px; border-radius: 3px;
     font-size: 0.7rem; font-weight: 600;
   }
-  .badge-criada { background: var(--green-dim); color: var(--green); }
+  .badge-criada { background: var(--accent-dim); color: var(--accent); }
   .badge-movida { background: rgba(255,204,0,0.2); color: #ffcc00; }
   .badge-editada { background: rgba(0,122,255,0.2); color: #007aff; }
-  .badge-concluida { background: var(--green-dim); color: var(--green); }
+  .badge-concluida { background: var(--accent-dim); color: var(--accent); }
 
   /* Classic mode overrides for Kanban */
   .mode-classic .kanban-col {
@@ -775,10 +775,11 @@
     --text-muted: #7a7a7a;
     --danger: #f14668;
     --danger-hover: #d9364e;
-    --green: var(--accent);
-    --green-dim: var(--accent-dim);
-    --green-hairline: var(--accent-hairline);
-    --green-glow: var(--accent-glow);
+    --accent: #00d1b2;
+    --accent-bright: #00e6c3;
+    --accent-dim: rgba(0, 209, 178, 0.12);
+    --accent-hairline: rgba(0, 209, 178, 0.25);
+    --accent-glow: rgba(0, 209, 178, 0.4);
     --shadow: 0 0.5em 1em -0.125em rgba(10,10,10,0.1);
   }
 
@@ -793,10 +794,11 @@
     --text-muted: #525252;
     --danger: #f14668;
     --danger-hover: #d9364e;
-    --green: var(--accent);
-    --green-dim: var(--accent-dim);
-    --green-hairline: var(--accent-hairline);
-    --green-glow: var(--accent-glow);
+    --accent: #00d1b2;
+    --accent-bright: #00e6c3;
+    --accent-dim: rgba(0, 209, 178, 0.12);
+    --accent-hairline: rgba(0, 209, 178, 0.25);
+    --accent-glow: rgba(0, 209, 178, 0.4);
     --shadow: 0 0.5em 1em -0.125em rgba(0,0,0,0.4);
   }
 
@@ -1144,9 +1146,9 @@
       </div>
 
       <!-- BADGE DISTRIBUICAO -->
-      <div id="distrib-badge" style="display:none;margin-bottom:20px;padding:10px 16px;background:var(--bg-surface);border:1px solid var(--green-hairline);border-radius:4px;">
+      <div id="distrib-badge" style="display:none;margin-bottom:20px;padding:10px 16px;background:var(--bg-surface);border:1px solid var(--accent-hairline);border-radius:4px;">
         <span style="font-size:0.8rem;color:var(--text-secondary);">Próximo vendedor:</span>
-        <span id="distrib-badge-nome" style="font-size:0.85rem;font-weight:600;color:var(--green);margin-left:4px;">—</span>
+        <span id="distrib-badge-nome" style="font-size:0.85rem;font-weight:600;color:var(--accent);margin-left:4px;">—</span>
         <span style="margin:0 8px;color:var(--text-muted);">·</span>
         <a href="#" onclick="navegar('distribuicao');return false;" style="font-size:0.75rem;color:var(--text-muted);">Ir para Distribuição →</a>
       </div>
@@ -1191,7 +1193,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="p-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid var(--accent-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
               <div class="field">
@@ -1241,7 +1243,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="m-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid var(--accent-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -1300,7 +1302,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="a-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid var(--accent-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -1353,13 +1355,13 @@
             <div class="row">
               <div class="field">
                 <label>Negociado com</label>
-                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
+                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
               </div>
               <div class="field">
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
-                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
-                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
+                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid var(--accent-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -1386,15 +1388,15 @@
             <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
               <thead>
                 <tr style="background:var(--bg-raised);">
-                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Item</th>
-                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid var(--green-hairline);width:70px;">Possui?</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--green-hairline);width:140px;">Valor Esperado</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--green-hairline);width:160px;">Valor Pago</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--green-hairline);width:120px;">Desconto %</th>
+                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--accent-hairline);">Item</th>
+                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid var(--accent-hairline);width:70px;">Possui?</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--accent-hairline);width:140px;">Valor Esperado</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--accent-hairline);width:160px;">Valor Pago</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--accent-hairline);width:120px;">Desconto %</th>
                 </tr>
               </thead>
               <tbody id="d-tabela-body"></tbody>
-              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid var(--green-hairline);"></tfoot>
+              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid var(--accent-hairline);"></tfoot>
             </table>
             <button class="btn btn-sm btn-secondary" onclick="dAddModRow()" style="margin-top:8px;">+ Adicionar módulo</button>
           </div>
@@ -1474,11 +1476,11 @@
           <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
             <thead>
               <tr style="background:var(--bg-raised);">
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);width:40px;">#</th>
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Vendedor</th>
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Código</th>
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Data</th>
-                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Valor</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--accent-hairline);width:40px;">#</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--accent-hairline);">Vendedor</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--accent-hairline);">Código</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--accent-hairline);">Data</th>
+                <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--accent-hairline);">Valor</th>
               </tr>
             </thead>
             <tbody id="distrib-historico">
@@ -1507,7 +1509,7 @@
         </div>
         <div class="equip-count" id="eq-contagem"></div>
         <button class="btn btn-sm btn-secondary" onclick="eqCopiarLista()" style="margin-left:auto;">📋 Copiar</button>
-        <span id="eq-copy-msg" style="font-size:0.75rem;color:var(--green);margin-left:8px;opacity:0;transition:opacity 0.3s;">Copiado!</span>
+        <span id="eq-copy-msg" style="font-size:0.75rem;color:var(--accent);margin-left:8px;opacity:0;transition:opacity 0.3s;">Copiado!</span>
       </div>
 
       <div style="overflow-x:auto;">
@@ -1898,25 +1900,25 @@ async function carregarProdutosAdmin() {
       for (const p of prods) {
         const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', p.id).order('ordem').order('id');
         const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', p.id).order('id');
-        html += `<div style="background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;margin-bottom:12px;">`;
+        html += `<div style="background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;margin-bottom:12px;">`;
         html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Faixas</strong> <button class="btn btn-sm btn-success" onclick="adicionarFaixa(${p.id},'${p.tipo}')" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:var(--green-hairline);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:var(--accent-hairline);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const f of (faixas || [])) {
           const fdata = JSON.stringify({id:f.id,descricao:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,tipo:p.tipo,produto_id:p.id});
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">${f.descricao}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">${f.descricao}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Módulos</strong> <button class="btn btn-sm btn-success" onclick="adicionarModulo(${p.id})" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:var(--green-hairline);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:var(--accent-hairline);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const m of (modulos || [])) {
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">${m.nome}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">${m.nome}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table></div>`;
       }
@@ -2254,7 +2256,7 @@ async function carregarProdutos() {
 
     // Tabela do Verificar Desconto: apenas linha da faixa
     const tbody = document.getElementById('d-tabela-body');
-    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--green-hairline);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
+    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--accent-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--accent-hairline);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
   } catch (e) { console.error('carregarProdutos erro:', e); }
 }
 
@@ -2435,7 +2437,7 @@ function dAddModRow() {
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
   const modOptions = modulosAlarme.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--green-hairline);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--green-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:var(--danger);font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--accent-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:var(--danger);font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
   tbody.appendChild(tr);
   tr.querySelector('.d-mod-select').focus();
 }
@@ -2476,7 +2478,7 @@ function dAutoCalc() {
       if (dFaixaData.valor_base > 0 && faixaPago > 0) {
         const fpct = ((dFaixaData.valor_base - faixaPago) / dFaixaData.valor_base) * 100;
         descEl.textContent = fpct.toFixed(2).replace('.', ',') + '%';
-        descEl.style.color = fpct > 0 ? 'var(--green)' : 'var(--danger)';
+        descEl.style.color = fpct > 0 ? 'var(--accent)' : 'var(--danger)';
       } else {
         descEl.textContent = '—';
       }
@@ -2501,7 +2503,7 @@ function dAutoCalc() {
     if (esperado > 0 && pago > 0) {
       const pct = ((esperado - pago) / esperado) * 100;
       descEl.textContent = pct.toFixed(2).replace('.', ',') + '%';
-      descEl.style.color = pct > 0 ? 'var(--green)' : 'var(--danger)';
+      descEl.style.color = pct > 0 ? 'var(--accent)' : 'var(--danger)';
     } else {
       descEl.textContent = '—';
     }
@@ -2512,7 +2514,7 @@ function dAutoCalc() {
   const perc = totalEsperado > 0 ? (dif / totalEsperado) * 100 : 0;
   dPercDesconto = perc;
   const f = v => 'R$ ' + v.toFixed(2).replace('.', ',');
-  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--green)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
+  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--accent)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
   const linhas = [];
   linhas.push(`Faixa: ${dFaixaData.desc} — Valor base: ${f(dFaixaData.valor_base)} | Pago: ${f(document.querySelector('#d-row-faixa .d-pago') ? parseCurrency(document.querySelector('#d-row-faixa .d-pago').value) : 0)}`);
   document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
@@ -2593,13 +2595,13 @@ function dNovaFaixaChange() {
   const labelAtual = faixaPago > 0 ? 'Valor atual (pago)' : 'Valor atual';
   const modLabel = (pagoVal) => pagoVal > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:var(--green);">Resumo da Mudança</strong><br><br>
+  let html = `<div style="background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:var(--accent);">Resumo da Mudança</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
-    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? 'var(--green)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
+    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? 'var(--accent)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
   if (qtdMod > 0) {
     const modValLabel = `Módulos (${qtdMod}x)`;
-    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? 'var(--green)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
+    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? 'var(--accent)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
   }
   html += `<br><strong>${labelAtual}:</strong> ${f(totalAtual)}<br>
     <strong>Total novo:</strong> ${f(totalNovo)}<br>
@@ -2677,8 +2679,8 @@ function dAplicarDesconto() {
 
   const labelAtual = faixaPago > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:var(--green);">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
+  let html = `<div style="background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:var(--accent);">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
     Valor ${labelAtual}: ${f(valorBaseAtual)} → cheio: ${f(novaFaixa.valor_base)} / c/ desc: ${f(novoBaseDesc)}<br>
     Diferença: ${f(difBase)} (cheio) | ${f(difBaseDesc)} (c/ desconto)<br>`;
@@ -2690,7 +2692,7 @@ function dAplicarDesconto() {
   html += `<br><strong>Total ${labelAtual}:</strong> ${f(totalPagoAtual)}<br>
     <strong>Total novo cheio:</strong> ${f(totalNovoCheio)}<br>
     <strong style="color:#e8e8e8;">Total novo c/ desconto: ${f(totalNovoDesc)}</strong><br>
-    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? 'var(--green)' : 'var(--danger)'};font-weight:600;">${f(difCliente)}</span>
+    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? 'var(--accent)' : 'var(--danger)'};font-weight:600;">${f(difCliente)}</span>
   </div>`;
   resultDiv.innerHTML = html;
 
@@ -2768,13 +2770,13 @@ function orcamentoAddItem() {
   const div = document.createElement('div');
   div.className = 'orcamento-item';
   div.dataset.id = id;
-  div.style.cssText = 'background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;margin-bottom:12px;';
+  div.style.cssText = 'background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;margin-bottom:12px;';
 
   div.innerHTML = `
     <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(100px,130px);gap:8px;margin-bottom:8px;">
-      <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Selecione</option></select></div>
-      <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Carregando...</option></select></div>
-      <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+      <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Selecione</option></select></div>
+      <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Carregando...</option></select></div>
+      <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;"></div>
     </div>
     <div class="modulo-grid o-modulos" style="margin-bottom:4px;"></div>
     <button class="btn btn-sm btn-danger" onclick="orcamentoRemoveItem(${id})">✕ Remover item</button>
@@ -3615,10 +3617,10 @@ function colunasRenderizarLista() {
   let html = '';
   for (let i = 0; i < colunasEditando.length; i++) {
     const c = colunasEditando[i];
-    html += `<div class="coluna-edit-row" data-index="${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--bg-raised);border:1px solid var(--green-hairline);border-radius:4px;">
+    html += `<div class="coluna-edit-row" data-index="${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--bg-raised);border:1px solid var(--accent-hairline);border-radius:4px;">
       <span style="color:var(--text-muted);font-size:0.8rem;cursor:move;" title="Arrastar">⠿</span>
       <input type="color" class="col-cor" value="${c.cor || '#30d158'}" onchange="colunasEditando[${i}].cor=this.value" style="width:30px;height:30px;border:none;cursor:pointer;background:none;padding:0;">
-      <input type="text" class="col-nome-input" value="${c.nome}" oninput="colunasEditando[${i}].nome=this.value" style="flex:1;padding:6px 8px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);">
+      <input type="text" class="col-nome-input" value="${c.nome}" oninput="colunasEditando[${i}].nome=this.value" style="flex:1;padding:6px 8px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);">
       <button class="btn btn-sm btn-danger" onclick="colunaRemover(${i})" style="padding:2px 6px;font-size:0.7rem;">✕</button>
     </div>`;
   }
@@ -3727,7 +3729,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-confirm" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalConfirm()">
   <div class="modal-box">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);" id="modal-confirm-titulo">Confirmar</span>
+      <span style="font-weight:700;color:var(--accent);" id="modal-confirm-titulo">Confirmar</span>
       <span onclick="fecharModalConfirm()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3744,7 +3746,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-nova-faixa" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalFaixa()">
   <div class="modal-box">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);" id="modal-faixa-titulo">Nova Faixa</span>
+      <span style="font-weight:700;color:var(--accent);" id="modal-faixa-titulo">Nova Faixa</span>
       <span onclick="fecharModalFaixa()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3774,7 +3776,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-novo-modulo" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalModulo()">
   <div class="modal-box">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);">[+] Novo Módulo</span>
+      <span style="font-weight:700;color:var(--accent);">[+] Novo Módulo</span>
       <span onclick="fecharModalModulo()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3794,7 +3796,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-nova-categoria" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalCategoria()">
   <div class="modal-box">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);">[+] Nova Categoria</span>
+      <span style="font-weight:700;color:var(--accent);">[+] Nova Categoria</span>
       <span onclick="fecharModalCategoria()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3814,7 +3816,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-equipamento" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalEquipamento()">
   <div class="modal-box">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);" id="modal-equip-titulo">[+] Novo Equipamento</span>
+      <span style="font-weight:700;color:var(--accent);" id="modal-equip-titulo">[+] Novo Equipamento</span>
       <span onclick="fecharModalEquipamento()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3855,7 +3857,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-novo-produto" class="modal-overlay" style="display:none;" onclick="if(event.target===this)fecharModalProduto()">
   <div class="modal-box">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);">[+] Novo Produto</span>
+      <span style="font-weight:700;color:var(--accent);">[+] Novo Produto</span>
       <span onclick="fecharModalProduto()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3879,7 +3881,7 @@ async function tarefasCarregarHistorico() {
 <div id="modal-distribuir" class="modal-overlay" style="display:none;" onclick="if(event.target===this)distribModalFechar()">
   <div class="modal-box" style="max-width:560px;">
     <div class="modal-header">
-      <span id="distrib-modal-titulo" style="font-weight:700;color:var(--green);">◆ Distribuir para <span id="distrib-modal-vendedor">—</span></span>
+      <span id="distrib-modal-titulo" style="font-weight:700;color:var(--accent);">◆ Distribuir para <span id="distrib-modal-vendedor">—</span></span>
       <span onclick="distribModalFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -3906,7 +3908,7 @@ async function tarefasCarregarHistorico() {
           <span style="color:var(--text-muted);font-size:0.85rem;">Carregando...</span>
         </div>
       </div>
-      <div style="padding:12px 0;border-top:1px solid var(--green-hairline);margin-top:12px;text-align:right;font-size:1rem;">
+      <div style="padding:12px 0;border-top:1px solid var(--accent-hairline);margin-top:12px;text-align:right;font-size:1rem;">
         <strong>Total: </strong><span id="distrib-modal-total">R$ 0,00</span>
       </div>
       <span id="distrib-modal-msg" style="color:var(--red);font-size:0.85rem;display:none;"></span>
@@ -4047,14 +4049,14 @@ function distribRenderizarHistorico(rows) {
       '<br><strong>M\u00f3dulos:</strong> ' + modulosHtml +
       '<br><strong>Avulsos:</strong> ' + avulsosHtml;
     return '<tr class="distrib-row" onclick="distribToggleDetalhes(this)" style="cursor:pointer;" data-id="' + r.id + '">' +
-      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);">' + r.vendedor + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '\u2014') + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);color:var(--text-muted);">' + data + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-family:monospace;font-size:0.8rem;">R$ ' + total.toFixed(2).replace('.', ',') + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);">' + r.vendedor + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '\u2014') + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);color:var(--text-muted);">' + data + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);font-family:monospace;font-size:0.8rem;">R$ ' + total.toFixed(2).replace('.', ',') + '</td>' +
       '</tr>' +
       '<tr class="distrib-detalhes" style="display:none;">' +
-      '<td colspan="5" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--green-hairline);line-height:1.6;">' +
+      '<td colspan="5" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--accent-hairline);line-height:1.6;">' +
         detalhes +
         '<div style="margin-top:8px;display:flex;gap:6px;">' +
           '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();distribEditar(' + r.id + ')">\u270E Editar</button>' +
@@ -4377,7 +4379,7 @@ function distribModalFechar() {
 <div id="modal-tarefa" class="modal-overlay" style="display:none;" onclick="if(event.target===this)tarefaModalFechar()">
   <div class="modal-box" style="max-width:520px;">
     <div class="modal-header">
-      <span id="modal-tarefa-titulo" style="font-weight:700;color:var(--green);">+ Nova Tarefa</span>
+      <span id="modal-tarefa-titulo" style="font-weight:700;color:var(--accent);">+ Nova Tarefa</span>
       <span onclick="tarefaModalFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
@@ -4424,7 +4426,7 @@ function distribModalFechar() {
       </div>
       <div class="field">
         <label>Descrição</label>
-        <textarea id="tarefa-descricao" rows="2" placeholder="Descrição da tarefa..." style="resize:vertical;width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);"></textarea>
+        <textarea id="tarefa-descricao" rows="2" placeholder="Descrição da tarefa..." style="resize:vertical;width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);"></textarea>
       </div>
       <div class="row">
         <div class="field">
@@ -4434,7 +4436,7 @@ function distribModalFechar() {
       </div>
       <div class="field">
         <label>Anotações</label>
-        <textarea id="tarefa-anotacoes" rows="2" placeholder="Anotações livres..." style="resize:vertical;width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);"></textarea>
+        <textarea id="tarefa-anotacoes" rows="2" placeholder="Anotações livres..." style="resize:vertical;width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);"></textarea>
       </div>
       <div class="actions" style="margin-top:16px;">
         <button class="btn btn-secondary" onclick="tarefaModalFechar()">Cancelar</button>
@@ -4449,7 +4451,7 @@ function distribModalFechar() {
 <div id="modal-colunas" class="modal-overlay" style="display:none;" onclick="if(event.target===this)tarefaModalColunasFechar()">
   <div class="modal-box" style="max-width:420px;">
     <div class="modal-header">
-      <span style="font-weight:700;color:var(--green);">⚙ Gerenciar Colunas</span>
+      <span style="font-weight:700;color:var(--accent);">⚙ Gerenciar Colunas</span>
       <span onclick="tarefaModalColunasFechar()" style="cursor:pointer;color:var(--text-muted);">[x] fechar</span>
     </div>
     <div class="modal-body">
