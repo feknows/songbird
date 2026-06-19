@@ -528,7 +528,7 @@
     display: inline-block; padding: 2px 8px; border-radius: 3px;
     font-size: 0.75rem; font-weight: 600;
   }
-  .badge-integrado { background: rgba(48,209,88,0.2); color: var(--green); }
+  .badge-integrado { background: var(--green-dim); color: var(--green); }
   .badge-testes { background: rgba(255,204,0,0.2); color: #ffcc00; }
   .badge-desenvolvimento { background: rgba(255,149,0,0.2); color: #ff9500; }
   .badge-nao_integrado { background: rgba(255,59,48,0.2); color: var(--danger); }
@@ -687,9 +687,9 @@
     font-size: 0.65rem; padding: 1px 6px; border-radius: 3px;
     white-space: nowrap; flex-shrink: 0;
   }
-  .prioridade-alta { background: rgba(255,59,48,0.2); color: #ff3b30; }
+  .prioridade-alta { background: rgba(255,59,48,0.2); color: var(--danger); }
   .prioridade-media { background: rgba(255,204,0,0.2); color: #ffcc00; }
-  .prioridade-baixa { background: rgba(48,209,88,0.2); color: var(--green); }
+  .prioridade-baixa { background: var(--green-dim); color: var(--green); }
   .kanban-card .card-info {
     font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;
     line-height: 1.5;
@@ -731,10 +731,10 @@
     display: inline-block; padding: 1px 6px; border-radius: 3px;
     font-size: 0.7rem; font-weight: 600;
   }
-  .badge-criada { background: rgba(48,209,88,0.2); color: var(--green); }
+  .badge-criada { background: var(--green-dim); color: var(--green); }
   .badge-movida { background: rgba(255,204,0,0.2); color: #ffcc00; }
   .badge-editada { background: rgba(0,122,255,0.2); color: #007aff; }
-  .badge-concluida { background: rgba(48,209,88,0.2); color: var(--green); }
+  .badge-concluida { background: var(--green-dim); color: var(--green); }
 
   /* Classic mode overrides for Kanban */
   .mode-classic .kanban-col {
@@ -775,6 +775,10 @@
     --text-muted: #7a7a7a;
     --danger: #f14668;
     --danger-hover: #d9364e;
+    --green: var(--accent);
+    --green-dim: var(--accent-dim);
+    --green-hairline: var(--accent-hairline);
+    --green-glow: var(--accent-glow);
     --shadow: 0 0.5em 1em -0.125em rgba(10,10,10,0.1);
   }
 
@@ -789,6 +793,10 @@
     --text-muted: #525252;
     --danger: #f14668;
     --danger-hover: #d9364e;
+    --green: var(--accent);
+    --green-dim: var(--accent-dim);
+    --green-hairline: var(--accent-hairline);
+    --green-glow: var(--accent-glow);
     --shadow: 0 0.5em 1em -0.125em rgba(0,0,0,0.4);
   }
 
@@ -1183,7 +1191,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="p-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('p-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
               <div class="field">
@@ -1233,7 +1241,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="m-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('m-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -1292,7 +1300,7 @@
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
                   <input type="text" id="a-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
-                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <button type="button" onclick="abrirCalendario('a-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -1345,13 +1353,13 @@
             <div class="row">
               <div class="field">
                 <label>Negociado com</label>
-                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;">
+                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
               </div>
               <div class="field">
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
-                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;">
-                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid rgba(48,209,88,0.25);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
+                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid var(--green-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -1377,16 +1385,16 @@
             <h2>Comparativo de Desconto</h2>
             <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
               <thead>
-                <tr style="background:#1c1c1c;">
-                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid rgba(48,209,88,0.25);">Item</th>
-                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid rgba(48,209,88,0.25);width:70px;">Possui?</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(48,209,88,0.25);width:140px;">Valor Esperado</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(48,209,88,0.25);width:160px;">Valor Pago</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid rgba(48,209,88,0.25);width:120px;">Desconto %</th>
+                <tr style="background:var(--bg-raised);">
+                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--green-hairline);">Item</th>
+                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid var(--green-hairline);width:70px;">Possui?</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--green-hairline);width:140px;">Valor Esperado</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--green-hairline);width:160px;">Valor Pago</th>
+                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--green-hairline);width:120px;">Desconto %</th>
                 </tr>
               </thead>
               <tbody id="d-tabela-body"></tbody>
-              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid rgba(48,209,88,0.25);"></tfoot>
+              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid var(--green-hairline);"></tfoot>
             </table>
             <button class="btn btn-sm btn-secondary" onclick="dAddModRow()" style="margin-top:8px;">+ Adicionar módulo</button>
           </div>
@@ -1618,7 +1626,7 @@
 const SUPABASE_URL = 'https://wtnbbtnvadkpbdibnndu.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0bmJidG52YWRrcGJkaWJubmR1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NzQyMDIsImV4cCI6MjA5NTM1MDIwMn0.6WwEuiK87D-L3iuGxwXXJW0aIx949YkVjJElaZDradM';
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const SONGBIRD_VERSION = '1.1.0';
+const SONGBIRD_VERSION = '1.2.1';
 
 // === SESSION ===
 
@@ -1890,25 +1898,25 @@ async function carregarProdutosAdmin() {
       for (const p of prods) {
         const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', p.id).order('ordem').order('id');
         const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', p.id).order('id');
-        html += `<div style="background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;margin-bottom:12px;">`;
+        html += `<div style="background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;margin-bottom:12px;">`;
         html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Faixas</strong> <button class="btn btn-sm btn-success" onclick="adicionarFaixa(${p.id},'${p.tipo}')" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:rgba(48,209,88,0.25);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:var(--green-hairline);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const f of (faixas || [])) {
           const fdata = JSON.stringify({id:f.id,descricao:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,tipo:p.tipo,produto_id:p.id});
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">${f.descricao}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">${f.descricao}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Módulos</strong> <button class="btn btn-sm btn-success" onclick="adicionarModulo(${p.id})" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:rgba(48,209,88,0.25);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:var(--green-hairline);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const m of (modulos || [])) {
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);">${m.nome}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid rgba(48,209,88,0.25);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);">${m.nome}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--green-hairline);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table></div>`;
       }
@@ -2246,7 +2254,7 @@ async function carregarProdutos() {
 
     // Tabela do Verificar Desconto: apenas linha da faixa
     const tbody = document.getElementById('d-tabela-body');
-    tbody.innerHTML = `<tr id="d-row-faixa" style="background:#1c1c1c;"><td style="padding:8px;border-bottom:1px solid rgba(48,209,88,0.25);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(48,209,88,0.25);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
+    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--green-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--green-hairline);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
   } catch (e) { console.error('carregarProdutos erro:', e); }
 }
 
@@ -2427,7 +2435,7 @@ function dAddModRow() {
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
   const modOptions = modulosAlarme.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid rgba(48,209,88,0.25);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid rgba(48,209,88,0.25);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:#ff3b30;font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--green-hairline);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--green-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--green-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:var(--danger);font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
   tbody.appendChild(tr);
   tr.querySelector('.d-mod-select').focus();
 }
@@ -2468,7 +2476,7 @@ function dAutoCalc() {
       if (dFaixaData.valor_base > 0 && faixaPago > 0) {
         const fpct = ((dFaixaData.valor_base - faixaPago) / dFaixaData.valor_base) * 100;
         descEl.textContent = fpct.toFixed(2).replace('.', ',') + '%';
-        descEl.style.color = fpct > 0 ? '#30d158' : '#ff3b30';
+        descEl.style.color = fpct > 0 ? 'var(--green)' : 'var(--danger)';
       } else {
         descEl.textContent = '—';
       }
@@ -2493,7 +2501,7 @@ function dAutoCalc() {
     if (esperado > 0 && pago > 0) {
       const pct = ((esperado - pago) / esperado) * 100;
       descEl.textContent = pct.toFixed(2).replace('.', ',') + '%';
-      descEl.style.color = pct > 0 ? '#30d158' : '#ff3b30';
+      descEl.style.color = pct > 0 ? 'var(--green)' : 'var(--danger)';
     } else {
       descEl.textContent = '—';
     }
@@ -2504,7 +2512,7 @@ function dAutoCalc() {
   const perc = totalEsperado > 0 ? (dif / totalEsperado) * 100 : 0;
   dPercDesconto = perc;
   const f = v => 'R$ ' + v.toFixed(2).replace('.', ',');
-  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? '#30d158' : '#ff3b30'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
+  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--green)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
   const linhas = [];
   linhas.push(`Faixa: ${dFaixaData.desc} — Valor base: ${f(dFaixaData.valor_base)} | Pago: ${f(document.querySelector('#d-row-faixa .d-pago') ? parseCurrency(document.querySelector('#d-row-faixa .d-pago').value) : 0)}`);
   document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
@@ -2585,13 +2593,13 @@ function dNovaFaixaChange() {
   const labelAtual = faixaPago > 0 ? 'Valor atual (pago)' : 'Valor atual';
   const modLabel = (pagoVal) => pagoVal > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:#30d158;">Resumo da Mudança</strong><br><br>
+  let html = `<div style="background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:var(--green);">Resumo da Mudança</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
-    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
+    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? 'var(--green)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
   if (qtdMod > 0) {
     const modValLabel = `Módulos (${qtdMod}x)`;
-    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
+    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? 'var(--green)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
   }
   html += `<br><strong>${labelAtual}:</strong> ${f(totalAtual)}<br>
     <strong>Total novo:</strong> ${f(totalNovo)}<br>
@@ -2669,8 +2677,8 @@ function dAplicarDesconto() {
 
   const labelAtual = faixaPago > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:#30d158;">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
+  let html = `<div style="background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:var(--green);">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
     Valor ${labelAtual}: ${f(valorBaseAtual)} → cheio: ${f(novaFaixa.valor_base)} / c/ desc: ${f(novoBaseDesc)}<br>
     Diferença: ${f(difBase)} (cheio) | ${f(difBaseDesc)} (c/ desconto)<br>`;
@@ -2682,7 +2690,7 @@ function dAplicarDesconto() {
   html += `<br><strong>Total ${labelAtual}:</strong> ${f(totalPagoAtual)}<br>
     <strong>Total novo cheio:</strong> ${f(totalNovoCheio)}<br>
     <strong style="color:#e8e8e8;">Total novo c/ desconto: ${f(totalNovoDesc)}</strong><br>
-    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? '#30d158' : '#ff3b30'};font-weight:600;">${f(difCliente)}</span>
+    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? 'var(--green)' : 'var(--danger)'};font-weight:600;">${f(difCliente)}</span>
   </div>`;
   resultDiv.innerHTML = html;
 
@@ -2760,13 +2768,13 @@ function orcamentoAddItem() {
   const div = document.createElement('div');
   div.className = 'orcamento-item';
   div.dataset.id = id;
-  div.style.cssText = 'background:#1c1c1c;border:1px solid rgba(48,209,88,0.25);padding:12px;margin-bottom:12px;';
+  div.style.cssText = 'background:var(--bg-raised);border:1px solid var(--green-hairline);padding:12px;margin-bottom:12px;';
 
   div.innerHTML = `
     <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(100px,130px);gap:8px;margin-bottom:8px;">
-      <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;background:#1c1c1c;"><option value="">Selecione</option></select></div>
-      <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;background:#1c1c1c;"><option value="">Carregando...</option></select></div>
-      <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid rgba(48,209,88,0.25);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+      <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Selecione</option></select></div>
+      <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Carregando...</option></select></div>
+      <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--green-hairline);border-radius:4px;font-size:0.9rem;outline:none;"></div>
     </div>
     <div class="modulo-grid o-modulos" style="margin-bottom:4px;"></div>
     <button class="btn btn-sm btn-danger" onclick="orcamentoRemoveItem(${id})">✕ Remover item</button>

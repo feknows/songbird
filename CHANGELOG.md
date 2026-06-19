@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1] — 2026-06-19
+
+### Corrigido
+- Fundo da listagem de produtos em Config > Produtos usando variáveis CSS em vez de hardcoded
+- Cores dos badges e bordas passam a usar `var(--green-hairline)` / `var(--green-dim)`
+- Temas agora sobrescrevem `--green-*` para o accent correto em cada modo (Bulma usa teal)
+
 ## [1.2.0] — 2026-06-15
 
 ### Adicionado
