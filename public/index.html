@@ -594,12 +594,41 @@
     padding: 8px 20px; font-size: 0.85rem;
   }
   .distrib-stats {
-    margin-top: 12px; display: flex; gap: 16px; flex-wrap: wrap;
+    margin-top: 12px;
     font-size: 0.8rem; color: var(--text-secondary);
   }
-  .distrib-stats span { white-space: nowrap; }
-  .distrib-stats .total {
-    color: var(--accent); font-weight: 600;
+  .distrib-stats-summary {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+  }
+  .distrib-stats-summary .total-geral {
+    font-size: 1.1rem; font-weight: 700; color: var(--accent);
+  }
+  .distrib-stats-divider {
+    width: 100%; height: 1px;
+    background: var(--accent-hairline); margin: 4px 0 8px 0;
+  }
+  .distrib-stats-vendedores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+  .distrib-stats-vendedor {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 14px;
+    border: 1px solid var(--accent-hairline);
+    border-radius: 4px;
+    background: var(--bg-raised);
+  }
+  .distrib-stats-vendedor .nome {
+    font-size: 0.75rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .distrib-stats-vendedor .valor {
+    font-size: 1rem; font-weight: 700; color: var(--accent);
+  }
+  .distrib-stats-vendedor .cnt {
+    font-size: 0.7rem; color: var(--text-secondary);
   }
   .distrib-msg {
     font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;
@@ -4039,13 +4068,23 @@ function distribRenderizar(proximo, stats, total, valorPorVendedor, totalGeral) 
 
   info.innerHTML = vendedoresHtml + '<button class="btn btn-success btn-sm distrib-btn" onclick="distribAvancar()">\u2713 Distribuir para ' + proximo + '</button>';
 
-  const valoresPorVendedor = DISTRIB_VENDEDORES.map(v => {
-    const val = valorPorVendedor?.[v] || 0;
-    return '<span style="margin-right:12px;"><strong>' + v + ':</strong> ' + fmt(val) + '</span>';
-  }).join('');
-  statsEl.innerHTML = '<span class="total">Total distribu\u00eddo: ' + total + '</span>' +
-    ' \u00b7 <span class="total" style="font-weight:700;">Valor total acumulado: ' + fmt(totalGeral || 0) + '</span>' +
-    '<div style="margin-top:6px;font-size:0.8rem;color:var(--text-secondary);">' + valoresPorVendedor + '</div>';
+  statsEl.innerHTML =
+    '<div class="distrib-stats-summary">' +
+      '<span>Total distribu\u00eddo: <strong>' + total + '</strong></span>' +
+      '<span class="total-geral">Valor total acumulado: ' + fmt(totalGeral || 0) + '</span>' +
+    '</div>' +
+    '<div class="distrib-stats-divider"></div>' +
+    '<div class="distrib-stats-vendedores">' +
+      DISTRIB_VENDEDORES.map(v => {
+        const val = valorPorVendedor?.[v] || 0;
+        const cnt = stats[v] || 0;
+        return '<div class="distrib-stats-vendedor">' +
+          '<span class="nome">' + v + '</span>' +
+          '<span class="valor">' + fmt(val) + '</span>' +
+          '<span class="cnt">' + cnt + ' distribui\u00e7\u00f5es</span>' +
+          '</div>';
+      }).join('') +
+    '</div>';
 }
 
 function distribRenderizarBadge(proximo) {
