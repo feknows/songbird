@@ -598,11 +598,16 @@
     font-size: 0.8rem; color: var(--text-secondary);
   }
   .distrib-stats-summary {
-    display: flex; justify-content: space-between; align-items: center;
     padding: 8px 0;
   }
-  .distrib-stats-summary .total-geral {
-    font-size: 1.1rem; font-weight: 700; color: var(--accent);
+  .distrib-stats-total-geral {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--accent-hairline);
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
   }
   .distrib-stats-divider {
     width: 100%; height: 1px;
@@ -4071,7 +4076,6 @@ function distribRenderizar(proximo, stats, total, valorPorVendedor, totalGeral) 
   statsEl.innerHTML =
     '<div class="distrib-stats-summary">' +
       '<span>Total distribu\u00eddo: <strong>' + total + '</strong></span>' +
-      '<span class="total-geral">Valor total acumulado: ' + fmt(totalGeral || 0) + '</span>' +
     '</div>' +
     '<div class="distrib-stats-divider"></div>' +
     '<div class="distrib-stats-vendedores">' +
@@ -4084,7 +4088,8 @@ function distribRenderizar(proximo, stats, total, valorPorVendedor, totalGeral) 
           '<span class="cnt">' + cnt + ' distribui\u00e7\u00f5es</span>' +
           '</div>';
       }).join('') +
-    '</div>';
+    '</div>' +
+    '<div class="distrib-stats-total-geral">Valor total acumulado: ' + fmt(totalGeral || 0) + '</div>';
 }
 
 function distribRenderizarBadge(proximo) {
