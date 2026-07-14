@@ -66,7 +66,15 @@
     border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow);
   }
   .login-box .login-error {
-    color: var(--danger); font-size: 0.8rem; margin-top: 8px; display: none;
+    color: var(--danger); font-size: 0.8rem; margin-top: 8px;
+  }
+  .login-box .login-error.shake {
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
   }
   .login-box .btn-login {
     width: 100%; padding: 10px; margin-top: 8px;
@@ -1140,7 +1148,7 @@
       <div class="label">$ senha</div>
       <input type="password" id="login-pass" placeholder="senha" onkeydown="if(event.key==='Enter')fazerLogin()">
     </div>
-    <div class="login-error" id="login-error">Usuário ou senha inválidos.</div>
+    <div class="login-error" id="login-error" style="display:none;">Usuário ou senha inválidos.</div>
     <button class="btn-login" id="login-btn" onclick="fazerLogin()">&gt;&gt; ENTRAR &lt;&lt;</button>
   </div>
 </div>
@@ -1826,7 +1834,12 @@ async function fazerLogin() {
   const nome = document.getElementById('login-user').value.trim();
   const senha = document.getElementById('login-pass').value.trim();
   const btn = document.getElementById('login-btn');
+  const loginErr = document.getElementById('login-error');
+  const originalText = btn.textContent;
   btn.disabled = true;
+  btn.textContent = 'ENTRANDO...';
+  loginErr.style.display = 'none';
+  loginErr.classList.remove('shake');
   try {
     const email = nome + '@songbird.app';
     const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha });
@@ -1837,13 +1850,13 @@ async function fazerLogin() {
     if (navUser) navUser.textContent = meta.nome;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    document.getElementById('login-error').style.display = 'none';
     if (meta.permissao === 'admin') {
       document.getElementById('cfg-btn-produtos').style.display = 'block';
       document.getElementById('cfg-btn-equipamentos').style.display = 'block';
     }
     initModo();
   } catch (e) {
+    console.error('[SongBird] Erro no login:', e);
     let msg;
     if (e?.message?.includes('Invalid login credentials')) {
       msg = 'Usuário ou senha inválidos';
@@ -1852,10 +1865,13 @@ async function fazerLogin() {
     } else {
       msg = 'Erro inesperado: ' + (e?.message || 'desconhecido');
     }
-    document.getElementById('login-error').textContent = msg;
-    document.getElementById('login-error').style.display = 'block';
+    loginErr.textContent = msg;
+    loginErr.style.display = 'block';
+    void loginErr.offsetWidth;
+    loginErr.classList.add('shake');
   }
   btn.disabled = false;
+  btn.textContent = originalText;
 }
 
 async function fazerLogout() {
