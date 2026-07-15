@@ -4,9 +4,13 @@
 
 Sistema de registro de vendas (sales registration system). Portuguese-only (UI, code, comments).
 
-Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted on GitHub Pages.
+Single-page app (`public/index.html`) no build step, talking to Supabase. Hosted on GitHub Pages. CSS and JS separated into `public/css/` and `public/js/` directories.
 
 **Leads scraper** was separated into its own project at `C:\Users\Felipe\SongBird-Leads` — see its own `AGENTS.md`.
+
+## Skills
+
+- Sempre informar ao usuário quais skills serão utilizadas antes de iniciar qualquer tarefa.
 
 ## Auto-review
 
@@ -18,7 +22,7 @@ After every implementation, also ensure `git add` → `git commit` → `git push
 
 1. Create a Supabase project.
 2. Copy `.env.example` to `.env` locally (for `migrate-supabase.js`).
-3. **Critical**: In `public/index.html:1068-1069`, replace the placeholder credentials with real Supabase URL and anon key.
+3. **Critical**: In `public/js/supabase-init.js:3-4`, replace the placeholder credentials with real Supabase URL and anon key.
 4. Run the SQL below in the SQL Editor (creates schema + RLS policies):
    ```sql
    -- SongBird - Supabase Schema
@@ -315,7 +319,7 @@ After every implementation, also ensure `git add` → `git commit` → `git push
 
 ## Versioning
 
-- Version number is stored in `public/index.html` (`const SONGBIRD_VERSION`) and `package.json`.
+- Version number is stored in `public/js/supabase-init.js` (`const SONGBIRD_VERSION`) and `package.json`.
 - On each deploy (after significant changes or grouped commits):
   1. Increment version in both files (semver: major.minor.patch)
   2. Add entry to `CHANGELOG.md` describing what changed
@@ -337,7 +341,7 @@ After every implementation, also ensure `git add` → `git commit` → `git push
 
 ## Important gotchas
 
-- `public/index.html:1068-1069` has hardcoded Supabase credentials that must be replaced with real ones before the app works.
+- `public/js/supabase-init.js:3-4` has hardcoded Supabase credentials that must be replaced with real ones before the app works.
 - Toda **nova tabela** criada manualmente no Supabase precisa de `GRANT SELECT, INSERT, UPDATE, DELETE ON public.<tabela> TO anon;` (e/ou `authenticated`) antes que a REST API funcione. As tabelas do setup inicial já incluem isso, mas tabelas adicionadas depois não — o Postgres não concede permissões automaticamente.
 - `DESIGN.md` is for the OpenCode marketing site design system, unrelated to this project.
 - `migrate-supabase.js` is a one-shot script for migrating legacy SQLite data.

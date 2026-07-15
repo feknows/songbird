@@ -1,0 +1,389 @@
+  /* ===== HOME ===== */
+  #page-home h1 { font-size: 1.5rem; color: var(--text-primary); margin-bottom: 4px; }
+  #page-home h1 span { color: var(--accent); }
+  #page-home p { color: var(--text-secondary); font-size: 0.85rem; }
+  .home-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 20px; }
+  .home-card {
+    background: var(--bg-surface); padding: 24px;
+    border: 1px solid var(--accent-hairline);
+  }
+  .home-card:hover { border-color: var(--accent); }
+  .home-card h3 { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 4px; }
+  .home-card .value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+  .home-card p { color: var(--text-muted); font-size: 0.8rem; margin-top: 4px; }
+  .home-card a { color: var(--accent); }
+
+  .terminal-output {
+    background: var(--bg-canvas); color: var(--accent);
+    padding: 16px; font-size: 0.85rem; line-height: 1.8;
+    border-left: 2px solid var(--accent);
+  }
+  .terminal-output .tree { color: var(--text-secondary); }
+  .terminal-output .highlight { color: var(--accent); font-weight: 700; }
+  .terminal-output .link { color: var(--accent); cursor: pointer; text-decoration: underline; }
+
+  /* ===== VENDAS HUB ===== */
+  #hub h1 { font-size: 1.3rem; margin-bottom: 20px; color: var(--text-primary); }
+  #hub h1 span { color: var(--accent); }
+  .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .hub-card {
+    background: var(--bg-surface); padding: 28px 24px; cursor: pointer;
+    border: 1px solid var(--accent-hairline);
+  }
+  .hub-card:hover { border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow); }
+  .hub-card .icon { font-size: 2rem; margin-bottom: 12px; }
+  .hub-card h3 { font-size: 1.05rem; margin-bottom: 6px; color: var(--text-primary); }
+  .hub-card p { font-size: 0.85rem; color: var(--text-secondary); }
+
+  .terminal-menu { list-style: none; }
+  .terminal-menu li {
+    padding: 12px 16px; cursor: pointer;
+    border-bottom: 1px solid var(--accent-hairline);
+    color: var(--text-primary); font-size: 0.9rem;
+  }
+  .terminal-menu li:hover { background: var(--accent-dim); }
+  .terminal-menu li .idx { color: var(--accent); margin-right: 12px; }
+  .terminal-menu li .desc { color: var(--text-secondary); font-size: 0.8rem; display: block; margin-left: 28px; }
+  .terminal-menu li:last-child { border-bottom: none; }
+
+  /* ===== CONFIG ===== */
+  #page-config h1 { font-size: 1.3rem; color: var(--text-primary); margin-bottom: 4px; }
+  #page-config p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px; }
+  .config-section {
+    background: var(--bg-surface); padding: 24px; margin-bottom: 20px;
+    border: 1px solid var(--accent-hairline); max-width: 500px;
+  }
+  .config-section h2 { font-size: 1rem; margin-bottom: 16px; color: var(--accent); }
+  .config-section .field { margin-bottom: 12px; }
+  .config-section .success-msg {
+    color: var(--accent); font-size: 0.8rem; font-weight: 500;
+    display: none; margin-top: 8px;
+  }
+  .config-section .success-msg.show { display: block; }
+  .config-section .error-msg {
+    color: var(--danger); font-size: 0.8rem; font-weight: 500;
+    display: none; margin-top: 8px;
+  }
+  .config-section .error-msg.show { display: block; }
+  .config-tabs {
+    display: flex; gap: 0; margin-bottom: 20px; max-width: 500px;
+    border-bottom: 1px solid var(--accent-hairline);
+  }
+  .config-tab {
+    flex: 1; padding: 8px 16px; border: none; background: transparent;
+    font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);
+    cursor: pointer; font-family: var(--font-mono);
+  }
+  .config-tab:hover { color: var(--accent); }
+  .config-tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+  .config-tab-content { display: none; }
+  .config-tab-content.active { display: block; }
+  .config-tab-content .config-section { max-width: 500px; }
+
+  /* ===== USER MANAGEMENT ===== */
+  .user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .user-table th, .user-table td {
+    text-align: left; padding: 10px 8px;
+    border-bottom: 1px solid var(--accent-hairline); font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+  .user-table th { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; }
+  .create-user-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: end; }
+  .create-user-row .field { min-width: 120px; }
+
+  /* ===== MODE BLOCKS ===== */
+  .mode-terminal-only { display: none; }
+  .mode-dashboard-only { display: none; }
+  body.mode-terminal .mode-terminal-only { display: block; }
+  body.mode-terminal .mode-terminal-only.hub-grid { display: grid; }
+  body.mode-dashboard .mode-dashboard-only { display: block; }
+  body.mode-dashboard .mode-dashboard-only.hub-grid { display: grid; }
+  body.mode-classic .mode-terminal-only { display: none; }
+  body.mode-classic .mode-dashboard-only { display: block; }
+  body.mode-classic .mode-dashboard-only.hub-grid { display: grid; }
+  body.mode-classic .topbar { display: none; }
+  body.mode-classic { background: #fdfcfc; color: #201d1d; }
+
+  /* ===== EQUIPAMENTOS ===== */
+  .equip-filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: end; flex-wrap: wrap; }
+  .equip-filters .field { min-width: 160px; flex: 0 1 auto; }
+  .equip-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .equip-table th {
+    text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--accent-hairline);
+    color: var(--text-secondary); font-weight: 600; font-size: 0.8rem;
+  }
+  .equip-table td { padding: 10px 8px; border-bottom: 1px solid var(--accent-hairline); color: var(--text-primary); }
+  .equip-table tr:hover td { background: var(--bg-raised); }
+  .equip-table .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .badge-integrado { background: var(--accent-dim); color: var(--accent); }
+  .badge-testes { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .badge-desenvolvimento { background: rgba(255,149,0,0.2); color: #ff9500; }
+  .badge-nao_integrado { background: rgba(255,59,48,0.2); color: var(--danger); }
+  .mode-classic .equip-table th { color: #646262; }
+  .mode-classic .equip-table td { border-bottom: 1px solid rgba(15,0,0,0.12); color: #201d1d; }
+  .mode-classic .equip-table tr:hover td { background: #f8f7f7; }
+  .equip-count { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px; }
+  .equip-admin-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+  @media (max-width: 768px) { .equip-admin-grid { grid-template-columns: 1fr; } }
+  .equip-admin-section {
+    background: var(--bg-surface); padding: 16px; margin-bottom: 16px;
+    border: 1px solid var(--accent-hairline);
+  }
+  .equip-admin-section h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 12px; }
+  .equip-list-compact { list-style: none; font-size: 0.85rem; }
+  .equip-list-compact li {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--accent-hairline);
+  }
+  .equip-list-compact li:last-child { border-bottom: none; }
+  .mode-classic .equip-admin-section { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .equip-admin-section h3 { color: #646262; }
+  .mode-classic .equip-list-compact li { border-bottom: 1px solid rgba(15,0,0,0.12); }
+
+  /* ===== DISTRIBUICAO ===== */
+  .distrib-widget {
+    margin-top: 24px; padding: 20px 24px;
+    background: var(--bg-surface); border: 1px solid var(--accent-hairline);
+  }
+  .distrib-widget h3 {
+    font-size: 0.9rem; color: var(--accent); margin-bottom: 16px;
+  }
+  .distrib-linha {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .distrib-vendedor {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border: 1px solid var(--accent-hairline);
+    border-radius: 4px; font-size: 0.85rem; color: var(--text-secondary);
+    background: var(--bg-raised); cursor: pointer; transition: background 0.15s;
+  }
+  .distrib-vendedor:hover {
+    background: var(--bg-elevated);
+  }
+  .distrib-vendedor.ativo {
+    border-color: var(--accent); color: var(--accent);
+    background: var(--accent-dim); font-weight: 600;
+  }
+  .distrib-vendedor.ativo:hover {
+    background: #1a3a2a;
+  }
+  .distrib-vendedor .cnt {
+    font-size: 0.7rem; color: var(--text-muted); margin-left: 4px;
+  }
+  .distrib-vendedor .valor {
+    font-size: 0.75rem; color: var(--accent); font-weight: 600;
+  }
+  .distrib-vendedor.ativo .cnt { color: var(--accent); }
+  .distrib-seta {
+    color: var(--text-muted); font-size: 1rem;
+  }
+  .distrib-btn {
+    padding: 8px 20px; font-size: 0.85rem;
+  }
+  .distrib-stats {
+    margin-top: 12px;
+    font-size: 0.8rem; color: var(--text-secondary);
+  }
+  .distrib-stats-summary {
+    padding: 8px 0;
+  }
+  .distrib-stats-total-geral {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--accent-hairline);
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .distrib-stats-divider {
+    width: 100%; height: 1px;
+    background: var(--accent-hairline); margin: 4px 0 8px 0;
+  }
+  .distrib-stats-vendedores {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+  .distrib-stats-vendedor {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 10px 14px;
+    border: 1px solid var(--accent-hairline);
+    border-radius: 4px;
+    background: var(--bg-raised);
+  }
+  .distrib-stats-vendedor .nome {
+    font-size: 0.75rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .distrib-stats-vendedor .valor {
+    font-size: 1rem; font-weight: 700; color: var(--accent);
+  }
+  .distrib-stats-vendedor .cnt {
+    font-size: 0.7rem; color: var(--text-secondary);
+  }
+  .distrib-msg {
+    font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;
+    min-height: 1.2em;
+  }
+
+  /* ===== KANBAN ===== */
+  #page-tarefas h1 { font-size: 1.3rem; margin-bottom: 4px; }
+  #page-tarefas h1 span { color: var(--accent); }
+  #page-tarefas > p { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 16px; }
+  .kanban-toolbar {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 16px; padding-bottom: 16px;
+    border-bottom: 1px solid var(--accent-hairline);
+  }
+  .kanban-toolbar .spacer { flex: 1; }
+  .kanban-toolbar .filter-label {
+    font-size: 0.8rem; color: var(--text-secondary); margin-right: 4px;
+  }
+  .kanban-filtros { display: flex; gap: 4px; }
+  .kanban-filtro {
+    padding: 3px 10px; font-size: 0.78rem; cursor: pointer; border-radius: 3px;
+    color: var(--text-muted); border: 1px solid var(--accent-hairline); user-select: none;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .kanban-filtro:hover { color: var(--accent); border-color: var(--accent); }
+  .kanban-filtro.ativo { background: var(--accent-dim); color: var(--accent); border-color: var(--accent); }
+  .kanban-board {
+    display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px;
+    min-height: 300px; align-items: flex-start;
+  }
+  .kanban-col {
+    flex: 0 0 280px; min-width: 260px; max-width: 320px;
+    background: var(--bg-surface); border: 1px solid var(--accent-hairline);
+    border-top: 3px solid var(--accent); display: flex; flex-direction: column;
+    max-height: calc(100vh - 260px);
+  }
+  .kanban-col-header {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 12px; border-bottom: 1px solid var(--accent-hairline);
+    flex-shrink: 0;
+  }
+  .kanban-col-header .col-nome {
+    font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+    flex: 1; cursor: pointer;
+  }
+  .kanban-col-header .col-count {
+    font-size: 0.75rem; color: var(--text-muted); background: var(--bg-raised);
+    padding: 1px 8px; border-radius: 10px;
+  }
+  .kanban-col-header .col-actions {
+    display: flex; gap: 2px;
+  }
+  .kanban-col-header .col-actions button {
+    background: none; border: none; color: var(--text-muted);
+    cursor: pointer; font-size: 0.8rem; padding: 2px 4px;
+  }
+  .kanban-col-header .col-actions button:hover { color: var(--accent); }
+  .kanban-col-body {
+    flex: 1; overflow-y: auto; padding: 8px; min-height: 80px;
+  }
+  .kanban-col-body.empty {
+    display: flex; align-items: center; justify-content: center;
+  }
+  .kanban-col-body.empty::after {
+    content: 'Arraste cart\u00f5es para c\u00e1'; color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+  .kanban-card {
+    background: var(--bg-raised); border: 1px solid var(--accent-hairline);
+    border-radius: 6px; padding: 10px 12px; margin-bottom: 8px;
+    cursor: grab; position: relative; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .kanban-card:hover {
+    border-color: var(--accent); box-shadow: 0 0 6px var(--accent-glow);
+  }
+  .kanban-card:active { cursor: grabbing; }
+  .kanban-card.sortable-chosen { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+  .kanban-card.sortable-ghost { opacity: 0.3; }
+  .kanban-card .card-top {
+    display: flex; justify-content: space-between; align-items: start; gap: 6px;
+  }
+  .kanban-card .card-titulo {
+    font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+    line-height: 1.3;
+  }
+  .kanban-card .card-prioridade {
+    font-size: 0.65rem; padding: 1px 6px; border-radius: 3px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .prioridade-alta { background: rgba(255,59,48,0.2); color: var(--danger); }
+  .prioridade-media { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .prioridade-baixa { background: var(--accent-dim); color: var(--accent); }
+  .kanban-card .card-info {
+    font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;
+    line-height: 1.5;
+  }
+  .kanban-card .card-info .cliente { display: block; }
+  .kanban-card .card-info .vencimento { display: block; color: var(--text-muted); }
+  .kanban-card .card-info .vencimento.atrasado { color: var(--danger); }
+  .kanban-card .card-footer {
+    display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap;
+  }
+  .kanban-card .card-resumo {
+    font-size: 0.72rem; color: var(--text-muted); font-style: italic;
+    margin-top: 4px; line-height: 1.3;
+  }
+  .kanban-add-card {
+    display: block; width: 100%; padding: 8px; margin-top: 4px;
+    background: none; border: 1px dashed var(--accent-hairline); border-radius: 4px;
+    color: var(--text-muted); font-size: 0.8rem; cursor: pointer;
+    text-align: center; font-family: var(--font-mono); transition: border-color 0.15s;
+  }
+  .kanban-add-card:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Hist\u00f3rico */
+  .kanban-historico {
+    margin-top: 32px; border-top: 1px solid var(--accent-hairline);
+    padding-top: 20px;
+  }
+  .kanban-historico h2 { font-size: 1rem; color: var(--accent); margin-bottom: 12px; }
+  .kanban-historico table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .kanban-historico th {
+    text-align: left; padding: 8px; border-bottom: 1px solid var(--accent-hairline);
+    color: var(--text-secondary); font-weight: 600;
+  }
+  .kanban-historico td {
+    padding: 8px; border-bottom: 1px solid var(--accent-hairline);
+    color: var(--text-primary);
+  }
+  .kanban-historico td .badge-historico {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    font-size: 0.7rem; font-weight: 600;
+  }
+  .badge-criada { background: var(--accent-dim); color: var(--accent); }
+  .badge-movida { background: rgba(255,204,0,0.2); color: #ffcc00; }
+  .badge-editada { background: rgba(0,122,255,0.2); color: #007aff; }
+  .badge-concluida { background: var(--accent-dim); color: var(--accent); }
+
+  /* Classic mode overrides for Kanban */
+  .mode-classic .kanban-col {
+    background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12);
+  }
+  .mode-classic .kanban-col-header { border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-col-header .col-nome { color: #201d1d; }
+  .mode-classic .kanban-col-header .col-count { color: #646262; background: #f8f7f7; }
+  .mode-classic .kanban-card { background: #fdfcfc; border: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-card:hover { border-color: #201d1d; }
+  .mode-classic .kanban-card .card-titulo { color: #201d1d; }
+  .mode-classic .kanban-card .card-info { color: #646262; }
+  .mode-classic .kanban-card .card-info .vencimento { color: #9a9898; }
+  .mode-classic .kanban-card .card-resumo { color: #9a9898; }
+  .mode-classic .kanban-add-card { border-color: rgba(15,0,0,0.12); color: #646262; }
+  .mode-classic .kanban-add-card:hover { border-color: #201d1d; color: #201d1d; }
+  .mode-classic .kanban-historico { border-top: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-historico h2 { color: #646262; }
+  .mode-classic .kanban-historico th { color: #646262; border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-historico td { color: #201d1d; border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-toolbar { border-bottom: 1px solid rgba(15,0,0,0.12); }
+  .mode-classic .kanban-toolbar .filter-label { color: #646262; }
+  .mode-classic .kanban-filtro { color: #9a9898; border-color: rgba(15,0,0,0.12); }
+  .mode-classic .kanban-filtro:hover { color: #201d1d; border-color: #201d1d; }
+  .mode-classic .kanban-filtro.ativo { background: #201d1d; color: #fdfcfc; border-color: #201d1d; }

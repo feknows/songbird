@@ -14,8 +14,10 @@ jobs:
 
       - name: Prepare deploy files
         run: |
-          mkdir -p deploy
+          mkdir -p deploy/css deploy/js
           cp public/index.html deploy/index.html
+          cp public/css/*.css deploy/css/
+          cp public/js/*.js deploy/js/
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3

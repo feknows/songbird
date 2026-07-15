@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0] — 2026-07-15
+
+### Refatorado
+- CSS extraído de `index.html` para 6 arquivos separados: `base.css`, `layout.css`, `components.css`, `pages.css`, `rotina.css`, `themes.css`
+- JavaScript extraído de `index.html` para 10 módulos: `supabase-init.js`, `utils.js`, `auth.js`, `nav.js`, `rotina.js`, `config.js`, `vendas.js`, `equipamentos.js`, `tarefas.js`, `distribuicao.js`
+- `index.html` reduzido de ~5060 para ~990 linhas (apenas HTML + referências)
+- Funções reorganizadas por domínio (rotina, vendas, distribuição, equipamentos, tarefas, config)
+
 ## [1.2.1] — 2026-06-19
 
 ### Corrigido

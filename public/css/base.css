@@ -1,0 +1,86 @@
+  :root {
+    --bg-canvas: #0a0a0a;
+    --bg-surface: #141414;
+    --bg-raised: #1c1c1c;
+    --bg-elevated: #242424;
+    --green: #30d158;
+    --green-bright: #4cd964;
+    --green-dim: rgba(48, 209, 88, 0.12);
+    --green-hairline: rgba(48, 209, 88, 0.25);
+    --green-glow: rgba(48, 209, 88, 0.4);
+    --text-primary: #e8e8e8;
+    --text-secondary: #8a8a8a;
+    --text-muted: #525252;
+    --danger: #ff3b30;
+    --danger-hover: #d70015;
+    --font-mono: 'Berkeley Mono', 'IBM Plex Mono', 'SF Mono', 'Consolas', monospace;
+    --accent: #30d158;
+    --accent-bright: #4cd964;
+    --accent-dim: rgba(48, 209, 88, 0.12);
+    --accent-hairline: rgba(48, 209, 88, 0.25);
+    --accent-glow: rgba(48, 209, 88, 0.4);
+    --radius: 6px;
+    --shadow: 0 0.5em 1em -0.125em rgba(10,10,10,0.1);
+    --font-body: 'Nunito', 'Inter', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-mono);
+    background: var(--bg-canvas);
+    color: var(--text-primary);
+  }
+
+  /* ===== LOGIN ===== */
+  #login-screen {
+    position: fixed; inset: 0; display: flex; align-items: center;
+    justify-content: center; background: var(--bg-canvas); z-index: 1000;
+  }
+  .login-box { padding: 40px 36px; width: 380px; }
+  .login-ascii {
+    font-size: 0.7rem; line-height: 1.3; color: var(--accent);
+    text-align: center; margin-bottom: 24px; white-space: pre;
+  }
+  .login-box .prompt { margin-bottom: 16px; }
+  .login-box .prompt .label {
+    font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 4px;
+  }
+  .login-box .prompt input {
+    width: 100%; padding: 10px 12px;
+    background: var(--bg-raised); color: var(--text-primary);
+    border: 1px solid var(--accent-hairline); border-radius: 4px;
+    font-size: 0.9rem; outline: none; font-family: var(--font-mono);
+  }
+  .login-box .prompt input:focus {
+    border-color: var(--accent); box-shadow: 0 0 8px var(--accent-glow);
+  }
+  .login-box .login-error {
+    color: var(--danger); font-size: 0.8rem; margin-top: 8px;
+  }
+  .login-box .login-error.shake {
+    animation: shake 0.4s ease;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+  .login-box .btn-login {
+    width: 100%; padding: 10px; margin-top: 8px;
+    background: transparent; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 4px;
+    font-size: 0.9rem; font-weight: 500; cursor: pointer;
+    font-family: var(--font-mono); text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .login-box .btn-login:hover {
+    background: var(--accent-dim); box-shadow: 0 0 12px var(--accent-glow);
+  }
+  .login-box .btn-login:disabled {
+    opacity: 0.4; cursor: not-allowed; box-shadow: none;
+  }
+
+  /* ===== MISC ===== */
+  .placeholder-text { color: var(--text-muted); font-size: 0.85rem; }
+  .login-classic { display: none; }
