@@ -138,6 +138,10 @@
             <h2 id="agenda-titulo-view">Hoje</h2>
             <span class="agenda-contador" id="agenda-contador"></span>
           </div>
+          <div class="agenda-toggle-concluidas">
+            <input type="checkbox" id="agenda-toggle-concluidas" onchange="agendaToggleConcluidas()">
+            <label for="agenda-toggle-concluidas">Mostrar concluídas</label>
+          </div>
           <div class="agenda-input-wrapper">
             <input type="text" id="agenda-input-rapido" placeholder="Adicionar tarefa..." onkeydown="if(event.key==='Enter')agendaAdicionarRapido()">
           </div>

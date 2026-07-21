@@ -6,6 +6,7 @@ let agendaProjetos = [];
 let agendaFiltroAtual = 'hoje';
 let agendaProjetoFiltro = null;
 let agendaTarefaSelecionada = null;
+let agendaMostrarConcluidas = false;
 
 // === CARREGAMENTO ===
 async function agendaCarregar() {
@@ -75,7 +76,7 @@ function agendaRenderizarLista() {
   const em7dias = new Date(hoje);
   em7dias.setDate(em7dias.getDate() + 7);
 
-  let tarefasFiltradas = agendaTarefas.filter(t => !t.concluido);
+  let tarefasFiltradas = agendaMostrarConcluidas ? [...agendaTarefas] : agendaTarefas.filter(t => !t.concluido);
 
   // Filtro por data
   if (agendaFiltroAtual === 'hoje') {
@@ -150,6 +151,13 @@ function agendaRenderizarLista() {
       }
     });
   }
+}
+
+function agendaToggleConcluidas() {
+  agendaMostrarConcluidas = !agendaMostrarConcluidas;
+  const checkbox = document.getElementById('agenda-toggle-concluidas');
+  if (checkbox) checkbox.checked = agendaMostrarConcluidas;
+  agendaRenderizarLista();
 }
 
 function agendaTarefaHtml(t) {
