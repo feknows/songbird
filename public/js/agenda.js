@@ -562,7 +562,6 @@ async function agendaCriarTarefa() {
     btnCriar.textContent = 'Criar';
     btnCancelar.disabled = false;
   }
-  }
 }
 
 // === FECHAR MODAIS COM ESC ===
