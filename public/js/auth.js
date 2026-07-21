@@ -13,10 +13,7 @@ async function checkSession() {
     document.getElementById('cfg-btn-equipamentos').style.display = 'block';
   }
   initModo();
-  rotinaCarregar();
-  rotinaHookGerarTexto();
-  rotinaCarregar();
-  rotinaHookGerarTexto();
+  agendaCarregar();
 }
 
 async function fazerLogin() {

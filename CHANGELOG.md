@@ -1,12 +1,29 @@
 # Changelog
 
+## [1.4.0] — 2026-07-15
+
+### Adicionado
+- Nova página "Agenda" inspirada no Todoist para gestão de tempo
+- Layout com sidebar (filtros + projetos), lista de tarefas e painel de detalhes
+- Filtros: Hoje, Amanhã, Próximos 7 dias, Todas
+- Projetos com cores personalizáveis
+- Tarefas com prioridade (1-4), data de vencimento, recorrência (diária/semanal/mensal)
+- Subtarefas via self-referencing
+- Arrastar para reordenar (SortableJS)
+- Modal de criação de tarefa com todos os campos
+- Edição inline via painel de detalhes
+
+### Removido
+- Rotina Comercial (KPIs, blocos de tempo, checklists) — substituída pela Agenda
+- `rotina.js`, `rotina.css` removidos
+
 ## [1.3.0] — 2026-07-15
 
 ### Refatorado
-- CSS extraído de `index.html` para 6 arquivos separados: `base.css`, `layout.css`, `components.css`, `pages.css`, `rotina.css`, `themes.css`
-- JavaScript extraído de `index.html` para 10 módulos: `supabase-init.js`, `utils.js`, `auth.js`, `nav.js`, `rotina.js`, `config.js`, `vendas.js`, `equipamentos.js`, `tarefas.js`, `distribuicao.js`
+- CSS extraído de `index.html` para 6 arquivos separados: `base.css`, `layout.css`, `components.css`, `pages.css`, `themes.css`
+- JavaScript extraído de `index.html` para 10 módulos: `supabase-init.js`, `utils.js`, `auth.js`, `nav.js`, `config.js`, `vendas.js`, `equipamentos.js`, `tarefas.js`, `distribuicao.js`
 - `index.html` reduzido de ~5060 para ~990 linhas (apenas HTML + referências)
-- Funções reorganizadas por domínio (rotina, vendas, distribuição, equipamentos, tarefas, config)
+- Funções reorganizadas por domínio (vendas, distribuição, equipamentos, tarefas, config)
 
 ## [1.2.1] — 2026-06-19
 

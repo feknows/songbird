@@ -113,7 +113,7 @@ function navegar(pagina) {
     b.classList.toggle('active', b.dataset.page === pagina);
   });
   document.querySelector('.mode-bulma-nav .mb-nav').classList.remove('open');
-  if (pagina === 'home') { rotinaCarregar(); rotinaHookGerarTexto(); }
+  if (pagina === 'home') { agendaCarregar(); }
   if (pagina === 'vendas') { voltarHub(); carregarProdutos(); distribCarregarBadge(); }
   if (pagina === 'distribuicao') { distribCarregar(); }
   if (pagina === 'equipamentos') { eqCarregar(); }

@@ -1,0 +1,539 @@
+/* === AGENDA LAYOUT === */
+.agenda-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr 320px;
+  height: calc(100vh - 60px);
+  gap: 0;
+  overflow: hidden;
+}
+
+/* === SIDEBAR DA AGENDA === */
+.agenda-sidebar {
+  background: var(--bg-raised);
+  border-right: 1px solid var(--accent-hairline);
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.agenda-add-btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 0 16px 16px;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: var(--bg-base);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.agenda-add-btn:hover {
+  opacity: 0.9;
+}
+
+/* === FILTROS === */
+.agenda-filtros {
+  padding: 0 12px;
+  margin-bottom: 20px;
+}
+
+.agenda-filtro {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.agenda-filtro:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.agenda-filtro.active {
+  background: var(--accent);
+  color: var(--bg-base);
+  font-weight: 600;
+}
+
+.agenda-filtro-icon {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+}
+
+/* === PROJETOS === */
+.agenda-projetos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.agenda-projeto-add {
+  width: 20px;
+  height: 20px;
+  background: none;
+  border: 1px solid var(--accent-hairline);
+  border-radius: 4px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.agenda-projeto-add:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.agenda-projetos-lista {
+  padding: 0 12px;
+}
+
+.agenda-projeto-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+
+.agenda-projeto-item:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.agenda-projeto-item.active {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.agenda-projeto-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.agenda-projeto-count {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* === LISTA DE TAREFAS === */
+.agenda-lista-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--accent-hairline);
+}
+
+.agenda-lista-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px 8px;
+}
+
+.agenda-lista-header h2 {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.agenda-contador {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.agenda-input-wrapper {
+  padding: 8px 20px 16px;
+}
+
+.agenda-input-wrapper input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-hairline);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.agenda-input-wrapper input:focus {
+  border-color: var(--accent);
+}
+
+.agenda-input-wrapper input::placeholder {
+  color: var(--text-muted);
+}
+
+.agenda-lista {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px 20px;
+}
+
+/* === TAREFA ITEM === */
+.agenda-tarefa {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: 1px solid transparent;
+}
+
+.agenda-tarefa:hover {
+  background: var(--bg-surface);
+}
+
+.agenda-tarefa.selecionada {
+  background: var(--bg-surface);
+  border-color: var(--accent-hairline);
+}
+
+.agenda-tarefa.concluida .agenda-tarefa-titulo {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.agenda-tarefa-checkbox {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--accent-hairline);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.2s;
+}
+
+.agenda-tarefa-checkbox:hover {
+  border-color: var(--accent);
+}
+
+.agenda-tarefa.concluida .agenda-tarefa-checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.agenda-tarefa.concluida .agenda-tarefa-checkbox::after {
+  content: '✓';
+  color: var(--bg-base);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.agenda-tarefa-prioridade {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.agenda-tarefa-prioridade.p1 { background: #ff453a; }
+.agenda-tarefa-prioridade.p2 { background: #ff9f0a; }
+.agenda-tarefa-prioridade.p3 { background: #ffd60a; }
+.agenda-tarefa-prioridade.p4 { background: var(--text-muted); }
+
+.agenda-tarefa-conteudo {
+  flex: 1;
+  min-width: 0;
+}
+
+.agenda-tarefa-titulo {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.agenda-tarefa-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.agenda-tarefa-projeto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--bg-surface);
+  border-radius: 3px;
+  font-size: 0.7rem;
+}
+
+.agenda-tarefa-vencimento {
+  color: var(--text-muted);
+}
+
+.agenda-tarefa-vencimento.atrasada {
+  color: #ff453a;
+  font-weight: 600;
+}
+
+.agenda-tarefa-vencimento.hoje {
+  color: #30d158;
+}
+
+/* === PAINEL DE DETALHES === */
+.agenda-detalhes {
+  background: var(--bg-raised);
+  overflow-y: auto;
+}
+
+.agenda-detalhes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--accent-hairline);
+}
+
+.agenda-detalhes-header h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.agenda-detalhes-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+.agenda-detalhes-close:hover {
+  color: var(--text-primary);
+}
+
+.agenda-detalhes-body {
+  padding: 20px;
+}
+
+.agenda-detalhe-campo {
+  margin-bottom: 16px;
+}
+
+.agenda-detalhe-campo label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.agenda-detalhe-campo input,
+.agenda-detalhe-campo select,
+.agenda-detalhe-campo textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-hairline);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+.agenda-detalhe-campo input:focus,
+.agenda-detalhe-campo select:focus,
+.agenda-detalhe-campo textarea:focus {
+  border-color: var(--accent);
+}
+
+.agenda-detalhe-campo textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.agenda-detalhe-acoes {
+  padding-top: 16px;
+  border-top: 1px solid var(--accent-hairline);
+  margin-top: 20px;
+}
+
+/* === MODAL AGENDA === */
+.agenda-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.agenda-modal {
+  background: var(--bg-raised);
+  border: 1px solid var(--accent-hairline);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+
+.agenda-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--accent-hairline);
+}
+
+.agenda-modal-header h3 {
+  font-size: 1rem;
+  color: var(--accent);
+  margin: 0;
+}
+
+.agenda-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.agenda-modal-body {
+  padding: 20px;
+}
+
+.agenda-modal-body .field {
+  margin-bottom: 16px;
+}
+
+.agenda-modal-body label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.agenda-modal-body input,
+.agenda-modal-body select,
+.agenda-modal-body textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--accent-hairline);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+.agenda-modal-body input:focus,
+.agenda-modal-body select:focus,
+.agenda-modal-body textarea:focus {
+  border-color: var(--accent);
+}
+
+.agenda-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px;
+  border-top: 1px solid var(--accent-hairline);
+}
+
+/* === LISTA VAZIA === */
+.agenda-vazio {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.agenda-vazio-icon {
+  font-size: 2rem;
+  margin-bottom: 12px;
+}
+
+.agenda-vazio-texto {
+  font-size: 0.9rem;
+}
+
+/* === SORTABLE === */
+.agenda-tarefa.sortable-ghost {
+  opacity: 0.4;
+  background: var(--accent-hairline);
+}
+
+.agenda-tarefa.sortable-drag {
+  background: var(--bg-raised);
+  border: 1px solid var(--accent);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+/* === RESPONSIVO === */
+@media (max-width: 1024px) {
+  .agenda-layout {
+    grid-template-columns: 200px 1fr;
+  }
+  .agenda-detalhes {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .agenda-layout {
+    grid-template-columns: 1fr;
+  }
+  .agenda-sidebar {
+    display: none;
+  }
+  .agenda-sidebar.open {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 60px;
+    bottom: 0;
+    width: 280px;
+    z-index: 100;
+    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+  }
+}
