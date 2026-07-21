@@ -11,11 +11,10 @@ function configTab(tab) {
 function navegar(pagina) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + pagina).classList.add('active');
-  const map = {home:'Agenda',vendas:'Vendas',distribuicao:'Distribuição',tarefas:'Tarefas',config:'Config'};
-  document.querySelectorAll('.mb-nav button').forEach(b => {
+  document.querySelectorAll('.sb-links button').forEach(b => {
     b.classList.toggle('active', b.dataset.page === pagina);
   });
-  document.querySelector('.mb-nav').classList.remove('open');
+  document.querySelector('.sb-links').classList.remove('open');
   if (pagina === 'home') { agendaCarregar(); }
   if (pagina === 'vendas') { voltarHub(); carregarProdutos(); distribCarregarBadge(); }
   if (pagina === 'distribuicao') { distribCarregar(); }
@@ -28,12 +27,12 @@ function atualizarBreadcrumb() {
   const activePage = document.querySelector('.page.active');
   const map = { 'page-home': 'agenda', 'page-vendas': 'vendas', 'page-distribuicao': 'distribuição', 'page-equipamentos': 'equipamentos', 'page-tarefas': 'tarefas', 'page-config': 'config' };
   const name = map[activePage?.id] || 'agenda';
-  const bc = document.querySelector('.mode-bulma-breadcrumb');
+  const bc = document.querySelector('.sb-breadcrumb');
   if (bc) bc.innerHTML = `<span>></span> ${name}`;
 }
 
 function toggleHamburger() {
-  document.querySelector('.mb-nav').classList.toggle('open');
+  document.querySelector('.sb-links').classList.toggle('open');
 }
 
 // === APP INIT ===

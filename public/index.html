@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SongBird</title>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; img-src 'self' data:;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; img-src 'self' data:;">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <link rel="stylesheet" href="css/base.css">
@@ -39,10 +42,10 @@
 <div class="app-inner">
 
   <!-- TOP NAV -->
-  <div class="mode-bulma-nav">
-    <button class="mb-hamburger" onclick="toggleHamburger()">☰</button>
-    <span class="mb-logo">SongBird</span>
-    <nav class="mb-nav">
+  <div class="sb-nav">
+    <button class="sb-hamburger" onclick="toggleHamburger()">☰</button>
+    <span class="sb-logo">SongBird</span>
+    <nav class="sb-links">
       <button class="active" data-page="home" onclick="navegar('home')">Agenda</button>
       <button data-page="vendas" onclick="navegar('vendas')">Vendas</button>
       <button data-page="distribuicao" onclick="navegar('distribuicao')">Distribuição</button>
@@ -50,15 +53,15 @@
       <button data-page="tarefas" onclick="navegar('tarefas')">Tarefas</button>
       <button data-page="config" onclick="navegar('config')">Config</button>
     </nav>
-    <div class="mb-actions">
-      <span class="mb-user" id="nav-sidebar-user"></span>
-      <span class="mb-version" id="nav-sb-version"></span>
+    <div class="sb-actions">
+      <span class="sb-user" id="nav-sidebar-user"></span>
+      <span class="sb-version" id="nav-sb-version"></span>
       <button onclick="fazerLogout()">Sair</button>
     </div>
   </div>
 
   <!-- BREADCRUMB -->
-  <div class="mode-bulma-breadcrumb"><span>></span> agenda</div>
+  <div class="sb-breadcrumb"><span>></span> agenda</div>
 
   <!-- CONTEÚDO -->
   <div class="main-content">

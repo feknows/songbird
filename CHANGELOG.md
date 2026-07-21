@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0] — 2026-07-21
+
+### Redesign
+- Novo design system "Stripe Canvas" — minimalista quente
+- Paleta: cream (#EFECE3) como fundo, azul escuro (#4A70A9) como acento primário, azul médio (#8FABD4) como secundário
+- Tipografia: Sora (corpo) e JetBrains Mono (mono) via Google Fonts
+- Sombras sutis (0 1px 3px rgba(0,0,0,0.06)) em cards e painéis
+- Bordas arredondadas (8px) em todos os componentes
+- Top nav renomeado de `.mode-bulma-nav` para `.sb-nav`
+- Breadcrumb renomeado de `.mode-bulma-breadcrumb` para `.sb-breadcrumb`
+- Login com card branco e sombra sobre fundo cream
+- Botões com hover states usando `var(--primary-dim)` em vez de opacidade
+- Modais com backdrop-filter blur e sombra sutil
+- Kanban cards com sombra leve em hover
+- Agenda mantém layout 3-colunas com novo visual
+- Perigo (#C45B4A) e sucesso (#5A8F6A) como tons quentes complementares
+
 ## [1.5.0] — 2026-07-15
 
 ### Removido

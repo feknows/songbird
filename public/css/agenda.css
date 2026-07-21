@@ -9,8 +9,8 @@
 
 /* === SIDEBAR DA AGENDA === */
 .agenda-sidebar {
-  background: var(--bg-raised);
-  border-right: 1px solid var(--accent-hairline);
+  background: var(--bg-surface);
+  border-right: 1px solid var(--primary-hairline);
   padding: 16px 0;
   overflow-y: auto;
 }
@@ -20,18 +20,18 @@
   width: calc(100% - 32px);
   margin: 0 16px 16px;
   padding: 10px 16px;
-  background: var(--accent);
-  color: var(--bg-base);
+  background: var(--primary);
+  color: #fff;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.2s;
 }
 
 .agenda-add-btn:hover {
-  opacity: 0.9;
+  background: var(--primary-hover);
 }
 
 /* === FILTROS === */
@@ -48,7 +48,7 @@
   padding: 8px 12px;
   background: none;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--text-secondary);
   font-size: 0.9rem;
   cursor: pointer;
@@ -57,13 +57,13 @@
 }
 
 .agenda-filtro:hover {
-  background: var(--bg-surface);
+  background: var(--bg-canvas);
   color: var(--text-primary);
 }
 
 .agenda-filtro.active {
-  background: var(--accent);
-  color: var(--bg-base);
+  background: var(--primary-dim);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -90,8 +90,8 @@
   width: 20px;
   height: 20px;
   background: none;
-  border: 1px solid var(--accent-hairline);
-  border-radius: 4px;
+  border: 1px solid var(--primary-hairline);
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
   font-size: 0.9rem;
   cursor: pointer;
@@ -102,8 +102,8 @@
 }
 
 .agenda-projeto-add:hover {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .agenda-projetos-lista {
@@ -115,7 +115,7 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -123,13 +123,13 @@
 }
 
 .agenda-projeto-item:hover {
-  background: var(--bg-surface);
+  background: var(--bg-canvas);
   color: var(--text-primary);
 }
 
 .agenda-projeto-item.active {
-  background: var(--bg-surface);
-  color: var(--text-primary);
+  background: var(--primary-dim);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -151,7 +151,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-right: 1px solid var(--accent-hairline);
+  border-right: 1px solid var(--primary-hairline);
 }
 
 .agenda-lista-header {
@@ -167,6 +167,7 @@
 
 .agenda-lista-header h2 {
   font-size: 1.3rem;
+  font-weight: 700;
   color: var(--text-primary);
   margin: 0;
 }
@@ -177,27 +178,28 @@
 }
 
 .agenda-toggle-btn {
-  padding: 3px 10px;
+  padding: 4px 12px;
   font-size: 0.78rem;
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   color: var(--text-muted);
-  border: 1px solid var(--accent-hairline);
+  border: 1px solid var(--primary-hairline);
   user-select: none;
   background: none;
-  font-family: var(--font-mono);
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: all 0.15s;
 }
 
 .agenda-toggle-btn:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 .agenda-toggle-btn.ativo {
-  background: var(--accent-dim);
-  color: var(--accent);
-  border-color: var(--accent);
+  background: var(--primary-dim);
+  color: var(--primary);
+  border-color: var(--primary);
 }
 
 .agenda-input-wrapper {
@@ -208,16 +210,18 @@
   width: 100%;
   padding: 10px 14px;
   background: var(--bg-surface);
-  border: 1px solid var(--accent-hairline);
-  border-radius: 6px;
+  border: 1px solid var(--primary-hairline);
+  border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.9rem;
   outline: none;
-  transition: border-color 0.2s;
+  font-family: var(--font-body);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .agenda-input-wrapper input:focus {
-  border-color: var(--accent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-dim);
 }
 
 .agenda-input-wrapper input::placeholder {
@@ -236,7 +240,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.15s;
   border: 1px solid transparent;
@@ -248,7 +252,7 @@
 
 .agenda-tarefa.selecionada {
   background: var(--bg-surface);
-  border-color: var(--accent-hairline);
+  border-color: var(--primary-hairline);
 }
 
 .agenda-tarefa.concluida .agenda-tarefa-titulo {
@@ -259,7 +263,7 @@
 .agenda-tarefa-checkbox {
   width: 18px;
   height: 18px;
-  border: 2px solid var(--accent-hairline);
+  border: 2px solid var(--primary-hairline);
   border-radius: 4px;
   cursor: pointer;
   display: flex;
@@ -271,17 +275,17 @@
 }
 
 .agenda-tarefa-checkbox:hover {
-  border-color: var(--accent);
+  border-color: var(--primary);
 }
 
 .agenda-tarefa.concluida .agenda-tarefa-checkbox {
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--primary);
+  border-color: var(--primary);
 }
 
 .agenda-tarefa.concluida .agenda-tarefa-checkbox::after {
   content: '✓';
-  color: var(--bg-base);
+  color: #fff;
   font-size: 0.7rem;
   font-weight: 700;
 }
@@ -294,9 +298,9 @@
   margin-top: 6px;
 }
 
-.agenda-tarefa-prioridade.p1 { background: #ff453a; }
-.agenda-tarefa-prioridade.p2 { background: #ff9f0a; }
-.agenda-tarefa-prioridade.p3 { background: #ffd60a; }
+.agenda-tarefa-prioridade.p1 { background: #C45B4A; }
+.agenda-tarefa-prioridade.p2 { background: #D4913A; }
+.agenda-tarefa-prioridade.p3 { background: #C4B44A; }
 .agenda-tarefa-prioridade.p4 { background: var(--text-muted); }
 
 .agenda-tarefa-conteudo {
@@ -323,9 +327,10 @@
   align-items: center;
   gap: 4px;
   padding: 2px 6px;
-  background: var(--bg-surface);
-  border-radius: 3px;
+  background: var(--primary-dim);
+  border-radius: 4px;
   font-size: 0.7rem;
+  color: var(--primary);
 }
 
 .agenda-tarefa-vencimento {
@@ -333,17 +338,17 @@
 }
 
 .agenda-tarefa-vencimento.atrasada {
-  color: #ff453a;
+  color: var(--danger);
   font-weight: 600;
 }
 
 .agenda-tarefa-vencimento.hoje {
-  color: #30d158;
+  color: var(--success);
 }
 
 /* === PAINEL DE DETALHES === */
 .agenda-detalhes {
-  background: var(--bg-raised);
+  background: var(--bg-surface);
   overflow-y: auto;
 }
 
@@ -352,11 +357,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--accent-hairline);
+  border-bottom: 1px solid var(--primary-hairline);
 }
 
 .agenda-detalhes-header h3 {
   font-size: 1rem;
+  font-weight: 600;
   color: var(--text-primary);
   margin: 0;
 }
@@ -369,6 +375,7 @@
   cursor: pointer;
   padding: 0;
   line-height: 1;
+  transition: color 0.15s;
 }
 
 .agenda-detalhes-close:hover {
@@ -398,19 +405,21 @@
 .agenda-detalhe-campo textarea {
   width: 100%;
   padding: 8px 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--accent-hairline);
-  border-radius: 4px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--primary-hairline);
+  border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.9rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .agenda-detalhe-campo input:focus,
 .agenda-detalhe-campo select:focus,
 .agenda-detalhe-campo textarea:focus {
-  border-color: var(--accent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-dim);
 }
 
 .agenda-detalhe-campo textarea {
@@ -420,7 +429,7 @@
 
 .agenda-detalhe-acoes {
   padding-top: 16px;
-  border-top: 1px solid var(--accent-hairline);
+  border-top: 1px solid var(--primary-hairline);
   margin-top: 20px;
 }
 
@@ -428,20 +437,20 @@
 .agenda-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  backdrop-filter: blur(2px);
 }
 
 .agenda-modal {
-  background: var(--bg-raised);
-  border: 1px solid var(--accent-hairline);
-  border-radius: 8px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .agenda-modal-header {
@@ -449,12 +458,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--accent-hairline);
+  border-bottom: 1px solid var(--primary-hairline);
 }
 
 .agenda-modal-header h3 {
   font-size: 1rem;
-  color: var(--accent);
+  font-weight: 600;
+  color: var(--primary);
   margin: 0;
 }
 
@@ -464,6 +474,11 @@
   color: var(--text-muted);
   font-size: 1.5rem;
   cursor: pointer;
+  transition: color 0.15s;
+}
+
+.agenda-modal-close:hover {
+  color: var(--text-primary);
 }
 
 .agenda-modal-body {
@@ -477,7 +492,8 @@
 .agenda-modal-body label {
   display: block;
   font-size: 0.8rem;
-  color: var(--text-muted);
+  font-weight: 500;
+  color: var(--text-secondary);
   margin-bottom: 6px;
 }
 
@@ -486,19 +502,21 @@
 .agenda-modal-body textarea {
   width: 100%;
   padding: 8px 10px;
-  background: var(--bg-surface);
-  border: 1px solid var(--accent-hairline);
-  border-radius: 4px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--primary-hairline);
+  border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-size: 0.9rem;
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .agenda-modal-body input:focus,
 .agenda-modal-body select:focus,
 .agenda-modal-body textarea:focus {
-  border-color: var(--accent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-dim);
 }
 
 .agenda-modal-footer {
@@ -506,7 +524,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--accent-hairline);
+  border-top: 1px solid var(--primary-hairline);
 }
 
 /* === LISTA VAZIA === */
@@ -528,13 +546,13 @@
 /* === SORTABLE === */
 .agenda-tarefa.sortable-ghost {
   opacity: 0.4;
-  background: var(--accent-hairline);
+  background: var(--primary-dim);
 }
 
 .agenda-tarefa.sortable-drag {
-  background: var(--bg-raised);
-  border: 1px solid var(--accent);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  background: var(--bg-surface);
+  border: 1px solid var(--primary);
+  box-shadow: var(--shadow-md);
 }
 
 /* === RESPONSIVO === */
@@ -558,10 +576,10 @@
     display: block;
     position: fixed;
     left: 0;
-    top: 60px;
+    top: 56px;
     bottom: 0;
     width: 280px;
     z-index: 100;
-    box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow-lg);
   }
 }
