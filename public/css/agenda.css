@@ -161,6 +161,10 @@
   padding: 16px 20px 8px;
 }
 
+.agenda-lista-header .spacer {
+  flex: 1;
+}
+
 .agenda-lista-header h2 {
   font-size: 1.3rem;
   color: var(--text-primary);
@@ -172,29 +176,32 @@
   color: var(--text-muted);
 }
 
-.agenda-toggle-concluidas {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 20px 12px;
-  font-size: 0.8rem;
+.agenda-toggle-btn {
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  border-radius: 3px;
   color: var(--text-muted);
-}
-
-.agenda-toggle-concluidas input[type="checkbox"] {
-  width: 14px;
-  height: 14px;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
-
-.agenda-toggle-concluidas label {
-  cursor: pointer;
+  border: 1px solid var(--accent-hairline);
   user-select: none;
+  background: none;
+  font-family: var(--font-mono);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.agenda-toggle-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.agenda-toggle-btn.ativo {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .agenda-input-wrapper {
-  padding: 8px 20px 16px;
+  padding: 12px 20px 16px;
 }
 
 .agenda-input-wrapper input {

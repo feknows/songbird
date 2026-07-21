@@ -155,8 +155,8 @@ function agendaRenderizarLista() {
 
 function agendaToggleConcluidas() {
   agendaMostrarConcluidas = !agendaMostrarConcluidas;
-  const checkbox = document.getElementById('agenda-toggle-concluidas');
-  if (checkbox) checkbox.checked = agendaMostrarConcluidas;
+  const btn = document.getElementById('agenda-toggle-concluidas');
+  if (btn) btn.classList.toggle('ativo', agendaMostrarConcluidas);
   agendaRenderizarLista();
 }
 
