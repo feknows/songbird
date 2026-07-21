@@ -172,6 +172,27 @@
   color: var(--text-muted);
 }
 
+.agenda-toggle-concluidas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 20px 12px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.agenda-toggle-concluidas input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.agenda-toggle-concluidas label {
+  cursor: pointer;
+  user-select: none;
+}
+
 .agenda-input-wrapper {
   padding: 8px 20px 16px;
 }
