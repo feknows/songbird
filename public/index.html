@@ -14,30 +14,23 @@
 <link rel="stylesheet" href="css/agenda.css">
 <link rel="stylesheet" href="css/themes.css">
 </head>
-<body class="mode-dashboard">
+<body>
 
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-ascii">╔══════════════════════════╗
-║                          ║
-║     S O N G B I R D      ║
-║     ────────────────     ║
-║    SISTEMA DE VENDAS     ║
-║                          ║
-╚══════════════════════════╝</div>
-    <h1 class="login-classic">SongBird</h1>
-    <p class="login-classic">Sistema de Vendas</p>
+    <h1>SongBird</h1>
+    <p>Sistema de Vendas</p>
     <div class="prompt">
-      <div class="label">$ login</div>
-      <input type="text" id="login-user" placeholder="admin">
+      <div class="label">Email</div>
+      <input type="text" id="login-user" placeholder="seu@email">
     </div>
     <div class="prompt">
-      <div class="label">$ senha</div>
+      <div class="label">Senha</div>
       <input type="password" id="login-pass" placeholder="senha" onkeydown="if(event.key==='Enter')fazerLogin()">
     </div>
     <div class="login-error" id="login-error" style="display:none;">Usuário ou senha inválidos.</div>
-    <button class="btn-login" id="login-btn" onclick="fazerLogin()">&gt;&gt; ENTRAR &lt;&lt;</button>
+    <button class="btn-login" id="login-btn" onclick="fazerLogin()">Entrar</button>
   </div>
 </div>
 
@@ -45,38 +38,12 @@
 <div id="app">
 <div class="app-inner">
 
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-terminal">
-        <span class="prompt">></span> songbird v<span id="sb-ver">1.2.0</span>
-      </div>
-      <div class="logo-dashboard">
-        S<span>ongBird</span>
-      </div>
-    </div>
-    <div class="sidebar-nav">
-      <button class="active" onclick="navegar('home')"><span class="nav-indicator">></span> Home</button>
-      <button onclick="navegar('vendas')"><span class="nav-indicator">></span> Vendas</button>
-      <button onclick="navegar('distribuicao')"><span class="nav-indicator">></span> Distribuição</button>
-      <button onclick="navegar('equipamentos')"><span class="nav-indicator">></span> Equipamentos</button>
-      <button onclick="navegar('tarefas')"><span class="nav-indicator">></span> Tarefas</button>
-      <button onclick="navegar('config')"><span class="nav-indicator">></span> Config</button>
-    </div>
-    <div class="sidebar-footer">
-      <span class="user" id="sidebar-user"></span>
-      <button class="mode-toggle" onclick="toggleModo()">[ >_ Terminal ]</button>
-      <span class="sb-version-label" id="sb-footer-ver"></span>
-      <button onclick="fazerLogout()">Sair</button>
-    </div>
-  </div>
-
-  <!-- BULMA TOP NAV -->
+  <!-- TOP NAV -->
   <div class="mode-bulma-nav">
     <button class="mb-hamburger" onclick="toggleHamburger()">☰</button>
     <span class="mb-logo">SongBird</span>
     <nav class="mb-nav">
-      <button class="active" data-page="home" onclick="navegar('home')">Home</button>
+      <button class="active" data-page="home" onclick="navegar('home')">Agenda</button>
       <button data-page="vendas" onclick="navegar('vendas')">Vendas</button>
       <button data-page="distribuicao" onclick="navegar('distribuicao')">Distribuição</button>
       <button data-page="equipamentos" onclick="navegar('equipamentos')">Equipamentos</button>
@@ -86,21 +53,12 @@
     <div class="mb-actions">
       <span class="mb-user" id="nav-sidebar-user"></span>
       <span class="mb-version" id="nav-sb-version"></span>
-      <button class="mode-toggle" id="mode-toggle-btn" onclick="toggleModo()">[ ◉ Classic ]</button>
       <button onclick="fazerLogout()">Sair</button>
     </div>
   </div>
 
-  <!-- BULMA BREADCRUMB -->
-  <div class="mode-bulma-breadcrumb"><span>></span> home</div>
-
-  <!-- WRAP (topbar + content) -->
-  <div class="wrap-sidebar-content">
-
-  <!-- TOPBAR (Dashboard) -->
-  <div class="topbar">
-    <div class="breadcrumb"><span>></span> home</div>
-  </div>
+  <!-- BREADCRUMB -->
+  <div class="mode-bulma-breadcrumb"><span>></span> agenda</div>
 
   <!-- CONTEÚDO -->
   <div class="main-content">

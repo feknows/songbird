@@ -93,16 +93,6 @@
 
   /* ===== MODE BLOCKS ===== */
   .mode-terminal-only { display: none; }
-  .mode-dashboard-only { display: none; }
-  body.mode-terminal .mode-terminal-only { display: block; }
-  body.mode-terminal .mode-terminal-only.hub-grid { display: grid; }
-  body.mode-dashboard .mode-dashboard-only { display: block; }
-  body.mode-dashboard .mode-dashboard-only.hub-grid { display: grid; }
-  body.mode-classic .mode-terminal-only { display: none; }
-  body.mode-classic .mode-dashboard-only { display: block; }
-  body.mode-classic .mode-dashboard-only.hub-grid { display: grid; }
-  body.mode-classic .topbar { display: none; }
-  body.mode-classic { background: #fdfcfc; color: #201d1d; }
 
   /* ===== EQUIPAMENTOS ===== */
   .equip-filters { display: flex; gap: 12px; margin-bottom: 20px; align-items: end; flex-wrap: wrap; }

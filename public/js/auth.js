@@ -3,7 +3,6 @@ async function checkSession() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return;
   const meta = session.user.user_metadata;
-  document.getElementById('sidebar-user').textContent = meta.nome;
   const navUser = document.getElementById('nav-sidebar-user');
   if (navUser) navUser.textContent = meta.nome;
   document.getElementById('login-screen').style.display = 'none';
@@ -12,7 +11,6 @@ async function checkSession() {
     document.getElementById('cfg-btn-produtos').style.display = 'block';
     document.getElementById('cfg-btn-equipamentos').style.display = 'block';
   }
-  initModo();
   agendaCarregar();
 }
 
@@ -37,7 +35,6 @@ async function fazerLogin() {
     const { data, error } = await Promise.race([loginPromise, timeoutPromise]);
     if (error) throw error;
     const meta = data.user.user_metadata;
-    document.getElementById('sidebar-user').textContent = meta.nome;
     const navUser = document.getElementById('nav-sidebar-user');
     if (navUser) navUser.textContent = meta.nome;
     document.getElementById('login-screen').style.display = 'none';
@@ -46,7 +43,6 @@ async function fazerLogin() {
       document.getElementById('cfg-btn-produtos').style.display = 'block';
       document.getElementById('cfg-btn-equipamentos').style.display = 'block';
     }
-    initModo();
   } catch (e) {
     console.error('[SongBird] Erro no login:', e);
     let msg;

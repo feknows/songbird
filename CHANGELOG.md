@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.5.0] — 2026-07-15
+
+### Removido
+- Todos os temas exceto Bulma Light (Classic, Terminal, Dark removidos)
+- Botões de toggle de tema (sidebar e nav)
+- Sidebar lateral (navegação movida para top nav Bulma)
+- Estilos `.mode-terminal`, `.mode-classic`, `.mode-dashboard`
+- Função `toggleModo()` e `initModo()`
+
+### Simplificado
+- Layout do app agora usa apenas top nav Bulma Light
+- Login simplificado (sem ASCII art, labels claros)
+- `layout.css` reduzido (sem estilos de sidebar/terminal)
+- `auth.js` limpo de refs ao sidebar removido
+
 ## [1.4.0] — 2026-07-15
 
 ### Adicionado
