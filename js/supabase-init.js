@@ -9,4 +9,4 @@ if (!window.supabase) {
   throw new Error('Supabase JS não carregou');
 }
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const SONGBIRD_VERSION = '1.5.0';
+const SONGBIRD_VERSION = '2.0.0';
