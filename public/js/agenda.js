@@ -351,8 +351,16 @@ async function agendaAdicionarRapido() {
   const titulo = input.value.trim();
   if (!titulo) return;
 
+  const originalPlaceholder = input.placeholder;
+  input.disabled = true;
+  input.placeholder = 'Adicionando...';
+
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) {
+    input.disabled = false;
+    input.placeholder = originalPlaceholder;
+    return;
+  }
 
   const novaTarefa = {
     user_id: user.id,
@@ -366,6 +374,8 @@ async function agendaAdicionarRapido() {
   };
 
   const { data, error } = await supabase.from('agenda_tarefas').insert(novaTarefa).select();
+  input.disabled = false;
+  input.placeholder = originalPlaceholder;
   if (!error && data && data[0]) {
     agendaTarefas.push(data[0]);
     input.value = '';
@@ -508,8 +518,20 @@ async function agendaCriarTarefa() {
   const titulo = document.getElementById('agenda-nova-tarefa-titulo').value.trim();
   if (!titulo) return;
 
+  const modal = document.getElementById('modal-agenda-tarefa');
+  const btnCriar = modal.querySelector('.btn-success');
+  const btnCancelar = modal.querySelector('.btn-secondary');
+  btnCriar.disabled = true;
+  btnCriar.textContent = 'Criando...';
+  btnCancelar.disabled = true;
+
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) {
+    btnCriar.disabled = false;
+    btnCriar.textContent = 'Criar';
+    btnCancelar.disabled = false;
+    return;
+  }
 
   const novaTarefa = {
     user_id: user.id,
@@ -525,7 +547,23 @@ async function agendaCriarTarefa() {
   const { data, error } = await supabase.from('agenda_tarefas').insert(novaTarefa).select();
   if (!error && data && data[0]) {
     agendaTarefas.push(data[0]);
-    document.getElementById('modal-agenda-tarefa').remove();
+    modal.remove();
     agendaRenderizar();
+  } else {
+    btnCriar.disabled = false;
+    btnCriar.textContent = 'Criar';
+    btnCancelar.disabled = false;
+  }
   }
 }
+
+// === FECHAR MODAIS COM ESC ===
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modalTarefa = document.getElementById('modal-agenda-tarefa');
+    const modalProjeto = document.getElementById('modal-agenda-projeto');
+    if (modalTarefa) modalTarefa.remove();
+    if (modalProjeto) modalProjeto.remove();
+    agendaFecharDetalhes();
+  }
+});
