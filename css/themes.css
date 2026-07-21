@@ -43,13 +43,6 @@
 }
 .sb-nav .sb-actions button:hover { border-color: var(--primary); color: var(--primary); }
 
-/* Breadcrumb */
-.sb-breadcrumb {
-  padding: 10px 24px; font-size: 0.8rem; color: var(--text-muted);
-  background: var(--bg-canvas); flex-shrink: 0;
-}
-.sb-breadcrumb span { color: var(--primary); font-weight: 600; }
-
 /* Mobile */
 @media (max-width: 768px) {
   .sb-nav { padding: 0 16px; gap: 12px; }

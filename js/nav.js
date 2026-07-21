@@ -20,15 +20,6 @@ function navegar(pagina) {
   if (pagina === 'distribuicao') { distribCarregar(); }
   if (pagina === 'equipamentos') { eqCarregar(); }
   if (pagina === 'tarefas') { tarefasCarregar(); }
-  atualizarBreadcrumb();
-}
-
-function atualizarBreadcrumb() {
-  const activePage = document.querySelector('.page.active');
-  const map = { 'page-home': 'agenda', 'page-vendas': 'vendas', 'page-distribuicao': 'distribuição', 'page-equipamentos': 'equipamentos', 'page-tarefas': 'tarefas', 'page-config': 'config' };
-  const name = map[activePage?.id] || 'agenda';
-  const bc = document.querySelector('.sb-breadcrumb');
-  if (bc) bc.innerHTML = `<span>></span> ${name}`;
 }
 
 function toggleHamburger() {
