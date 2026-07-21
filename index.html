@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/pages.css">
-<link rel="stylesheet" href="css/rotina.css">
+<link rel="stylesheet" href="css/agenda.css">
 <link rel="stylesheet" href="css/themes.css">
 </head>
 <body class="mode-dashboard">
@@ -107,62 +107,88 @@
 
     <!-- HOME -->
     <div class="page active" id="page-home">
-      <div class="rotina-header">
-        <h1><span>></span> Rotina Comercial</h1>
-        <div class="rotina-header-controls">
-          <span class="rotina-data" id="rotina-data"></span>
-          <div class="rotina-abas">
-            <button class="rotina-aba ativo" onclick="rotinaTrocarAba('hoje',this)">Hoje</button>
-            <button class="rotina-aba" onclick="rotinaTrocarAba('semana',this)">Semana</button>
+      <div class="agenda-layout">
+        <!-- SIDEBAR DA AGENDA -->
+        <div class="agenda-sidebar">
+          <button class="agenda-add-btn" onclick="agendaModalTarefaAbrir()">+ Nova tarefa</button>
+          <div class="agenda-filtros">
+            <button class="agenda-filtro active" data-filtro="hoje" onclick="agendaFiltrar('hoje',this)">
+              <span class="agenda-filtro-icon">📅</span> Hoje
+            </button>
+            <button class="agenda-filtro" data-filtro="amanha" onclick="agendaFiltrar('amanha',this)">
+              <span class="agenda-filtro-icon">📆</span> Amanhã
+            </button>
+            <button class="agenda-filtro" data-filtro="7dias" onclick="agendaFiltrar('7dias',this)">
+              <span class="agenda-filtro-icon">📊</span> Próximos 7 dias
+            </button>
+            <button class="agenda-filtro" data-filtro="todas" onclick="agendaFiltrar('todas',this)">
+              <span class="agenda-filtro-icon">📋</span> Todas
+            </button>
           </div>
+          <div class="agenda-projetos-header">
+            <span>Projetos</span>
+            <button class="agenda-projeto-add" onclick="agendaModalProjetoAbrir()">+</button>
+          </div>
+          <div class="agenda-projetos-lista" id="agenda-projetos-lista"></div>
         </div>
-      </div>
 
-      <div id="rotina-view-hoje">
-        <div class="rotina-kpis" id="rotina-kpis"></div>
-        <div class="rotina-timeline" id="rotina-timeline"></div>
-      </div>
-
-      <div id="rotina-view-semana" style="display:none;">
-        <h2 style="margin:20px 0 10px;color:var(--text-primary);">Desempenho da Semana</h2>
-        <div class="rotina-semana-grid" id="rotina-semana-grid"></div>
-        <div class="rotina-semana-resumo" id="rotina-semana-resumo"></div>
-      </div>
-
-      <div class="rotina-modal-overlay" id="modal-bloco" style="display:none;">
-        <div class="rotina-modal">
-          <div class="rotina-modal-header">
-            <h3 id="modal-bloco-titulo">Editar Bloco</h3>
-            <button class="rotina-modal-close" onclick="rotinaFecharModal('modal-bloco')">&times;</button>
+        <!-- LISTA DE TAREFAS -->
+        <div class="agenda-lista-container">
+          <div class="agenda-lista-header">
+            <h2 id="agenda-titulo-view">Hoje</h2>
+            <span class="agenda-contador" id="agenda-contador"></span>
           </div>
-          <div class="rotina-modal-body">
-            <label>Nome</label>
-            <input type="text" id="modal-bloco-nome" placeholder="Nome do bloco">
-            <label>Horario Inicio</label>
-            <input type="text" id="modal-bloco-hora-inicio" placeholder="09:00">
-            <label>Horario Fim</label>
-            <input type="text" id="modal-bloco-hora-fim" placeholder="09:20">
+          <div class="agenda-input-wrapper">
+            <input type="text" id="agenda-input-rapido" placeholder="Adicionar tarefa..." onkeydown="if(event.key==='Enter')agendaAdicionarRapido()">
           </div>
-          <div class="rotina-modal-footer">
-            <button class="btn btn-secondary" onclick="rotinaFecharModal('modal-bloco')">Cancelar</button>
-            <button class="btn btn-success" id="modal-bloco-salvar" onclick="rotinaSalvarBloco()">Salvar</button>
-          </div>
+          <div class="agenda-lista" id="agenda-lista"></div>
         </div>
-      </div>
 
-      <div class="rotina-modal-overlay" id="modal-item" style="display:none;">
-        <div class="rotina-modal rotina-modal-sm">
-          <div class="rotina-modal-header">
-            <h3>Adicionar Item</h3>
-            <button class="rotina-modal-close" onclick="rotinaFecharModal('modal-item')">&times;</button>
+        <!-- PAINEL DE DETALHES -->
+        <div class="agenda-detalhes" id="agenda-detalhes" style="display:none;">
+          <div class="agenda-detalhes-header">
+            <h3>Detalhes da tarefa</h3>
+            <button class="agenda-detalhes-close" onclick="agendaFecharDetalhes()">&times;</button>
           </div>
-          <div class="rotina-modal-body">
-            <label>Item</label>
-            <input type="text" id="modal-item-texto" placeholder="Descricao do item">
-          </div>
-          <div class="rotina-modal-footer">
-            <button class="btn btn-secondary" onclick="rotinaFecharModal('modal-item')">Cancelar</button>
-            <button class="btn btn-success" onclick="rotinaSalvarItem()">Adicionar</button>
+          <div class="agenda-detalhes-body">
+            <input type="hidden" id="agenda-detalhe-id">
+            <div class="agenda-detalhe-campo">
+              <label>Título</label>
+              <input type="text" id="agenda-detalhe-titulo" onchange="agendaSalvarDetalhe()">
+            </div>
+            <div class="agenda-detalhe-campo">
+              <label>Descrição</label>
+              <textarea id="agenda-detalhe-desc" rows="3" onchange="agendaSalvarDetalhe()"></textarea>
+            </div>
+            <div class="agenda-detalhe-campo">
+              <label>Projeto</label>
+              <select id="agenda-detalhe-projeto" onchange="agendaSalvarDetalhe()"></select>
+            </div>
+            <div class="agenda-detalhe-campo">
+              <label>Prioridade</label>
+              <select id="agenda-detalhe-prioridade" onchange="agendaSalvarDetalhe()">
+                <option value="1">🔴 Alta</option>
+                <option value="2">🟠 Média</option>
+                <option value="3">🟡 Baixa</option>
+                <option value="4">⚪ Nenhuma</option>
+              </select>
+            </div>
+            <div class="agenda-detalhe-campo">
+              <label>Data de vencimento</label>
+              <input type="date" id="agenda-detalhe-vencimento" onchange="agendaSalvarDetalhe()">
+            </div>
+            <div class="agenda-detalhe-campo">
+              <label>Recorrência</label>
+              <select id="agenda-detalhe-recorrencia" onchange="agendaSalvarDetalhe()">
+                <option value="">Nenhuma</option>
+                <option value="diaria">Diária</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensal">Mensal</option>
+              </select>
+            </div>
+            <div class="agenda-detalhe-acoes">
+              <button class="btn btn-danger btn-sm" onclick="agendaExcluirTarefa()">Excluir tarefa</button>
+            </div>
           </div>
         </div>
       </div>
@@ -693,7 +719,7 @@
 <script src="js/utils.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/nav.js"></script>
-<script src="js/rotina.js"></script>
+<script src="js/agenda.js"></script>
 <script src="js/config.js"></script>
 <script src="js/vendas.js"></script>
 <script src="js/equipamentos.js"></script>
