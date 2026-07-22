@@ -474,7 +474,7 @@ function agendaModalTarefaAbrir() {
       </div>
       <div class="agenda-modal-body">
         <div class="field">
-          <label>Título <span style="color:var(--red);">*</span></label>
+          <label>Título <span style="color:var(--danger);">*</span></label>
           <input type="text" id="agenda-nova-tarefa-titulo" placeholder="Ex: Ligar para cliente"
                  onkeydown="if(event.key==='Enter')document.getElementById('agenda-nova-tarefa-desc').focus()">
         </div>

@@ -143,7 +143,7 @@ async function carregarProdutos() {
     ).join('');
 
     const tbody = document.getElementById('d-tabela-body');
-    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--accent-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--accent-hairline);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
+    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--primary-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--primary-hairline);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
   } catch (e) { console.error('carregarProdutos erro:', e); }
 }
 
@@ -324,7 +324,7 @@ function dAddModRow() {
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
   const modOptions = modulosAlarme.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--accent-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--accent-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:var(--danger);font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);padding-left:24px;"><select class="d-mod-select styled-select" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;outline:none;" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--primary-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:var(--danger);font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
   tbody.appendChild(tr);
   tr.querySelector('.d-mod-select').focus();
 }
@@ -365,7 +365,7 @@ function dAutoCalc() {
       if (dFaixaData.valor_base > 0 && faixaPago > 0) {
         const fpct = ((dFaixaData.valor_base - faixaPago) / dFaixaData.valor_base) * 100;
         descEl.textContent = fpct.toFixed(2).replace('.', ',') + '%';
-        descEl.style.color = fpct > 0 ? 'var(--accent)' : 'var(--danger)';
+        descEl.style.color = fpct > 0 ? 'var(--primary)' : 'var(--danger)';
       } else {
         descEl.textContent = '—';
       }
@@ -390,7 +390,7 @@ function dAutoCalc() {
     if (esperado > 0 && pago > 0) {
       const pct = ((esperado - pago) / esperado) * 100;
       descEl.textContent = pct.toFixed(2).replace('.', ',') + '%';
-      descEl.style.color = pct > 0 ? 'var(--accent)' : 'var(--danger)';
+      descEl.style.color = pct > 0 ? 'var(--primary)' : 'var(--danger)';
     } else {
       descEl.textContent = '—';
     }
@@ -401,7 +401,7 @@ function dAutoCalc() {
   const perc = totalEsperado > 0 ? (dif / totalEsperado) * 100 : 0;
   dPercDesconto = perc;
   const f = v => 'R$ ' + v.toFixed(2).replace('.', ',');
-  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--accent)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
+  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--primary)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
   const linhas = [];
   linhas.push(`Faixa: ${dFaixaData.desc} — Valor base: ${f(dFaixaData.valor_base)} | Pago: ${f(document.querySelector('#d-row-faixa .d-pago') ? parseCurrency(document.querySelector('#d-row-faixa .d-pago').value) : 0)}`);
   document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
@@ -427,14 +427,7 @@ function dCalcular() {
 
 function dMudarFaixa() {
   if (!dFaixaData) { document.getElementById('d-output').textContent = 'Selecione a faixa atual primeiro.'; return; }
-  const panel = document.getElementById('d-upgrade-panel');
-  if (panel.style.display === 'none') {
-    panel.style.display = 'block';
-    document.getElementById('d-nova-faixa').value = '';
-    document.getElementById('d-upgrade-result').innerHTML = '';
-  } else {
-    panel.style.display = 'none';
-  }
+  document.getElementById('d-nova-faixa').focus();
 }
 
 function dNovaFaixaChange() {
@@ -481,13 +474,13 @@ function dNovaFaixaChange() {
   const labelAtual = faixaPago > 0 ? 'Valor atual (pago)' : 'Valor atual';
   const modLabel = (pagoVal) => pagoVal > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:var(--accent);">Resumo da Mudança</strong><br><br>
+  let html = `<div style="background:var(--bg-raised);border:1px solid var(--primary-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:var(--primary);">Resumo da Mudança</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
-    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? 'var(--accent)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
+    ${labelAtual}: ${f(valorBaseAtual)} → ${f(novaFaixa.valor_base)} <span style="color:${difBase >= 0 ? 'var(--primary)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difBase)})</span><br>`;
   if (qtdMod > 0) {
     const modValLabel = `Módulos (${qtdMod}x)`;
-    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? 'var(--accent)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
+    html += `${modValLabel}: ${f(totalModAtual)} → ${f(totalModNovo)} <span style="color:${difMod >= 0 ? 'var(--primary)' : 'var(--danger)'};font-weight:600;">(dif: ${f(difMod * qtdMod)})</span><br>`;
   }
   html += `<br><strong>${labelAtual}:</strong> ${f(totalAtual)}<br>
     <strong>Total novo:</strong> ${f(totalNovo)}<br>
@@ -562,8 +555,8 @@ function dAplicarDesconto() {
 
   const labelAtual = faixaPago > 0 ? 'pago' : 'esperado';
 
-  let html = `<div style="background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:var(--accent);">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
+  let html = `<div style="background:var(--bg-raised);border:1px solid var(--primary-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
+    <strong style="color:var(--primary);">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
     Valor ${labelAtual}: ${f(valorBaseAtual)} → cheio: ${f(novaFaixa.valor_base)} / c/ desc: ${f(novoBaseDesc)}<br>
     Diferença: ${f(difBase)} (cheio) | ${f(difBaseDesc)} (c/ desconto)<br>`;
@@ -575,7 +568,7 @@ function dAplicarDesconto() {
   html += `<br><strong>Total ${labelAtual}:</strong> ${f(totalPagoAtual)}<br>
     <strong>Total novo cheio:</strong> ${f(totalNovoCheio)}<br>
     <strong style="color:#e8e8e8;">Total novo c/ desconto: ${f(totalNovoDesc)}</strong><br>
-    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? 'var(--accent)' : 'var(--danger)'};font-weight:600;">${f(difCliente)}</span>
+    <strong>Diferença para o cliente:</strong> <span style="color:${difCliente >= 0 ? 'var(--primary)' : 'var(--danger)'};font-weight:600;">${f(difCliente)}</span>
   </div>`;
   resultDiv.innerHTML = html;
 
@@ -634,8 +627,6 @@ function dLimpar() {
   var el = document.getElementById('d-tabela-foot');
   if (el) el.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
   document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
-  var el = document.getElementById('d-upgrade-panel');
-  if (el) el.style.display = 'none';
   document.getElementById('d-nova-faixa').value = '';
   var el = document.getElementById('d-upgrade-result');
   if (el) el.innerHTML = '';
@@ -651,13 +642,13 @@ function orcamentoAddItem() {
   const div = document.createElement('div');
   div.className = 'orcamento-item';
   div.dataset.id = id;
-  div.style.cssText = 'background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;margin-bottom:12px;';
+  div.style.cssText = 'background:var(--bg-raised);border:1px solid var(--primary-hairline);padding:12px;margin-bottom:12px;';
 
   div.innerHTML = `
     <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(100px,130px);gap:8px;margin-bottom:8px;">
-      <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Selecione</option></select></div>
-      <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Carregando...</option></select></div>
-      <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.9rem;outline:none;"></div>
+      <div class="field" style="min-width:0;"><label>Produto</label><select class="o-produto" onchange="orcamentoProdutoChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Selecione</option></select></div>
+      <div class="field" style="min-width:0;"><label>Faixa</label><select class="o-faixa" onchange="orcamentoFaixaChange(this)" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.9rem;outline:none;background:var(--bg-raised);"><option value="">Carregando...</option></select></div>
+      <div class="field" style="min-width:0;"><label>Valor (R$)</label><input type="text" class="o-valor" value="0,00" oninput="formatCurrency(this);orcamentoAtualizarResumo()" style="width:100%;max-width:100%;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.9rem;outline:none;"></div>
     </div>
     <div class="modulo-grid o-modulos" style="margin-bottom:4px;"></div>
     <button class="btn btn-sm btn-danger" onclick="orcamentoRemoveItem(${id})">✕ Remover item</button>

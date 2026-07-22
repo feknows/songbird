@@ -160,14 +160,14 @@ function distribRenderizarHistorico(rows) {
       '<br><strong>Módulos:</strong> ' + modulosHtml +
       '<br><strong>Avulsos:</strong> ' + avulsosHtml;
     return '<tr class="distrib-row" onclick="distribToggleDetalhes(this)" style="cursor:pointer;" data-id="' + r.id + '">' +
-      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);">' + r.vendedor + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '—') + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);color:var(--text-muted);">' + data + '</td>' +
-      '<td style="padding:8px;border-bottom:1px solid var(--accent-hairline);font-family:monospace;font-size:0.8rem;">R$ ' + total.toFixed(2).replace('.', ',') + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);color:var(--text-muted);">#' + (rows.length - i) + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);">' + r.vendedor + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);font-family:monospace;font-size:0.8rem;">' + (r.crm_id || '—') + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);color:var(--text-muted);">' + data + '</td>' +
+      '<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);font-family:monospace;font-size:0.8rem;">R$ ' + total.toFixed(2).replace('.', ',') + '</td>' +
       '</tr>' +
       '<tr class="distrib-detalhes" style="display:none;">' +
-      '<td colspan="5" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--accent-hairline);line-height:1.6;">' +
+      '<td colspan="5" style="padding:6px 8px 10px 8px;font-size:0.8rem;color:var(--text-secondary);background:var(--bg-raised);border-bottom:1px solid var(--primary-hairline);line-height:1.6;">' +
         detalhes +
         '<div style="margin-top:8px;display:flex;gap:6px;">' +
           '<button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();distribEditar(' + r.id + ')">✎ Editar</button>' +
