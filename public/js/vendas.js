@@ -137,6 +137,11 @@ async function carregarProdutos() {
       `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo, id: f.id}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
     ).join('');
 
+    const dModulosContainer = document.getElementById('d-modulos-container');
+    dModulosContainer.innerHTML = modulosAlarme.map(m =>
+      `<div class="modulo-card" data-modulo-id="${m.id}" data-modulo-nome="${m.nome}" onclick="dModuloToggle(this)"><div class="modulo-nome"><input type="checkbox" onclick="event.stopPropagation()" onchange="dModuloToggle(this.parentElement.parentElement)"> ${m.nome}<span class="modulo-icone">${iconesModulos[m.nome] || ''}</span></div></div>`
+    ).join('');
+
     const dNovaSelect = document.getElementById('d-nova-faixa');
     dNovaSelect.innerHTML = '<option value="">Selecione a nova faixa</option>' + faixasAlarme.map(f =>
       `<option value="${encodeURIComponent(JSON.stringify({desc: f.descricao, valor_base: f.valor_base, valor_modulo: f.valor_modulo, id: f.id}))}">${f.descricao} — R$ ${f.valor_base.toFixed(2).replace('.', ',')}</option>`
@@ -313,20 +318,49 @@ function dFaixaChange() {
   dFaixaData = JSON.parse(decodeURIComponent(select.value));
   document.getElementById('d-faixa-nome').textContent = dFaixaData.desc;
   document.getElementById('d-valor-base').textContent = 'R$ ' + dFaixaData.valor_base.toFixed(2).replace('.', ',');
+  document.querySelectorAll('#d-modulos-container .modulo-card').forEach(c => {
+    c.classList.remove('selected');
+    const chk = c.querySelector('input[type="checkbox"]');
+    if (chk) chk.checked = false;
+  });
+  document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(r => r.remove());
+  dModCounter = 0;
   dAutoCalc();
 }
 
-function dAddModRow() {
+function dModuloToggle(el) {
+  const checkbox = el.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+  el.classList.toggle('selected', checkbox.checked);
+  const modId = parseInt(el.dataset.moduloId);
+  const modNome = el.dataset.moduloNome;
+  if (checkbox.checked) {
+    dAddModuloRow(modId, modNome);
+  } else {
+    const row = document.querySelector(`#d-tabela-body .d-mod-row[data-modulo-id="${modId}"]`);
+    if (row) row.remove();
+    dAutoCalc();
+  }
+}
+
+function dAddModuloRow(modId, modNome) {
   dModCounter++;
   const id = dModCounter;
   const tbody = document.getElementById('d-tabela-body');
   const tr = document.createElement('tr');
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
-  const modOptions = modulosAlarme.map(m => `<option value="${m.id}">${m.nome}</option>`).join('');
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);padding-left:24px;"><select class="d-mod-select styled-select" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--primary-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span> <span style="cursor:pointer;color:var(--danger);font-size:1rem;margin-left:4px;" onclick="dRemoveModRow(${id})" title="Remover">✕</span></td></tr>`;
+  tr.dataset.moduloId = modId;
+  const modOptions = modulosAlarme.map(m => `<option value="${m.id}" ${m.id === modId ? 'selected' : ''}>${m.nome}</option>`).join('');
+  let valorEsperado = '';
+  if (dFaixaData) {
+    const reais = Math.floor(dFaixaData.valor_modulo);
+    const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
+    valorEsperado = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+  }
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);padding-left:24px;"><select class="d-mod-select styled-select" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--primary-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" value="${valorEsperado}" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span></td></tr>`;
   tbody.appendChild(tr);
-  tr.querySelector('.d-mod-select').focus();
+  dAutoCalc();
 }
 
 function dModSelectChange(sel) {
@@ -337,12 +371,6 @@ function dModSelectChange(sel) {
     const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
     row.querySelector('.d-mod-esperado').value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
   }
-  dAutoCalc();
-}
-
-function dRemoveModRow(id) {
-  const row = document.getElementById('d-mod-row-' + id);
-  if (row) row.remove();
   dAutoCalc();
 }
 
@@ -622,6 +650,11 @@ function dLimpar() {
   var el = document.querySelector('#d-row-faixa .d-pago');
   if (el) el.value = '';
   document.querySelectorAll('.d-mod-row').forEach(r => r.remove());
+  document.querySelectorAll('#d-modulos-container .modulo-card').forEach(c => {
+    c.classList.remove('selected');
+    const chk = c.querySelector('input[type="checkbox"]');
+    if (chk) chk.checked = false;
+  });
   var el = document.getElementById('d-desc-faixa');
   if (el) el.textContent = '—';
   var el = document.getElementById('d-tabela-foot');
