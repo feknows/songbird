@@ -121,7 +121,8 @@
   font-size: 0.9rem; font-weight: 600; color: var(--text-primary);
   display: flex; align-items: center; gap: 8px;
 }
-.modulo-card .modulo-nome input[type="checkbox"] { display: none; }
+#form-alarme .modulo-card .modulo-nome input[type="checkbox"],
+#m-modulos .modulo-card .modulo-nome input[type="checkbox"] { display: none; }
 .modulo-card .modulo-icone { margin-left: auto; font-size: 1.1rem; }
 .modulo-card .modulo-valor { margin-top: 8px; display: none; }
 .modulo-card.selected .modulo-valor { display: block; }
