@@ -156,3 +156,15 @@
   transition: color 0.15s;
 }
 .modal-close:hover { color: var(--text-primary); }
+
+/* ===== GRID 2 COLUNAS (Desconto) ===== */
+.d-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+.d-grid-2 > .panel { margin-bottom: 0; }
+@media (max-width: 768px) {
+  .d-grid-2 { grid-template-columns: 1fr; }
+}

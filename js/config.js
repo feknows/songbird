@@ -82,25 +82,25 @@ async function carregarProdutosAdmin() {
       for (const p of prods) {
         const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', p.id).order('ordem').order('id');
         const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', p.id).order('id');
-        html += `<div style="background:var(--bg-raised);border:1px solid var(--accent-hairline);padding:12px;margin-bottom:12px;">`;
+        html += `<div style="background:var(--bg-raised);border:1px solid var(--primary-hairline);padding:12px;margin-bottom:12px;">`;
         html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Faixas</strong> <button class="btn btn-sm btn-success" onclick="adicionarFaixa(${p.id},'${p.tipo}')" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:var(--accent-hairline);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:var(--primary-hairline);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const f of (faixas || [])) {
           const fdata = JSON.stringify({id:f.id,descricao:f.descricao,valor_base:f.valor_base,valor_modulo:f.valor_modulo,tipo:p.tipo,produto_id:p.id});
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">${f.descricao}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--primary-hairline);">${f.descricao}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--primary-hairline);">R$ ${f.valor_base.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--primary-hairline);">R$ ${f.valor_modulo.toFixed(2).replace('.', ',')}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--primary-hairline);white-space:nowrap;"><button class="btn btn-sm btn-secondary" onclick='editarFaixa(${fdata})' style="margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarFaixa(${f.id},'${f.descricao.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Módulos</strong> <button class="btn btn-sm btn-success" onclick="adicionarModulo(${p.id})" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
-        html += `<thead><tr style="background:var(--accent-hairline);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
+        html += `<thead><tr style="background:var(--primary-hairline);"><th style="padding:4px 6px;text-align:left;">Nome</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
         for (const m of (modulos || [])) {
-          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);">${m.nome}</td>`;
-          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--accent-hairline);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
+          html += `<tr><td style="padding:4px 6px;border-bottom:1px solid var(--primary-hairline);">${m.nome}</td>`;
+          html += `<td style="padding:4px 6px;border-bottom:1px solid var(--primary-hairline);"><button class="btn btn-sm btn-danger" onclick="deletarModulo(${m.id},'${m.nome.replace(/'/g, "\\'")}')">x</button></td></tr>`;
         }
         html += `</tbody></table></div>`;
       }

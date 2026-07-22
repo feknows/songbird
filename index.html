@@ -402,18 +402,20 @@
             <button class="btn-back" onclick="voltarHub()">← Voltar</button>
             <h1>> Verificar Desconto / Mudança de Faixa</h1>
           </div>
+
+          <!-- Dados do Cliente + Actions -->
           <div class="panel">
             <h2>Dados do Cliente</h2>
             <div class="row">
               <div class="field">
                 <label>Negociado com</label>
-                <input type="text" id="d-cliente" placeholder="Ex: Felipe" style="width:100%;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
+                <input type="text" id="d-cliente" placeholder="Ex: Felipe">
               </div>
               <div class="field">
                 <label>Pagamento para</label>
                 <div style="display:flex;gap:4px;">
-                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.9rem;outline:none;">
-                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid var(--primary-hairline);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
+                  <input type="text" id="d-pagamento" placeholder="DD/MM/AAAA" oninput="formatDate(this)" style="flex:1;">
+                  <button type="button" onclick="abrirCalendario('d-pagamento')" style="background:none;border:1px solid var(--primary-hairline);border-radius:var(--radius-sm);cursor:pointer;padding:4px 8px;font-size:1rem;">📅</button>
                 </div>
               </div>
             </div>
@@ -426,52 +428,61 @@
                 </div>
               </div>
             </div>
-          </div>
-          <div class="panel">
-            <h2>Faixa de Clientes</h2>
-            <div class="field">
-              <select id="d-faixa" onchange="dFaixaChange()">
-                <option value="">Selecione uma faixa</option>
-              </select>
+            <div class="actions">
+              <button class="btn btn-success" onclick="dCalcular()">Calcular desconto</button>
+              <button class="btn btn-secondary" onclick="dLimpar()">Limpar</button>
             </div>
           </div>
-          <div class="panel" style="overflow-x:auto;">
-            <h2>Comparativo de Desconto</h2>
-            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
-              <thead>
-                <tr style="background:var(--bg-raised);">
-                  <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--primary-hairline);">Item</th>
-                  <th style="padding:10px 8px;text-align:center;border-bottom:2px solid var(--primary-hairline);width:70px;">Possui?</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--primary-hairline);width:140px;">Valor Esperado</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--primary-hairline);width:160px;">Valor Pago</th>
-                  <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--primary-hairline);width:120px;">Desconto %</th>
-                </tr>
-              </thead>
-              <tbody id="d-tabela-body"></tbody>
-              <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid var(--primary-hairline);"></tfoot>
-            </table>
-            <button class="btn btn-sm btn-secondary" onclick="dAddModRow()" style="margin-top:8px;">+ Adicionar módulo</button>
-          </div>
-          <div class="panel" id="d-upgrade-panel" style="display:none;">
-            <h2>Mudança de Faixa (Upgrade)</h2>
-            <div class="field">
-              <label>Nova faixa</label>
-              <select id="d-nova-faixa" onchange="dNovaFaixaChange()">
-                <option value="">Selecione a nova faixa</option>
-              </select>
+
+          <!-- Faixa + Mudar Faixa -->
+          <div class="d-grid-2">
+            <div class="panel">
+              <h2>Faixa de Clientes</h2>
+              <div class="field">
+                <select id="d-faixa" onchange="dFaixaChange()">
+                  <option value="">Selecione uma faixa</option>
+                </select>
+              </div>
             </div>
-            <div id="d-upgrade-result" style="margin-top:12px;"></div>
-            <button class="btn btn-sm btn-primary" onclick="dAplicarDesconto()" style="margin-top:8px;">Aplicar mesmo % de desconto na nova faixa</button>
+            <div class="panel">
+              <h2>Mudança de Faixa</h2>
+              <div class="field">
+                <label>Nova faixa</label>
+                <select id="d-nova-faixa" onchange="dNovaFaixaChange()">
+                  <option value="">Selecione a nova faixa</option>
+                </select>
+              </div>
+              <div id="d-upgrade-result" style="margin-top:12px;"></div>
+              <button class="btn btn-sm btn-secondary" style="margin-top:12px;" onclick="dAplicarDesconto()">Aplicar mesmo % de desconto</button>
+            </div>
           </div>
-          <div class="actions">
-            <button class="btn btn-success" onclick="dCalcular()">Calcular desconto</button>
-            <button class="btn btn-primary" onclick="dMudarFaixa()">Mudar faixa</button>
-            <button class="btn btn-secondary" onclick="dLimpar()">Limpar</button>
-          </div>
-          <div class="output-panel" id="d-output" style="margin-top:16px;">Preencha os dados e clique em "Calcular desconto"</div>
-          <div class="output-actions" style="margin-top:8px;">
-            <button class="btn btn-primary btn-sm" onclick="copiar('d-output','d-copiedMsg')">Copiar</button>
-            <span class="copied-msg" id="d-copiedMsg">Copiado!</span>
+
+          <!-- Comparativo + Output -->
+          <div class="d-grid-2">
+            <div class="panel" style="overflow-x:auto;">
+              <h2>Comparativo de Desconto</h2>
+              <table style="width:100%;border-collapse:collapse;font-size:0.85rem;margin-top:8px;">
+                <thead>
+                  <tr style="background:var(--bg-raised);">
+                    <th style="padding:10px 8px;text-align:left;border-bottom:2px solid var(--primary-hairline);">Item</th>
+                    <th style="padding:10px 8px;text-align:center;border-bottom:2px solid var(--primary-hairline);width:70px;">Possui?</th>
+                    <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--primary-hairline);width:140px;">Valor Esperado</th>
+                    <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--primary-hairline);width:160px;">Valor Pago</th>
+                    <th style="padding:10px 8px;text-align:right;border-bottom:2px solid var(--primary-hairline);width:120px;">Desconto %</th>
+                  </tr>
+                </thead>
+                <tbody id="d-tabela-body"></tbody>
+                <tfoot id="d-tabela-foot" style="font-weight:700;border-top:2px solid var(--primary-hairline);"></tfoot>
+              </table>
+              <button class="btn btn-sm btn-secondary" onclick="dAddModRow()" style="margin-top:8px;">+ Adicionar módulo</button>
+            </div>
+            <div>
+              <div class="output-panel" id="d-output" style="margin-top:0;">Preencha os dados e clique em "Calcular desconto"</div>
+              <div class="output-actions" style="margin-top:8px;">
+                <button class="btn btn-primary btn-sm" onclick="copiar('d-output','d-copiedMsg')">Copiar</button>
+                <span class="copied-msg" id="d-copiedMsg">Copiado!</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -846,9 +857,9 @@
     </div>
     <div class="modal-body">
       <div class="field">
-        <label>Código <span style="color:var(--red);">*</span></label>
+        <label>Código <span style="color:var(--danger);">*</span></label>
         <input type="text" id="distrib-crm-id" maxlength="6" placeholder="Ex: A1B23" style="text-transform:uppercase;width:160px;" onkeydown="if(event.key==='Enter')distribModalConfirmar()">
-        <span id="distrib-crm-error" style="color:var(--red);font-size:0.75rem;display:none;"></span>
+        <span id="distrib-crm-error" style="color:var(--danger);font-size:0.75rem;display:none;"></span>
       </div>
       <div class="field">
         <label>Faixa de contas</label>
@@ -871,7 +882,7 @@
       <div style="padding:12px 0;border-top:1px solid var(--primary-hairline);margin-top:12px;text-align:right;font-size:1rem;">
         <strong>Total: </strong><span id="distrib-modal-total">R$ 0,00</span>
       </div>
-      <span id="distrib-modal-msg" style="color:var(--red);font-size:0.85rem;display:none;"></span>
+      <span id="distrib-modal-msg" style="color:var(--danger);font-size:0.85rem;display:none;"></span>
       <div class="actions" style="margin-top:20px;">
         <button class="btn btn-secondary" onclick="distribModalFechar()">Cancelar</button>
         <button class="btn btn-success" onclick="distribModalConfirmar()">✓ Confirmar</button>

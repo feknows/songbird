@@ -286,10 +286,10 @@ function colunasRenderizarLista() {
   let html = '';
   for (let i = 0; i < colunasEditando.length; i++) {
     const c = colunasEditando[i];
-    html += `<div class="coluna-edit-row" data-index="${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--bg-raised);border:1px solid var(--accent-hairline);border-radius:4px;">
+    html += `<div class="coluna-edit-row" data-index="${i}" style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding:8px;background:var(--bg-raised);border:1px solid var(--primary-hairline);border-radius:4px;">
       <span style="color:var(--text-muted);font-size:0.8rem;cursor:move;" title="Arrastar">⠿</span>
       <input type="color" class="col-cor" value="${c.cor || '#30d158'}" onchange="colunasEditando[${i}].cor=this.value" style="width:30px;height:30px;border:none;cursor:pointer;background:none;padding:0;">
-      <input type="text" class="col-nome-input" value="${c.nome}" oninput="colunasEditando[${i}].nome=this.value" style="flex:1;padding:6px 8px;border:1px solid var(--accent-hairline);border-radius:4px;font-size:0.85rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);">
+      <input type="text" class="col-nome-input" value="${c.nome}" oninput="colunasEditando[${i}].nome=this.value" style="flex:1;padding:6px 8px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;outline:none;background:var(--bg-raised);color:var(--text-primary);font-family:var(--font-mono);">
       <button class="btn btn-sm btn-danger" onclick="colunaRemover(${i})" style="padding:2px 6px;font-size:0.7rem;">✕</button>
     </div>`;
   }
