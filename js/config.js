@@ -28,8 +28,21 @@ async function alterarMinhaSenha() {
 
 // === ADMIN PRODUTOS ===
 function criarProduto() {
+  document.getElementById('modal-produto-id').value = '';
   document.getElementById('modal-produto-nome').value = '';
   document.getElementById('modal-produto-tipo').value = '';
+  document.getElementById('modal-produto-titulo').textContent = '[+] Novo Produto';
+  document.getElementById('modal-produto-btn').textContent = 'Criar';
+  document.getElementById('modal-novo-produto').style.display = 'flex';
+  setTimeout(() => document.getElementById('modal-produto-nome').focus(), 100);
+}
+
+function editarProduto(id, nomeAtual) {
+  document.getElementById('modal-produto-id').value = id;
+  document.getElementById('modal-produto-nome').value = nomeAtual;
+  document.getElementById('modal-produto-tipo').value = '';
+  document.getElementById('modal-produto-titulo').textContent = 'Editar Produto';
+  document.getElementById('modal-produto-btn').textContent = 'Salvar';
   document.getElementById('modal-novo-produto').style.display = 'flex';
   setTimeout(() => document.getElementById('modal-produto-nome').focus(), 100);
 }
@@ -37,10 +50,16 @@ function criarProduto() {
 async function salvarNovoProduto() {
   const nome = document.getElementById('modal-produto-nome').value.trim();
   const tipo = document.getElementById('modal-produto-tipo').value.trim();
-  if (!nome || !tipo) { alert('Preencha nome e tipo.'); return; }
+  const produtoId = document.getElementById('modal-produto-id').value;
+  if (!nome) { alert('Preencha o nome do produto.'); return; }
   try {
-    const { data: maxOrdem } = await supabase.from('produtos').select('ordem').order('ordem', { ascending: false }).limit(1);
-    await supabase.from('produtos').insert({ nome, tipo, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 });
+    if (produtoId) {
+      await supabase.from('produtos').update({ nome }).eq('id', parseInt(produtoId));
+    } else {
+      if (!tipo) { alert('Preencha o tipo do produto.'); return; }
+      const { data: maxOrdem } = await supabase.from('produtos').select('ordem').order('ordem', { ascending: false }).limit(1);
+      await supabase.from('produtos').insert({ nome, tipo, ordem: (maxOrdem?.[0]?.ordem ?? -1) + 1 });
+    }
     fecharModalProduto();
     carregarProdutosAdmin();
   } catch (e) {
@@ -50,6 +69,9 @@ async function salvarNovoProduto() {
 
 function fecharModalProduto() {
   document.getElementById('modal-novo-produto').style.display = 'none';
+  document.getElementById('modal-produto-id').value = '';
+  document.getElementById('modal-produto-nome').value = '';
+  document.getElementById('modal-produto-tipo').value = '';
 }
 
 function deletarProduto(id, nome) {
@@ -83,7 +105,7 @@ async function carregarProdutosAdmin() {
         const { data: faixas } = await supabase.from('faixas').select('*').eq('produto_id', p.id).order('ordem').order('id');
         const { data: modulos } = await supabase.from('modulos').select('*').eq('produto_id', p.id).order('id');
         html += `<div style="background:var(--bg-raised);border:1px solid var(--primary-hairline);padding:12px;margin-bottom:12px;">`;
-        html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
+        html += `<strong style="font-size:1rem;">${p.nome}</strong> <button class="btn btn-sm btn-secondary" onclick="editarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;margin-right:4px;">✎</button><button class="btn btn-sm btn-danger" onclick="deletarProduto(${p.id},'${p.nome.replace(/'/g, "\\'")}')" style="float:right;">✕</button>`;
         html += `<div style="margin-top:8px;font-size:0.85rem;"><strong>Faixas</strong> <button class="btn btn-sm btn-success" onclick="adicionarFaixa(${p.id},'${p.tipo}')" style="margin-left:8px;">+</button></div>`;
         html += `<table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-top:4px;">`;
         html += `<thead><tr style="background:var(--primary-hairline);"><th style="padding:4px 6px;text-align:left;">Descrição</th><th style="padding:4px 6px;text-align:left;">Valor Base</th><th style="padding:4px 6px;text-align:left;">Valor Módulo</th><th style="padding:4px 6px;"></th></tr></thead><tbody>`;
