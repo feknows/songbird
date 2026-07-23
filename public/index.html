@@ -447,9 +447,10 @@
                 </select>
               </div>
               <div id="d-upgrade-result" style="margin-top:12px;"></div>
-              <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap;">
                 <input type="text" id="d-desc-manual" placeholder="% Desconto" oninput="formatCurrency(this)" style="width:100px;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font-body);outline:none;background:var(--bg-surface);color:var(--text-primary);">
                 <button class="btn btn-success" onclick="dAplicarDesconto()">Aplicar desconto</button>
+                <button class="btn btn-secondary" onclick="dAplicarDesconto(true)">Desconto Legado</button>
               </div>
             </div>
           </div>

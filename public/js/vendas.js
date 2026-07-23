@@ -506,13 +506,13 @@ function dNovaFaixaChange() {
   setTimeout(() => copiar('d-output', 'd-copiedMsg'), 50);
 }
 
-function dAplicarDesconto() {
+function dAplicarDesconto(legado) {
   const select = document.getElementById('d-nova-faixa');
   if (!select.value || !dFaixaData) { document.getElementById('d-output').textContent = 'Selecione a nova faixa primeiro.'; return; }
   const novaFaixa = JSON.parse(decodeURIComponent(select.value));
   const descManualInput = document.getElementById('d-desc-manual');
   const descManual = descManualInput ? parseCurrency(descManualInput.value) : 0;
-  const percDesconto = descManual > 0 ? descManual : dPercDesconto;
+  const percDesconto = legado ? dPercDesconto : (descManual > 0 ? descManual : dPercDesconto);
   if (percDesconto === 0 && dTotalPago === 0) { document.getElementById('d-output').textContent = 'Calcule o desconto atual ou insira um % manual.'; return; }
   const cliente = document.getElementById('d-cliente').value.trim() || 'Cliente';
   const f = v => (v >= 0 ? 'R$ ' : '-R$ ') + Math.abs(v).toFixed(2).replace('.', ',');
