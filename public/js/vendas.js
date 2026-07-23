@@ -345,11 +345,12 @@ function dAddModuloRow(modId, modNome) {
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
   tr.dataset.moduloId = modId;
+  tr.style.background = 'var(--bg-raised)';
   let valorEsperado = 'R$ 0,00';
   if (dFaixaData) {
     valorEsperado = 'R$ ' + dFaixaData.valor_modulo.toFixed(2).replace('.', ',');
   }
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);padding-left:24px;font-weight:600;">${modNome}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);">${valorEsperado}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" class="d-desc-pct">—</td></tr>`;
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);font-weight:600;">${modNome}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);">${valorEsperado}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" class="d-desc-pct">—</td></tr>`;
   tbody.appendChild(tr);
   dAutoCalc();
 }
