@@ -446,12 +446,11 @@
                   <option value="">Selecione a nova faixa</option>
                 </select>
               </div>
-              <div class="field">
-                <label>% Desconto manual</label>
-                <input type="text" id="d-desc-manual" placeholder="Ex: 15,00" oninput="formatCurrency(this)" style="width:100%;">
-              </div>
               <div id="d-upgrade-result" style="margin-top:12px;"></div>
-              <button class="btn btn-success" style="margin-top:12px;" onclick="dAplicarDesconto()">Aplicar desconto</button>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:12px;">
+                <input type="text" id="d-desc-manual" placeholder="% Desconto" oninput="formatCurrency(this)" style="width:100px;padding:8px 10px;border:1px solid var(--primary-hairline);border-radius:var(--radius-sm);font-size:0.9rem;font-family:var(--font-body);outline:none;background:var(--bg-surface);color:var(--text-primary);">
+                <button class="btn btn-success" onclick="dAplicarDesconto()">Aplicar desconto</button>
+              </div>
             </div>
           </div>
 
