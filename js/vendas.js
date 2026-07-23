@@ -510,7 +510,10 @@ function dAplicarDesconto() {
   const select = document.getElementById('d-nova-faixa');
   if (!select.value || !dFaixaData) { document.getElementById('d-output').textContent = 'Selecione a nova faixa primeiro.'; return; }
   const novaFaixa = JSON.parse(decodeURIComponent(select.value));
-  if (dPercDesconto === 0 && dTotalPago === 0) { document.getElementById('d-output').textContent = 'Calcule o desconto atual primeiro.'; return; }
+  const descManualInput = document.getElementById('d-desc-manual');
+  const descManual = descManualInput ? parseCurrency(descManualInput.value) : 0;
+  const percDesconto = descManual > 0 ? descManual : dPercDesconto;
+  if (percDesconto === 0 && dTotalPago === 0) { document.getElementById('d-output').textContent = 'Calcule o desconto atual ou insira um % manual.'; return; }
   const cliente = document.getElementById('d-cliente').value.trim() || 'Cliente';
   const f = v => (v >= 0 ? 'R$ ' : '-R$ ') + Math.abs(v).toFixed(2).replace('.', ',');
 
@@ -531,7 +534,7 @@ function dAplicarDesconto() {
 
   const totalPagoAtual = valorBaseAtual + totalModAtualPago;
   const totalNovoCheio = novaFaixa.valor_base + qtdMod * novaFaixa.valor_modulo;
-  const totalNovoDesc = totalNovoCheio * (1 - dPercDesconto / 100);
+  const totalNovoDesc = totalNovoCheio * (1 - percDesconto / 100);
   const difCliente = totalNovoDesc - totalPagoAtual;
 
   const difBase = novaFaixa.valor_base - valorBaseAtual;
@@ -544,15 +547,15 @@ function dAplicarDesconto() {
 
   const propBase = valorBaseAtual / (totalPagoAtual || 1);
   const propMod = totalModAtualPago > 0 ? totalModAtualPago / (totalPagoAtual || 1) : 0;
-  const novoBaseDesc = novaFaixa.valor_base * (1 - dPercDesconto / 100);
-  const novoModDesc = qtdMod > 0 ? novaFaixa.valor_modulo * (1 - dPercDesconto / 100) : 0;
+  const novoBaseDesc = novaFaixa.valor_base * (1 - percDesconto / 100);
+  const novoModDesc = qtdMod > 0 ? novaFaixa.valor_modulo * (1 - percDesconto / 100) : 0;
   const difBaseDesc = novoBaseDesc - valorBaseAtual;
   const difModDesc = novoModDesc - (totalModAtualPago > 0 ? totalModAtualPago / qtdMod : 0);
 
   const labelAtual = faixaPago > 0 ? 'pago' : 'esperado';
 
   let html = `<div style="background:var(--bg-raised);border:1px solid var(--primary-hairline);padding:12px;font-size:0.85rem;line-height:1.8;">
-    <strong style="color:var(--primary);">Comparativo com mesmo desconto (${dPercDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
+    <strong style="color:var(--primary);">Comparativo com desconto (${percDesconto.toFixed(2).replace('.', ',')}%)</strong><br><br>
     <strong>Licença:</strong> ${descAtual} → ${descNovo}<br>
     Valor ${labelAtual}: ${f(valorBaseAtual)} → cheio: ${f(novaFaixa.valor_base)} / c/ desc: ${f(novoBaseDesc)}<br>
     Diferença: ${f(difBase)} (cheio) | ${f(difBaseDesc)} (c/ desconto)<br>`;
@@ -623,6 +626,7 @@ function dLimpar() {
   if (el) el.innerHTML = '<tr><td colspan="4" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
   document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
   document.getElementById('d-nova-faixa').value = '';
+  document.getElementById('d-desc-manual').value = '';
   var el = document.getElementById('d-upgrade-result');
   if (el) el.innerHTML = '';
   dModCounter = 0;
