@@ -574,27 +574,13 @@ function dAplicarDesconto(legado) {
   const pagamento = document.getElementById('d-pagamento').value.trim();
   const testeLabel = document.querySelector('input[name="d-teste"]:checked');
 
-  let texto = `Negociado com ${cliente} — mudança para ${descNovo.toUpperCase()}\nVALORES + DIFERENÇAS:\n`;
+  let texto = `Negociado com ${cliente} a mudança para ${descNovo.toUpperCase()}\nVALORES + DIFERENÇAS:\n`;
   texto += `Mudança ${descNovo} = ${f(novaFaixa.valor_base)} (diferença = ${f(difBase)})\n`;
   modRows.forEach(row => {
     const nomeMod = row.dataset.moduloNome || 'Módulo';
-    const pago = parseCurrency(row.querySelector('.d-pago').value);
-    const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
-    const dif = novaFaixa.valor_modulo - modAtual;
-    texto += `${nomeMod} ${descNovo} = ${f(novaFaixa.valor_modulo)} (diferença = ${f(dif)})\n`;
+    texto += `Mudança ${nomeMod} = ${f(novaFaixa.valor_modulo)} (diferença = ${f(novaFaixa.valor_modulo - dFaixaData.valor_modulo)})\n`;
   });
   texto += `\nTOTAL = ${f(totalNovoCheio)} (diferença = ${f(totalNovoCheio - totalPagoAtual)})\n`;
-
-  texto += `\n--- COM MESMO DESCONTO (${dPercDesconto.toFixed(2).replace('.', ',')}%) ---\n`;
-  texto += `Mudança ${descNovo} = ${f(novoBaseDesc)} (diferença = ${f(difBaseDesc)})\n`;
-  modRows.forEach(row => {
-    const nomeMod = row.dataset.moduloNome || 'Módulo';
-    const pago = parseCurrency(row.querySelector('.d-pago').value);
-    const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
-    const dif = novoModDesc - modAtual;
-    texto += `${nomeMod} ${descNovo} = ${f(novoModDesc)} (diferença = ${f(dif)})\n`;
-  });
-  texto += `\nTOTAL = ${f(totalNovoDesc)} (diferença = ${f(difCliente)})\n`;
   if (pagamento) texto += `\nPagamento para ${pagamento}\n`;
   if (testeLabel) texto += `${testeLabel.value === 'remover' ? 'Período teste pode ser removido' : 'Período teste deve ser mantido'}\n`;
   texto += `\nObservações:\n`;
