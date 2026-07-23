@@ -148,7 +148,7 @@ async function carregarProdutos() {
     ).join('');
 
     const tbody = document.getElementById('d-tabela-body');
-    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--primary-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--primary-hairline);">—</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
+    tbody.innerHTML = `<tr id="d-row-faixa" style="background:var(--bg-raised);"><td style="padding:8px;border-bottom:1px solid var(--primary-hairline);font-weight:600;" id="d-faixa-nome">Faixa de contas</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" id="d-valor-base">R$ 0,00</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="faixa" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" class="d-desc-pct" id="d-desc-faixa">—</td></tr>`;
   } catch (e) { console.error('carregarProdutos erro:', e); }
 }
 
@@ -345,33 +345,19 @@ function dAddModuloRow(modId, modNome) {
   tr.id = 'd-mod-row-' + id;
   tr.className = 'd-mod-row';
   tr.dataset.moduloId = modId;
-  const modOptions = modulosAlarme.map(m => `<option value="${m.id}" ${m.id === modId ? 'selected' : ''}>${m.nome}</option>`).join('');
-  let valorEsperado = '';
+  let valorEsperado = 'R$ 0,00';
   if (dFaixaData) {
-    const reais = Math.floor(dFaixaData.valor_modulo);
-    const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
-    valorEsperado = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
+    valorEsperado = 'R$ ' + dFaixaData.valor_modulo.toFixed(2).replace('.', ',');
   }
-  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);padding-left:24px;"><select class="d-mod-select styled-select" onchange="dModSelectChange(this)"><option value="">Selecione...</option>${modOptions}</select></td><td style="padding:8px;text-align:center;border-bottom:1px solid var(--primary-hairline);"><input type="checkbox" checked onchange="dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-mod-esperado" placeholder="0,00" value="${valorEsperado}" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);white-space:nowrap;"><span class="d-desc-pct">—</span></td></tr>`;
+  tr.innerHTML = `<td style="padding:8px;border-bottom:1px solid var(--primary-hairline);padding-left:24px;font-weight:600;">${modNome}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);">${valorEsperado}</td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);"><input type="text" class="d-pago" data-tipo="mod" style="width:100%;padding:4px 6px;border:1px solid var(--primary-hairline);border-radius:4px;font-size:0.85rem;text-align:right;outline:none;" placeholder="0,00" oninput="formatCurrency(this);dAutoCalc()"></td><td style="padding:8px;text-align:right;border-bottom:1px solid var(--primary-hairline);" class="d-desc-pct">—</td></tr>`;
   tbody.appendChild(tr);
-  dAutoCalc();
-}
-
-function dModSelectChange(sel) {
-  const row = sel.closest('tr');
-  if (sel.value && dFaixaData) {
-    const modId = parseInt(sel.value);
-    const reais = Math.floor(dFaixaData.valor_modulo);
-    const centavos = Math.round((dFaixaData.valor_modulo - reais) * 100);
-    row.querySelector('.d-mod-esperado').value = reais.toLocaleString('pt-BR') + ',' + String(centavos).padStart(2, '0');
-  }
   dAutoCalc();
 }
 
 function dAutoCalc() {
   const foot = document.getElementById('d-tabela-foot');
   if (!dFaixaData) {
-    foot.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
+    foot.innerHTML = '<tr><td colspan="4" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
     document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
     return;
   }
@@ -395,18 +381,11 @@ function dAutoCalc() {
     }
   });
   document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
-    const chk = row.querySelector('input[type="checkbox"]');
-    const select = row.querySelector('.d-mod-select');
-    const esperadoInput = row.querySelector('.d-mod-esperado');
     const pagoInput = row.querySelector('.d-pago');
     const descEl = row.querySelector('.d-desc-pct');
-    if (!chk.checked) {
-      pagoInput.disabled = true;
-      descEl.textContent = '—';
-      return;
-    }
-    pagoInput.disabled = false;
-    const esperado = parseCurrency(esperadoInput.value);
+    const cells = row.querySelectorAll('td');
+    const esperadoText = cells[1] ? cells[1].textContent.replace('R$ ', '').trim() : '0';
+    const esperado = parseCurrency(esperadoText);
     const pago = parseCurrency(pagoInput.value);
     totalEsperado += esperado;
     if (esperado > 0 && pago > 0) {
@@ -423,14 +402,14 @@ function dAutoCalc() {
   const perc = totalEsperado > 0 ? (dif / totalEsperado) * 100 : 0;
   dPercDesconto = perc;
   const f = v => 'R$ ' + v.toFixed(2).replace('.', ',');
-  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:center;"></td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--primary)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
+  foot.innerHTML = `<tr><td style="padding:10px 8px;color:#e8e8e8;">TOTAL</td><td style="padding:10px 8px;text-align:right;">${f(totalEsperado)}</td><td style="padding:10px 8px;text-align:right;color:#e8e8e8;">${f(totalPago)}</td><td style="padding:10px 8px;text-align:right;color:${perc > 0 ? 'var(--primary)' : 'var(--danger)'};">${perc.toFixed(2).replace('.', ',')}%</td></tr>`;
   const linhas = [];
   linhas.push(`Faixa: ${dFaixaData.desc} — Valor base: ${f(dFaixaData.valor_base)} | Pago: ${f(document.querySelector('#d-row-faixa .d-pago') ? parseCurrency(document.querySelector('#d-row-faixa .d-pago').value) : 0)}`);
   document.querySelectorAll('#d-tabela-body .d-mod-row').forEach(row => {
-    const chk = row.querySelector('input[type="checkbox"]');
-    if (!chk.checked) return;
-    const nome = row.querySelector('.d-mod-select').value || 'Módulo';
-    const esperado = parseCurrency(row.querySelector('.d-mod-esperado').value);
+    const nome = row.dataset.moduloNome || 'Módulo';
+    const cells = row.querySelectorAll('td');
+    const esperadoText = cells[1] ? cells[1].textContent.replace('R$ ', '').trim() : '0';
+    const esperado = parseCurrency(esperadoText);
     const pago = parseCurrency(row.querySelector('.d-pago').value);
     linhas.push(`${nome}: Esperado ${f(esperado)} | Pago ${f(pago)}`);
   });
@@ -470,11 +449,8 @@ function dNovaFaixaChange() {
   let totalModNovo = 0;
   let qtdMod = 0;
   modRows.forEach(row => {
-    const chk = row.querySelector('input[type="checkbox"]');
-    if (!chk || !chk.checked) return;
     qtdMod++;
-    const select = row.querySelector('.d-mod-select');
-    const modId = select ? parseInt(select.value) : 0;
+    const modId = parseInt(row.dataset.moduloId) || 0;
     const pagoInput = row.querySelector('.d-pago');
     const pagoVal = pagoInput ? parseCurrency(pagoInput.value) : 0;
     const modValAtual = pagoVal > 0 ? pagoVal : dFaixaData.valor_modulo;
@@ -513,8 +489,7 @@ function dNovaFaixaChange() {
   let texto = `Negociado com ${cliente} — mudança para ${descNovo.toUpperCase()}\nVALORES + DIFERENÇAS:\n`;
   texto += `Mudança ${descNovo} = ${f(novaFaixa.valor_base)} (diferença = ${f(difBase)})\n`;
   modRows.forEach(row => {
-    if (!row.querySelector('input[type="checkbox"]')?.checked) return;
-    const nomeMod = row.querySelector('.d-mod-select').value || 'Módulo';
+    const nomeMod = row.dataset.moduloNome || 'Módulo';
     const pago = parseCurrency(row.querySelector('.d-pago').value);
     const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
     const dif = novaFaixa.valor_modulo - modAtual;
@@ -547,8 +522,6 @@ function dAplicarDesconto() {
   let qtdMod = 0;
   let totalModAtualPago = 0;
   modRows.forEach(row => {
-    const chk = row.querySelector('input[type="checkbox"]');
-    if (!chk || !chk.checked) return;
     qtdMod++;
     const pagoInput = row.querySelector('.d-pago');
     const pagoVal = pagoInput ? parseCurrency(pagoInput.value) : 0;
@@ -600,8 +573,7 @@ function dAplicarDesconto() {
   let texto = `Negociado com ${cliente} — mudança para ${descNovo.toUpperCase()}\nVALORES + DIFERENÇAS:\n`;
   texto += `Mudança ${descNovo} = ${f(novaFaixa.valor_base)} (diferença = ${f(difBase)})\n`;
   modRows.forEach(row => {
-    if (!row.querySelector('input[type="checkbox"]')?.checked) return;
-    const nomeMod = row.querySelector('.d-mod-select').value || 'Módulo';
+    const nomeMod = row.dataset.moduloNome || 'Módulo';
     const pago = parseCurrency(row.querySelector('.d-pago').value);
     const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
     const dif = novaFaixa.valor_modulo - modAtual;
@@ -612,8 +584,7 @@ function dAplicarDesconto() {
   texto += `\n--- COM MESMO DESCONTO (${dPercDesconto.toFixed(2).replace('.', ',')}%) ---\n`;
   texto += `Mudança ${descNovo} = ${f(novoBaseDesc)} (diferença = ${f(difBaseDesc)})\n`;
   modRows.forEach(row => {
-    if (!row.querySelector('input[type="checkbox"]')?.checked) return;
-    const nomeMod = row.querySelector('.d-mod-select').value || 'Módulo';
+    const nomeMod = row.dataset.moduloNome || 'Módulo';
     const pago = parseCurrency(row.querySelector('.d-pago').value);
     const modAtual = pago > 0 ? pago : dFaixaData.valor_modulo;
     const dif = novoModDesc - modAtual;
@@ -648,7 +619,7 @@ function dLimpar() {
   var el = document.getElementById('d-desc-faixa');
   if (el) el.textContent = '—';
   var el = document.getElementById('d-tabela-foot');
-  if (el) el.innerHTML = '<tr><td colspan="5" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
+  if (el) el.innerHTML = '<tr><td colspan="4" style="padding:10px 8px;text-align:center;color:#525252;">Selecione uma faixa para ver os resultados</td></tr>';
   document.getElementById('d-output').textContent = 'Preencha os dados e clique em "Calcular desconto"';
   document.getElementById('d-nova-faixa').value = '';
   var el = document.getElementById('d-upgrade-result');
